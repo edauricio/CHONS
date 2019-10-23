@@ -15,17 +15,18 @@ class ElementFactory {
     public:
 
         // Member function for adding/retrieving primitive vertex element
-        static Element* GetElement(const ElementInfo&);
-        static bool Created() { return s_created; };
+        Element* GetElement(const ElementInfo&);
+        bool Created() { return s_created; };
+        static ElementFactory* GetInstance();
 
     protected:
-        ElementFactory() = delete;
-        ~ElementFactory();
+        ElementFactory() = default;
         
     private:
-        static Element* create(const ElementInfo&);
-        static bool s_created;
-        static std::map<ElementType, 
+      static ElementFactory* s_singleInstance;
+        Element* create(const ElementInfo&);
+        bool s_created = false;
+        std::map<ElementType, 
                 std::unordered_map<size_t, Element*> > s_elements;
 };
 

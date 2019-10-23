@@ -7,6 +7,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <tuple>
 #include "ElementFactory.h"
 
 namespace CHONS {
@@ -26,21 +27,24 @@ class MeshReader {
         virtual void ReadNodes() = 0;
         virtual void ReadEdges() = 0;
         virtual void ReadElements() = 0;
-        virtual void ReadBoundaries() = 0;
-        double GetMeshVersion() { return s_mshVersion; };
-        int GetMeshFormat() { return s_mshFormat; };
+        
+        int GetMeshDim() { return s_dim; };
+        double GetMeshVersion() { return s_meshVersion; };
+        int GetMeshFormat() { return s_meshFormat; };
 
     protected:
-        virtual Section* GetSectionObj(std::ifstream&) = 0;
-        virtual size_t GetMeshDim() = 0;
+        virtual Section* GetSectionObj(std::ifstream&) { return nullptr; };
+        virtual void ReadBoundaries() = 0;
+        virtual void ReadMeshDim() {};
 
         std::string s_fName;
         std::ifstream s_meshFile;
         Section* s_sectionReader;
-        double s_mshVersion; 
-        int s_mshFormat; // bin / ascii
-        size_t s_Dim = 0;
-        //ElementFactory* s_factory; -- singleton static (global) class...
+        std::map<size_t, std::string> s_boundaryRegionNames;
+        double s_meshVersion; 
+        int s_meshFormat; // bin / ascii
+        int s_dim;
+        ElementFactory* s_factory;
 
     private:
        // std::string checkExtension(std::string);
@@ -51,13 +55,15 @@ class GmshReader : public MeshReader {
         GmshReader(const std::string&);
         virtual ~GmshReader();
 
-        virtual void ReadNodes();
-        virtual void ReadEdges();
-        virtual void ReadElements();
+        virtual void ReadNodes() override;
+        virtual void ReadEdges() override;
+        virtual void ReadElements() override;
 
     protected:
         virtual Section* GetSectionObj(std::ifstream&) override;
-        virtual size_t GetMeshDim() override;
+        virtual void ReadMeshDim() override;
+        virtual void ReadBoundaries() override;
+
 
     private:
 
@@ -71,23 +77,32 @@ class GmshReader : public MeshReader {
 class Section {
     public:
 
-        Section(std::ifstream& f) : s_iFile(f) {};
+        Section(std::ifstream& f) : s_iFile(f), s_curSectionMarkers(2) {};
 
         virtual void ReadFirst() = 0;
-        virtual void Next(std::map<int, std::vector<double>>) = 0;
-        virtual void Next(std::map<int, std::vector<double>>, int) = 0;
-        virtual Section* GoToSection(const std::string&) = 0;
-        virtual bool ReadSectionHeader() = 0;
-        virtual std::string GetName() = 0;
-        virtual size_t GetTotalSecEntities() = 0;
-        virtual size_t GetTotalEntityBlocks() = 0;
 
+        // Next for Nodes
+        virtual Section* Next(std::map<size_t, std::vector<double>>&) = 0;
+
+        // Next for Elements (tag, vector of nodes comprising it, element type)
+        virtual Section* Next(std::map<size_t, std::vector<double>>&, int&) = 0;
+
+        // Next for Boundaries (entity dimension -- curve/surface, region, name)
+        virtual Section* Next(std::tuple<size_t, size_t, std::string>&) = 0;
+
+        virtual Section* GoToSection(const std::string&) = 0;
+        virtual std::vector<int> ReadSectionHeader() = 0;
+        virtual std::string GetName() = 0;
+        // virtual size_t GetTotalSecItems() = 0;
+        // virtual size_t GetTotalEntityBlocks() = 0;
+
+        virtual ~Section();
 
     protected:
         std::ifstream& s_iFile;
-        std::vector<std::ifstream::pos_type> s_curSectionMarkers(2);
-
-        
+        std::vector<std::ifstream::pos_type> s_curSectionMarkers;
+        bool s_headerDone = false;
+        bool s_sectionDone = false;
 
 };
 
@@ -96,26 +111,27 @@ class GmshSection : public Section {
         GmshSection(std::ifstream& f) : Section(f) {};
 
         virtual void ReadFirst() = 0;
-        virtual void Next(std::map<int, std::vector<double>>) = 0;
-        virtual void Next(std::map<int, std::vector<double>>, int) = 0;
+        // Next for Nodes
+        virtual Section* Next(std::map<size_t, std::vector<double>>&) = 0;
+
+        // Next for Elements (tag, vector of nodes comprising it, element type)
+        virtual Section* Next(std::map<size_t, std::vector<double>>&, int&) = 0;
+
+        // Next for Boundaries (entity dimension -- curve/surface, region, name)
+        virtual Section* Next(std::tuple<size_t, size_t, std::string>&) = 0;
+
         virtual Section* GoToSection(const std::string&) override;
-        virtual bool ReadSectionHeader() = 0;
+        virtual std::vector<int> ReadSectionHeader() = 0;
         virtual std::string GetName() { return s_name; };
-        size_t GetTotalSecItems() { return s_numSectionItemsTotal; };
-        size_t GetTotalEntityBlocks() { return s_numEntityBlocksInSection; };
+        // size_t GetTotalSecItems() { return s_numSectionItemsTotal; };
+        // size_t GetTotalEntityBlocks() { return s_numEntityBlocksInSection; };
+
+        virtual ~GmshSection();
         
     protected:
 
 
         std::string s_name;
-        size_t s_numEntityBlocksInSection;
-        size_t s_numSectionItemsTotal;
-        size_t s_numSectionEntitiesInCurBlock;
-        size_t s_minTag;
-        size_t s_maxTag;
-        std::map<size_t, 
-                    std::vector<std::ifstream::pos_type>(2)> s_tagMarkerMap;
-        std::ifstream::pos_type s_firstEntityBlock = 0;
         std::ifstream::pos_type s_lastEntityBlockRead = 0;
 };
 
@@ -124,18 +140,46 @@ class GmshASCIISection : public GmshSection {
         GmshASCIISection(std::ifstream& f) : GmshSection(f) {} ;
 
 
-        virtual void ReadFirst();
-        virtual void Next(std::map<int, std::vector<double>>) override;
-        virtual void Next(std::map<int, std::vector<double>>, int) override;
-        virtual bool ReadSectionHeader() override;
-        virtual std::vector<double> begin();
-        virtual std::vector<double> end();
+        virtual void ReadFirst() override;
+        // Next for Nodes
+        virtual Section* Next(std::map<size_t, std::vector<double>>&) override;
+
+        // Next for Elements (tag, vector of nodes comprising it, element type)
+        virtual Section* Next(std::map<size_t, std::vector<double>>&, 
+                                int&) override;
+
+        // Next for Boundaries (entity dimension -- curve/surface, region, name)
+        virtual Section* Next(std::tuple<size_t, size_t, 
+                                std::string>&) override;
+
+        virtual std::vector<int> ReadSectionHeader() override;
+
+        virtual ~GmshASCIISection();
 
     protected:
 
 
     private:
         
+};
+
+class GmshBinarySection : public GmshSection {
+    public:
+        GmshBinarySection(std::ifstream& f) : GmshSection(f) {};
+
+        virtual void ReadFirst() override;
+        virtual Section* Next(std::map<size_t, std::vector<double>>&) override;
+
+        // Next for Elements (tag, vector of nodes comprising it, element type)
+        virtual Section* Next(std::map<size_t, std::vector<double>>&, 
+                                int&) override;
+
+        // Next for Boundaries (entity dimension -- curve/surface, region, name)
+        virtual Section* Next(std::tuple<size_t, size_t, 
+                                std::string>&) override;
+        virtual std::vector<int> ReadSectionHeader() override;
+
+        virtual ~GmshBinarySection();
 };
 
 } // end of CHONS namespace

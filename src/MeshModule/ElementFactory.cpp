@@ -3,10 +3,18 @@
 
 namespace CHONS {
 
-bool ElementFactory::s_created = false;
-std::map<ElementType, std::unordered_map<size_t, Element*> > 
-    ElementFactory::s_elements = std::map<ElementType, 
-                std::unordered_map<size_t, Element*> >();
+// bool ElementFactory::s_created = false;
+// std::map<ElementType, std::unordered_map<size_t, Element*> > 
+//     ElementFactory::s_elements = std::map<ElementType, 
+//                 std::unordered_map<size_t, Element*> >();
+ElementFactory* ElementFactory::s_singleInstance = nullptr;
+
+ElementFactory* ElementFactory::GetInstance() {
+    if (!s_singleInstance)
+        s_singleInstance = new ElementFactory();
+
+    return s_singleInstance;
+}
 
 
 Element* ElementFactory::GetElement(const ElementInfo& ein) {
