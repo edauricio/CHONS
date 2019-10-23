@@ -38,27 +38,35 @@ Element* ElementFactory::create(const ElementInfo& ein) {
     switch (ein.type) {
         case eNode:
           ele = new Node(ein);
+          break;
 
         case eLine:
           ele = new Line(ein);
+          break;
 
         case eQuad:
           ele = new Quad(ein);
+          break;
 
         case eTri:
           ele = new Tri(ein);
+          break;
 
         case eHexa:
           ele = new Hexa(ein);
+          break;
 
         case eTetra:
           ele = new Tetra(ein);
+          break;
 
         case ePrism:
           ele = new Prism(ein);
+          break;
 
         case ePyram:
           ele = new Pyram(ein);
+          break;
 
         default:
           std::cout << "Undefined element for creation.\n";
