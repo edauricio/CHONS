@@ -7,10 +7,47 @@
 #include <map>
 #include <algorithm>
 #include <cctype>
+#include <tuple>
 
 
+void Next(std::tuple<int, int, std::string>& bndRegion, std::ifstream& s_iFile) {
+    
+
+    std::vector<int> vi;
+    int tmp, cnt=0;
+    std::string name;
+    char ch;
+
+    while (s_iFile >> tmp) {
+        ++cnt;
+        vi.push_back(tmp);
+    }
+    if (vi.size() != 2) {
+        std::cerr << "2Invalid definition of Physical Boundaries.\n";
+        exit(-1);
+    }
+    s_iFile.clear();
+    s_iFile.get(ch);
+    if (ch != '\"') {
+        std::cerr << ch << "2Invalid definition of Physical Boundaries.\n";
+        exit(-1);
+    }
+    if (!(std::getline(s_iFile, name, '\"'))) {
+        std::cerr << "3Invalid definition of Physical Boundaries.\n";
+        exit(-1);
+    }
+    bndRegion = std::make_tuple(vi[0], vi[1], name);
+
+}
 
 int main() {
+
+    std::vector<std::map<int, int>*> vt{4};
+    vt[0] = new std::map<int, int>;
+    vt[0]->insert(std::make_pair(2,4));
+    std::cout << vt[0]->at(2) << ",\n";
+
+
     std::ifstream msh("../mesh/2d_quad.msh");
     if (!msh.is_open()) {
         std::cout << "How unfortunate!\n";
@@ -32,7 +69,7 @@ int main() {
                 << std::endl;
 
     std::vector<std::ifstream::pos_type> vp(2);
-    std::string sec = "Nodes";
+    std::string sec = "PhysicalNames";
 
     while (std::getline(msh, section)) {
         if (section[0] == '$') {
@@ -76,8 +113,19 @@ int main() {
     }
     for (auto e : vinfo) std::cout << e << " ";
         std::cout << std::endl;
-    if (vinfo.size() != 4) {
-        std::cout << "Invalid Nodes entity block header.\n";
-        exit(-1);
+    // if (vinfo.size() != 4) {
+    //     std::cout << "Invalid Nodes entity block header.\n";
+    //     exit(-1);
+    // }
+
+    std::tuple<int, int, std::string> tup;
+    for (int i = 0; i != vinfo.front(); ++i) {
+        Next(tup, msh);
+        std::cout << "Dim: " << std::get<0>(tup) << "\n";
+        std::cout << "Tag: " << std::get<1>(tup) << "\n";
+        std::cout << "Name: " << std::get<2>(tup) << "\n";
+        std::cout << "----\n";
     }
+
+
 }

@@ -40,7 +40,18 @@ class MeshReader {
         std::string s_fName;
         std::ifstream s_meshFile;
         Section* s_sectionReader;
-        std::map<size_t, std::string> s_boundaryRegionNames;
+
+        // Variable to map a physical boundary tag to its name, in order to be
+        // able to match and set it to the config. file (user input)
+        std::map<int, std::string> s_boundaryRegionNames;
+
+        // Vector of 4 pointers to maps, each containing the entities and
+        // the physical region which it belongs.
+        // i.e. vec[0] contains the 0-dim. entities (points tag, map_key) that 
+        // are in a physical boundary (mapped_value), vec[1] contains the 1-dim 
+        // entities (curves tags, map_key) and so on.
+        std::vector<std::map<int, int>*> s_boundaryRegionEntities;
+        
         double s_meshVersion; 
         int s_meshFormat; // bin / ascii
         int s_dim;
@@ -88,7 +99,11 @@ class Section {
         virtual Section* Next(std::map<size_t, std::vector<double>>&, int&) = 0;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
-        virtual Section* Next(std::tuple<size_t, size_t, std::string>&) = 0;
+        virtual Section* Next(std::tuple<int, int, std::string>&) = 0;
+
+        // Next for Entities/Boundaries relationship (which entity belongs to
+        // which boundary tag)
+        virtual Section* Next(std::pair<int, int>&, int) = 0;
 
         virtual Section* GoToSection(const std::string&) = 0;
         virtual std::vector<int> ReadSectionHeader() = 0;
@@ -118,7 +133,11 @@ class GmshSection : public Section {
         virtual Section* Next(std::map<size_t, std::vector<double>>&, int&) = 0;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
-        virtual Section* Next(std::tuple<size_t, size_t, std::string>&) = 0;
+        virtual Section* Next(std::tuple<int, int, std::string>&) = 0;
+
+        // Next for Entities/Boundaries relationship (which entity belongs to
+        // which boundary tag)
+        virtual Section* Next(std::pair<int, int>&, int) = 0;
 
         virtual Section* GoToSection(const std::string&) override;
         virtual std::vector<int> ReadSectionHeader() = 0;
@@ -129,6 +148,7 @@ class GmshSection : public Section {
         virtual ~GmshSection();
         
     protected:
+        void CheckNext(const std::string&);
 
 
         std::string s_name;
@@ -149,8 +169,12 @@ class GmshASCIISection : public GmshSection {
                                 int&) override;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
-        virtual Section* Next(std::tuple<size_t, size_t, 
+        virtual Section* Next(std::tuple<int, int, 
                                 std::string>&) override;
+
+        // Next for Entities/Boundaries relationship (which entity belongs to
+        // which boundary tag)
+        virtual Section* Next(std::pair<int, int>&, int) override;
 
         virtual std::vector<int> ReadSectionHeader() override;
 
@@ -175,8 +199,12 @@ class GmshBinarySection : public GmshSection {
                                 int&) override;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
-        virtual Section* Next(std::tuple<size_t, size_t, 
+        virtual Section* Next(std::tuple<int, int, 
                                 std::string>&) override;
+
+        // Next for Entities/Boundaries relationship (which entity belongs to
+        // which boundary tag)
+        virtual Section* Next(std::pair<int, int>&, int) override;
         virtual std::vector<int> ReadSectionHeader() override;
 
         virtual ~GmshBinarySection();
