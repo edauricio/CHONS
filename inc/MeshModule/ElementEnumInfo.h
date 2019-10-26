@@ -28,6 +28,7 @@ struct ElementInfo {
     ElementType type;
     size_t eleOrder;
     size_t polyOrder;
+    //int bndTag;
     std::vector<double> coords;
     std::list<Element*> prims;
 };

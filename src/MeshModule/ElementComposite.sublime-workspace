@@ -1,0 +1,542 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"Q",
+				"Q"
+			],
+			[
+				"n",
+				"n"
+			],
+			[
+				"N",
+				"N"
+			],
+			[
+				"forma",
+				"formattedResults"
+			],
+			[
+				"Scala",
+				"ScalarFlowProp"
+			],
+			[
+				"Scalar",
+				"ScalarFlowProp"
+			],
+			[
+				"derit",
+				"derivativeOrder"
+			],
+			[
+				"derivative",
+				"derivativeOrder"
+			],
+			[
+				"deriva",
+				"derivativeOrder"
+			],
+			[
+				"k",
+				"k"
+			],
+			[
+				"X",
+				"X"
+			],
+			[
+				"T",
+				"T"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"ena",
+				"Package Control: Enable Package"
+			],
+			[
+				"disab",
+				"Package Control: Disable Package"
+			],
+			[
+				"easycl",
+				"EasyClangComplete: Settings"
+			],
+			[
+				"easyc",
+				"EasyClangComplete: Open completion triggers location"
+			],
+			[
+				"addf",
+				"Add Folders To Project"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"prv",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"Install P",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: inst",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: in",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 136.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/home/eron/workspace/CHONS/src/MeshModule/MeshReader.cpp",
+		"/home/eron/workspace/CHONS/src/MeshModule/ElementFactory.cpp",
+		"/home/eron/workspace/CHONS/src/MeshModule/ElementComposite.cpp",
+		"/home/eron/workspace/CHONS/inc/MeshModule/MeshReader.h",
+		"/home/eron/workspace/CHONS/inc/MeshModule/ElementFactory.h",
+		"/home/eron/workspace/CHONS/inc/MeshModule/ElementEnumInfo.h",
+		"/home/eron/workspace/CHONS/inc/MeshModule/ElementComposite.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/EquationSystems/CompressibleFlowSystem.cpp",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/EquationSystems/NavierStokesCFE.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/EquationSystems/NavierStokesCFE.cpp",
+		"/home/eron/Nektar/library/SpatialDomains/Conditions.h",
+		"/home/eron/Nektar/library/SpatialDomains/Conditions.cpp",
+		"/home/eron/Nektar/library/SolverUtils/Diffusion/Diffusion.h",
+		"/home/eron/Nektar/library/SolverUtils/Diffusion/Diffusion.cpp",
+		"/home/eron/Nektar/library/SolverUtils/Diffusion/Diffusion3DHomogeneous1D.h",
+		"/home/eron/Nektar/library/SolverUtils/Diffusion/Diffusion3DHomogeneous1D.cpp",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/Diffusion/DiffusionLDGNS.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/Diffusion/DiffusionLDGNS.cpp",
+		"/home/eron/Nektar/library/LibUtilities/TimeIntegration/TimeIntegrationScheme.h",
+		"/home/eron/Nektar/library/LibUtilities/TimeIntegration/TimeIntegrationScheme.cpp",
+		"/home/eron/Nektar/library/LibUtilities/TimeIntegration/TimeIntegrationWrapper.h",
+		"/home/eron/Nektar/library/LibUtilities/TimeIntegration/TimeIntegrationWrapper.cpp",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/EquationSystems/CompressibleFlowSystem.h",
+		"/home/eron/Nektar/library/SolverUtils/AdvectionSystem.cpp",
+		"/home/eron/Nektar/library/SolverUtils/AdvectionSystem.h",
+		"/home/eron/Nektar/library/SolverUtils/UnsteadySystem.cpp",
+		"/home/eron/Nektar/library/SolverUtils/UnsteadySystem.h",
+		"/home/eron/Nektar/library/SolverUtils/EquationSystem.cpp",
+		"/home/eron/Nektar/library/SolverUtils/EquationSystem.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/BoundaryConditions/WallModelLES.cpp",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/BoundaryConditions/WallModelLES.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/BoundaryConditions/WallViscousBC.cpp",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/BoundaryConditions/WallViscousBC.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/CompressibleFlowSolver.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/Geo/GEntity.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/Geo/GEntity.h",
+		"/home/eron/Downloads/gmsh-4.4.1-source/Geo/GModel.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/Geo/GModel.h",
+		"/home/eron/Downloads/gmsh-4.4.1-source/Common/gmsh.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/api/gmsh.h",
+		"/home/eron/Downloads/gmsh-4.4.1-source/demos/api/faces.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/demos/api/apitest.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/api/README.txt",
+		"/home/eron/Downloads/gmsh-4.4.1-source/api/gmshc.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/demos/api/t1.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/demos/api/open.cpp",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/BoundaryConditions/CFSBndCond.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/BoundaryConditions/CFSBndCond.cpp",
+		"/home/eron/Desktop/Tensor.h",
+		"/home/eron/Nektar/library/SolverUtils/Advection/Advection3DHomogeneous1D.cpp",
+		"/home/eron/Nektar/library/LibUtilities/BasicUtils/Vmath.cpp",
+		"/home/eron/Nektar/library/LibUtilities/LinearAlgebra/blas.cpp",
+		"/home/eron/Nektar/library/SolverUtils/Diffusion/DiffusionLDG.cpp",
+		"/home/eron/Nektar/library/SolverUtils/Diffusion/DiffusionLDG.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/BoundaryConditions/WallBC.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/inc/Tensor.h",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/inc/Fem.h",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/src/galerkin.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/inc/Galerkin.h",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/src/poly.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/inc/Poly.h",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/main.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/solver/test.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/Answer/polylib.h",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/Answer/polylib.c",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/solver/Tensor.h",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/src/Poly.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/inc/Poly_bck.h",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/src/Poly_bck.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/Answer/exercise1a.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/Answer/exercise1c.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/Answer/exercise1b.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/Polylib.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/src/Poly.h",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/poly.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/Polylib.h",
+		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/config",
+		"/home/eron/workspace/c++/SolverProject/src/linearsyssolvers.cpp",
+		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/p3.cpp",
+		"/home/eron/workspace/c++/SolverProject/inc/p3Header.h",
+		"/home/eron/workspace/c++/SolverProject/src/p3src.cpp",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto3/solver/Projeto3/bw.cpp",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto3/inc/p3Header.h",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto3/solver/Projeto3/p3.cpp",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto3/src/p3src.cpp",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto3/solver/Projeto3/config",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto2/fvc.h",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto3/inc/Mesh.h",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto2/p-s.cpp",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto2/param.cfg",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto2/lss.h",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto2/aux.h",
+		"/home/eron/workspace/c++/CC-298/Projeto2/aux.h",
+		"/home/eron/workspace/c++/CC-298/Projeto2/fvc.h",
+		"/home/eron/workspace/c++/CC-298/Projeto2/param.cfg",
+		"/home/eron/workspace/c++/CC-298/Projeto2/p-s.cpp",
+		"/home/eron/workspace/c++/CC-298/Projeto2/p-s",
+		"/home/eron/workspace/c++/cc-298-project2/aux.h",
+		"/home/eron/workspace/c++/cc-298-project2/fvc.h",
+		"/home/eron/workspace/c++/SolverProject/inc/Operators.h",
+		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/test.cpp",
+		"/home/eron/workspace/c++/SolverProject/inc/LinearSysSolvers.h",
+		"/home/eron/workspace/c++/SolverProject/src/mesh.cpp",
+		"/home/eron/workspace/c++/SolverProject/inc/Mesh.h",
+		"/home/eron/workspace/c++/cc-298-project2/p-s.cpp",
+		"/home/eron/workspace/c++/SolverProject/src/linearsyssolver.cpp",
+		"/home/eron/workspace/c++/SolverProject/src/linearsyssolver\\.cpp",
+		"/home/eron/workspace/c++/SolverProject/src/numerics.cpp",
+		"/home/eron/workspace/c++/SolverProject/inc/Numerics.h",
+		"/home/eron/workspace/c++/SolverProject/src/mecflu.cpp",
+		"/home/eron/workspace/c++/SolverProject/inc/MecFlu.h",
+		"/home/eron/workspace/c++/SolverProject/inc/FlowSolver.h",
+		"/home/eron/workspace/c++/SolverProject/src/flowSolver.cpp",
+		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/aa.cpp",
+		"/home/eron/workspace/c++/SolverProject/inc/test.cpp",
+		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/flow",
+		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/numerics",
+		"/home/eron/workspace/c++/SolverProject/inc/Aux.h",
+		"/home/eron/workspace/c++/SolverProject/inc/json.hpp",
+		"/home/eron/workspace/c++/SolverProject/inc/numerics.json",
+		"/home/eron/workspace/c++/SolverProject/inc/numerics",
+		"/home/eron/workspace/c++/SolverProject/inc/Bulk.h",
+		"/home/eron/workspace/c++/cc-298-project2/operators.h",
+		"/home/eron/workspace/c++/SolverProject/solver.sublime-project",
+		"/home/eron/workspace/c++/SolverProject/mesh_gen.cpp",
+		"/home/eron/workspace/c++/SolverProject/Mesh.h",
+		"/home/eron/workspace/c++/cc-298-project2/wall_time.h",
+		"/home/eron/workspace/c++/cc-298-project2/preproc.h"
+	],
+	"find":
+	{
+		"height": 39.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"getEntities",
+			"current(",
+			"getNodes",
+			"OpenCASCADE to",
+			"getEntities",
+			"getNodes",
+			"vectorpair",
+			"getElementTypes",
+			"getElementProper",
+			"FluxVect",
+			"Diffuse",
+			"csize()",
+			"rsize()",
+			"Vector",
+			"Iterator",
+			"::iterator",
+			"Tensor",
+			"csize()",
+			"rsize()",
+			"Tensor::Tensor",
+			"Tensor::",
+			"Tensor",
+			"free()",
+			"empty()",
+			"Iterator",
+			"Tensor",
+			"Tensor&",
+			"Matrix",
+			"Vector",
+			"Matrix",
+			"Vector",
+			"Matrix",
+			"Vector",
+			"Matrix",
+			"Vector",
+			"Matrix::iterator",
+			"Tensor::iterator",
+			"Vector::iterator",
+			"::iterator",
+			"new ",
+			"\";\n",
+			"typedef",
+			"Tensor",
+			"Points",
+			"triql",
+			"JacZeros",
+			"DBL_EPSILON",
+			"jacobz(",
+			"jacobz",
+			"jacobz(",
+			"calcZeros",
+			"return",
+			"delete",
+			";\n",
+			"delete[]",
+			"2",
+			"1",
+			"a_s",
+			"gamma",
+			"sigma",
+			"max(",
+			"abs(",
+			"calcSigmaIso",
+			"Q[i][j-1]",
+			"ref",
+			"max",
+			"scientific",
+			"ofstream",
+			"endl",
+			"cout",
+			"endl",
+			"cout",
+			"vector <",
+			"vector<",
+			"max(",
+			"scientific",
+			"endl",
+			"endll",
+			"end",
+			"cout",
+			"string",
+			"ofstream",
+			"ifstream",
+			"vector<",
+			"T>",
+			"vector<T>",
+			"JMAX",
+			"IMAX",
+			"vector<",
+			"B_hat[",
+			"A_hat[",
+			"dQ_[",
+			"Q[",
+			"<P>",
+			"(2*dx)",
+			"calcEigValPlusMinus(Q[i][j][1]",
+			"std::cout",
+			"Rnon",
+			"ifst",
+			"FullLHS",
+			"T",
+			", ",
+			"T"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"size(1)",
+			"size(0)",
+			"TensorClass::Tensor<1>",
+			"TensorClass::Iterator",
+			"TensorClass::Tensor",
+			"size(1)",
+			"size(0)",
+			"Tensor",
+			"TensorClass::",
+			"Tensor::Tensor",
+			"clear()",
+			"isEmpty()",
+			"Tensor::Iterator",
+			"Tensor::Tensor",
+			"Tensor<2>&",
+			"Tensor<1>&",
+			"Tensor<1>",
+			"Tensor<2>",
+			"Tensor<1>",
+			"Tensor<2>",
+			"Tensor<1>",
+			"Tensor<2>",
+			"Tensor<1>",
+			"Tensor<2>",
+			"Iterator<double>",
+			"Tensor",
+			"std::max(",
+			"std::abs(",
+			"calcSigmaAniso",
+			"std::max",
+			"std::scientific",
+			"std::ofstream",
+			"std::endl",
+			"std::cout",
+			"std::endl",
+			"std::cout",
+			"std::vector<",
+			"std::max(",
+			"std::scientific",
+			"std::endl",
+			"endl",
+			"std::endl",
+			"std::cout",
+			"std::string",
+			"std::ofstream",
+			"std::ifstream",
+			"std::vector<",
+			"double>",
+			"vector<double>",
+			"mesh.ysize()",
+			"mesh.xsize()",
+			"std::vector<",
+			"B[",
+			"A[",
+			"dQ[",
+			"<double>",
+			"(dx*dx)",
+			"calcEigValPlusMinus(Q[i][j][2]",
+			"FullRHS"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 26.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "ElementComposite.sublime-project",
+	"replace":
+	{
+		"height": 48.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

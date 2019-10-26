@@ -28,7 +28,7 @@ class MeshReader {
         virtual void ReadEdges() = 0;
         virtual void ReadElements() = 0;
         
-        int GetMeshDim() { return s_dim; };
+        int GetMeshDim() { return s_meshDim; };
         double GetMeshVersion() { return s_meshVersion; };
         int GetMeshFormat() { return s_meshFormat; };
 
@@ -54,7 +54,7 @@ class MeshReader {
         
         double s_meshVersion; 
         int s_meshFormat; // bin / ascii
-        int s_dim;
+        int s_meshDim;
         ElementFactory* s_factory;
 
     private:
@@ -93,17 +93,19 @@ class Section {
         virtual void ReadFirst() = 0;
 
         // Next for Nodes
-        virtual Section* Next(std::map<size_t, std::vector<double>>&) = 0;
+        virtual std::vector<int> Next(std::map<size_t, 
+                                        std::vector<double>>&) = 0;
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
-        virtual Section* Next(std::map<size_t, std::vector<double>>&, int&) = 0;
+        virtual std::vector<int> Next(std::map<size_t, 
+                                    std::vector<int>>&) = 0;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
-        virtual Section* Next(std::tuple<int, int, std::string>&) = 0;
+        virtual std::vector<int> Next(std::tuple<int, int, std::string>&) = 0;
 
         // Next for Entities/Boundaries relationship (which entity belongs to
         // which boundary tag)
-        virtual Section* Next(std::pair<int, int>&, int) = 0;
+        virtual std::vector<int> Next(std::pair<int, int>&, int) = 0;
 
         virtual Section* GoToSection(const std::string&) = 0;
         virtual std::vector<int> ReadSectionHeader() = 0;
@@ -127,17 +129,19 @@ class GmshSection : public Section {
 
         virtual void ReadFirst() = 0;
         // Next for Nodes
-        virtual Section* Next(std::map<size_t, std::vector<double>>&) = 0;
+        virtual std::vector<int> Next(std::map<size_t, 
+                                        std::vector<double>>&) = 0;
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
-        virtual Section* Next(std::map<size_t, std::vector<double>>&, int&) = 0;
+        virtual std::vector<int> Next(std::map<size_t, 
+                                    std::vector<int>>&) = 0;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
-        virtual Section* Next(std::tuple<int, int, std::string>&) = 0;
+        virtual std::vector<int> Next(std::tuple<int, int, std::string>&) = 0;
 
         // Next for Entities/Boundaries relationship (which entity belongs to
         // which boundary tag)
-        virtual Section* Next(std::pair<int, int>&, int) = 0;
+        virtual std::vector<int> Next(std::pair<int, int>&, int) = 0;
 
         virtual Section* GoToSection(const std::string&) override;
         virtual std::vector<int> ReadSectionHeader() = 0;
@@ -162,19 +166,19 @@ class GmshASCIISection : public GmshSection {
 
         virtual void ReadFirst() override;
         // Next for Nodes
-        virtual Section* Next(std::map<size_t, std::vector<double>>&) override;
+        virtual std::vector<int> Next(std::map<size_t, 
+                                        std::vector<double>>&) override;
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
-        virtual Section* Next(std::map<size_t, std::vector<double>>&, 
-                                int&) override;
+        virtual std::vector<int> Next(std::map<size_t, 
+                                    std::vector<int>>&) override;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
-        virtual Section* Next(std::tuple<int, int, 
-                                std::string>&) override;
+        virtual std::vector<int> Next(std::tuple<int, int, std::string>&) override;
 
         // Next for Entities/Boundaries relationship (which entity belongs to
         // which boundary tag)
-        virtual Section* Next(std::pair<int, int>&, int) override;
+        virtual std::vector<int> Next(std::pair<int, int>&, int) override;
 
         virtual std::vector<int> ReadSectionHeader() override;
 
@@ -192,19 +196,20 @@ class GmshBinarySection : public GmshSection {
         GmshBinarySection(std::ifstream& f) : GmshSection(f) {};
 
         virtual void ReadFirst() override;
-        virtual Section* Next(std::map<size_t, std::vector<double>>&) override;
+        // Next for Nodes
+        virtual std::vector<int> Next(std::map<size_t, 
+                                        std::vector<double>>&) override;
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
-        virtual Section* Next(std::map<size_t, std::vector<double>>&, 
-                                int&) override;
+        virtual std::vector<int> Next(std::map<size_t, 
+                                    std::vector<int>>&) override;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
-        virtual Section* Next(std::tuple<int, int, 
-                                std::string>&) override;
+        virtual std::vector<int> Next(std::tuple<int, int, std::string>&) override;
 
         // Next for Entities/Boundaries relationship (which entity belongs to
         // which boundary tag)
-        virtual Section* Next(std::pair<int, int>&, int) override;
+        virtual std::vector<int> Next(std::pair<int, int>&, int) override;
         virtual std::vector<int> ReadSectionHeader() override;
 
         virtual ~GmshBinarySection();

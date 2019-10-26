@@ -42,13 +42,13 @@ void GmshReader::ReadMeshDim() {
         exit(-1);
     }
 
-    s_dim = -1;
+    s_meshDim = -1;
     for (auto& e : header) {
         if (e>0)
-            s_dim++;
+            s_meshDim++;
     }
 
-    if (s_dim < 0) {
+    if (s_meshDim < 0) {
         std::cerr << "Invalid Mesh dimension. (Check Entities section?)\n";
         exit(-1);
     }
@@ -73,7 +73,7 @@ void GmshReader::ReadBoundaries() {
     std::tuple<int, int, std::string> tbnd;
     for (int i = 0; i != header.front(); ++i) {
         s_sectionReader->Next(tbnd);
-        if (std::get<0>(tbnd) > s_dim) {
+        if (std::get<0>(tbnd) > s_meshDim) {
             std::cerr << "Invalid definition of Physical boundary entity. "
                     << "Dimension of entity is greater than mesh dimension.\n";
             exit(-1);
@@ -92,22 +92,23 @@ void GmshReader::ReadBoundaries() {
     for (int i = 0; i != header.size(); ++i) {
         if (s_boundaryRegionEntities[i]) { 
             std::cerr << "Pointer to map of entities/physical region "
-                    << "already exists?\n";
-            continue; 
+                    << "already exists in dimension " << i << " ?\n";
+            continue;
         }
-        if (header[i]) s_boundaryRegionEntities[i] = new std::map<int, int>;
         for (int j = 0; j != header[i]; ++j) {
             s_sectionReader->Next(mbndents, i);
-            if (mbndents.second > 0) 
+            if (mbndents.second > 0) {
+                if (!s_boundaryRegionEntities[i])
+                    s_boundaryRegionEntities[i] = new std::map<int, int>;
                 s_boundaryRegionEntities[i]->insert(mbndents);
+            }
         }
     }
 }
 
 // TODO: Insert boundary region awareness into Node creation
 // REMINDER: Boundary region awareness is important for elements of dimension
-// GetMeshDim-1, i.e., if mesh is 2D, only 1D+ elements is of interest. (hence,
-// edges are completely discarded in this regard).
+// GetMeshDim-1, i.e., if mesh is 2D, only 1D+ elements is of interest.
 void GmshReader::ReadNodes() {
     std::vector<int> header;
     header = s_sectionReader->GoToSection("Nodes")->ReadSectionHeader();
@@ -116,18 +117,33 @@ void GmshReader::ReadNodes() {
         exit(-1);
     }
 
+    std::vector<int> blockHeader;
     ElementInfo einfo;
+    int bTag = -1;
     einfo.type = eNode;
     std::map<size_t, std::vector<double>> tags_coords;
     // In Gmsh context, Next() means to read the next EntityBlock, outputting
     // a set of tags mapped to its node coordinates
     for (size_t i = 0; i != header.front(); i++) {
-        // TODO how to get info about entity block header? to know which entity
-        // we're talking about and to check it its part of a boundary...
-        s_sectionReader->Next(tags_coords);
+        blockHeader = s_sectionReader->Next(tags_coords);
+        // Checking for boundary entity is only meaningful for entities
+        // greater or equal to s_meshDim-1. That is, if mesh dimension is 1D,
+        // checking for a boundary node is meaningful. However, if it is a 2D
+        // mesh, an edge should be a boundary entity, not a node. Making a node
+        // a boundary entity would break the logic afterwards, since the logic
+        // to check if an element is a boundary one is to check it any of its
+        // primitives are. For example, in a Quad, if any of its primitives, 
+        // which are 1D edges, are in a boundary, then the Quad is a boundary
+        // element. Even though a Node check wouldn't be performed in this case, 
+        // marking a Node a boundary element is a waste of resources.
+        if ((s_meshDim == 1) && (s_boundaryRegionEntities[0]))
+            if (s_boundaryRegionEntities[0]->find(blockHeader[1]) !=
+                s_boundaryRegionEntities[0]->end())
+                bTag = s_boundaryRegionEntities[0]->at(blockHeader[1]);
         for (auto& me : tags_coords) {
             einfo.tag = me.first;
             einfo.coords = me.second;
+            //einfo.bndTag = bTag;
             s_factory->GetElement(einfo);
             if (!s_factory->Created()) {
                 std::cerr << "Duplicated Node tag. Double check mesh file.\n";
@@ -233,7 +249,7 @@ void GmshSection::CheckNext(const std::string& sec) {
     }
     if ((s_name != sec) || !s_curSectionMarkers[1]) {
         std::cerr << "Markers in wrong section or nonexistent."
-                  << " Use GoToSection(" << sec << ") fisrt.\n";
+                  << " Use GoToSection(\"" << sec << "\") fisrt.\n";
         exit(-1);
     }
     if ((s_iFile.tellg() < s_lastEntityBlockRead) || (s_iFile.tellg() >
@@ -268,18 +284,13 @@ std::vector<int> GmshASCIISection::ReadSectionHeader() {
 
     s_headerDone = true;
     s_sectionDone = false;
+
     return ret;
 }
 
 // Next for reading Nodes entity blocks
-Section* GmshASCIISection::Next(std::map<size_t, std::vector<double>>& tagCoords) {
-    // Check for marker (see if it's between s_firstEntityBlock and
-    // s_curSectionMarkers[1]).
-    // Check for number of arguments (must be 4 to define an entity block
-    // header)
-    // idea: write down the last entity block read (marker and number of
-    // elements in it) for a better check.
-    // etc
+std::vector<int> GmshASCIISection::Next(std::map<size_t, 
+                                        std::vector<double>>& tagCoords) {
     CheckNext("Nodes");
 
     std::vector<int> vinfo;
@@ -295,9 +306,7 @@ Section* GmshASCIISection::Next(std::map<size_t, std::vector<double>>& tagCoords
         std::cerr << "Invalid Entity Block header for reading Nodes.\n";
         exit(-1);
     }
-    // For nodes, the header contains no useful information (for the code)
-    // other than the number of nodes in the entity block. Hence, all elements
-    // from vinfo are discarded but the last one.
+    
     std::string stemp;
     double ctemp;
     tagCoords.clear();
@@ -333,28 +342,25 @@ Section* GmshASCIISection::Next(std::map<size_t, std::vector<double>>& tagCoords
         s_sectionDone = true;
     }
 
-    return this;
+    return vinfo;
 }
 
 // Next for reading Elements (tag, vector of nodes it comprises, element type)
 // entity blocks
-Section* GmshASCIISection::Next(std::map<size_t, std::vector<double>>& tagNodes,
-                                int& eleType) {
-
+std::vector<int> GmshASCIISection::Next(std::map<size_t, 
+                                        std::vector<int>>& tagNodes) {
+    
 }
 
 // Next for reading Boundaries (entity dim. -- curve/suface, region tag, name)
-Section* GmshASCIISection::Next(std::tuple<int, int, 
-                                std::string>& bndRegion) {
+std::vector<int> GmshASCIISection::Next(std::tuple<int, int, 
+                                        std::string>& bndRegion) {
     CheckNext("PhysicalNames");
 
-    // read and return line containing physical boundary info
-    // TODO
     std::vector<int> vi;
     int tmp;
     std::string name;
     char ch;
-
     while (s_iFile >> tmp) {
         vi.push_back(tmp);
     }
@@ -379,13 +385,14 @@ Section* GmshASCIISection::Next(std::tuple<int, int,
         s_curSectionMarkers[0] = s_curSectionMarkers[1] = 0;
         s_sectionDone = true;
     }
-
-    return this;
+    return std::vector<int>();
+    
 }
 
 
 // Next for reading Entities (entity tag and physical boundary tag)
-Section* GmshASCIISection::Next(std::pair<int, int>& bndEnts, int entDim) {
+std::vector<int> GmshASCIISection::Next(std::pair<int, int>& bndEnts, 
+                                        int entDim) {
     CheckNext("Entities");
 
     double dtmp;
@@ -411,10 +418,10 @@ Section* GmshASCIISection::Next(std::pair<int, int>& bndEnts, int entDim) {
                 exit(-1);
             }
             if (tvd[4])
-                bndEnts = std::make_pair(std::static_cast<int>(tvd[0]), 
-                            std::static_cast<int>(tvd[5]));
+                bndEnts = std::make_pair(static_cast<int>(tvd[0]), 
+                            static_cast<int>(tvd[5]));
             else
-                bndEnts = std::make_pair(std::static_cast<int>(tvd.front()),
+                bndEnts = std::make_pair(static_cast<int>(tvd.front()),
                                          -1);
 
             break;
@@ -425,10 +432,10 @@ Section* GmshASCIISection::Next(std::pair<int, int>& bndEnts, int entDim) {
                 exit(-1);
             }
             if (tvd[7])
-                bndEnts = std::make_pair(std::static_cast<int>(tvd[0]), 
-                            std::static_cast<int>(tvd[8]));
+                bndEnts = std::make_pair(static_cast<int>(tvd[0]), 
+                            static_cast<int>(tvd[8]));
             else
-                bndEnts = std::make_pair(std::static_cast<int>(tvd.front()),
+                bndEnts = std::make_pair(static_cast<int>(tvd.front()),
                                          -1);
             
             break;
@@ -440,10 +447,10 @@ Section* GmshASCIISection::Next(std::pair<int, int>& bndEnts, int entDim) {
                 exit(-1);
             }
             if (tvd[7])
-                bndEnts = std::make_pair(std::static_cast<int>(tvd[0]), 
-                            std::static_cast<int>(tvd[8]));
+                bndEnts = std::make_pair(static_cast<int>(tvd[0]), 
+                            static_cast<int>(tvd[8]));
             else
-                bndEnts = std::make_pair(std::static_cast<int>(tvd.front()),
+                bndEnts = std::make_pair(static_cast<int>(tvd.front()),
                                          -1);
 
             break;
@@ -454,10 +461,10 @@ Section* GmshASCIISection::Next(std::pair<int, int>& bndEnts, int entDim) {
                 exit(-1);
             }
             if (tvd[7])
-                bndEnts = std::make_pair(std::static_cast<int>(tvd[0]), 
-                            std::static_cast<int>(tvd[8]));
+                bndEnts = std::make_pair(static_cast<int>(tvd[0]), 
+                            static_cast<int>(tvd[8]));
             else
-                bndEnts = std::make_pair(std::static_cast<int>(tvd.front()),
+                bndEnts = std::make_pair(static_cast<int>(tvd.front()),
                                          -1);
 
             break;
@@ -468,7 +475,7 @@ Section* GmshASCIISection::Next(std::pair<int, int>& bndEnts, int entDim) {
             break;
     }
 
-    return this;
+    return std::vector<int>();
 }
 
 

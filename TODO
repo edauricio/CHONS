@@ -1,0 +1,21 @@
+- Create an Assert class to throw a (handling) exception and put a message to std:cerr
+  instead of checking errors with if statements and hard-coded exiting the program.
+
+- ADJACENCY:
+The MeshGraph should contain a list of Element adjacencies (check if this is really necessary)
+relating Element-to-Element and also ElementFace-to-ElementFace. In order to compute the nume-
+rical flux (e.g., to solve a Riemann problem), one element only asks MeshGraph the element
+adjacent to the face of interest. For this to happen, both the requesting element must know
+his face tag, and the MeshGraph object must have the the elements that share such face, so that
+it returns the element other than the requesting element. When it's a boundary, MeshGraph also
+have this info and return according to the set boundary condition.
+ALTERNATIVELY:
+Just make a request for each one of the element's primitives for its Sharing elements so that
+the one we're looking for is the one other than the current working element.
+Boundary data handling still needs a way to be handled in this way.
+IN ANY CASE:
+A MeshGraph object may not be a must, but it is certainly useful and probably wise to have one
+so that we concentrate every mesh-related requests in one object. For example, the driver
+will need boundary NAME info when setting the boundary conditions for every iteration. Right now,
+the only object having it is MeshReader, which will soon be destroyed (b4 the boundary cond.
+can be applied). Hence, this info must be passed along to the MeshGraph.
