@@ -7,7 +7,8 @@ namespace CHONS {
 // ---------- MeshReader Member Function Definitions --------- //
 
 MeshReader::MeshReader(const std::string& fName) : s_sectionReader(nullptr),
-                s_fName(fName), s_meshFile(fName), s_boundaryRegionEntities(4) {    
+                s_fName(fName), s_meshFile(fName), s_physicalRegionEntities(4),
+                s_nodesDone(false), s_edgesDone(false) {    
     if (!s_meshFile.is_open()) {
         std::cout << "Unable to open given mesh file.\n";
         exit(-1);
@@ -17,6 +18,7 @@ MeshReader::MeshReader(const std::string& fName) : s_sectionReader(nullptr),
         exit(-1);
     }
     ReadMeshDim();
+    ReadBoundaries();
     s_factory = ElementFactory::GetInstance();
 }
 
@@ -78,7 +80,7 @@ void GmshReader::ReadBoundaries() {
                     << "Dimension of entity is greater than mesh dimension.\n";
             exit(-1);
         }
-        s_boundaryRegionNames.emplace(std::get<1>(tbnd), std::get<2>(tbnd));
+        s_physicalRegionNames.emplace(std::get<1>(tbnd), std::get<2>(tbnd));
     }
 
     // Now reading which entities belong to which boundary region
@@ -90,7 +92,7 @@ void GmshReader::ReadBoundaries() {
 
     std::pair<int, int> mbndents;
     for (int i = 0; i != header.size(); ++i) {
-        if (s_boundaryRegionEntities[i]) { 
+        if (s_physicalRegionEntities[i]) { 
             std::cerr << "Pointer to map of entities/physical region "
                     << "already exists in dimension " << i << " ?\n";
             continue;
@@ -98,9 +100,9 @@ void GmshReader::ReadBoundaries() {
         for (int j = 0; j != header[i]; ++j) {
             s_sectionReader->Next(mbndents, i);
             if (mbndents.second > 0) {
-                if (!s_boundaryRegionEntities[i])
-                    s_boundaryRegionEntities[i] = new std::map<int, int>;
-                s_boundaryRegionEntities[i]->insert(mbndents);
+                if (!s_physicalRegionEntities[i])
+                    s_physicalRegionEntities[i] = new std::map<int, int>;
+                s_physicalRegionEntities[i]->insert(mbndents);
             }
         }
     }
@@ -119,14 +121,14 @@ void GmshReader::ReadNodes() {
 
     std::vector<int> blockHeader;
     ElementInfo einfo;
-    int bTag = -1;
+    int rTag = -1;
     einfo.type = eNode;
     std::map<size_t, std::vector<double>> tags_coords;
     // In Gmsh context, Next() means to read the next EntityBlock, outputting
-    // a set of tags mapped to its node coordinates
+    // a set of tags mapped to node coordinates
     for (size_t i = 0; i != header.front(); i++) {
         blockHeader = s_sectionReader->Next(tags_coords);
-        // Checking for boundary entity is only meaningful for entities
+        // Checking for boundary/region entity is only meaningful for entities
         // greater or equal to s_meshDim-1. That is, if mesh dimension is 1D,
         // checking for a boundary node is meaningful. However, if it is a 2D
         // mesh, an edge should be a boundary entity, not a node. Making a node
@@ -136,20 +138,110 @@ void GmshReader::ReadNodes() {
         // which are 1D edges, are in a boundary, then the Quad is a boundary
         // element. Even though a Node check wouldn't be performed in this case, 
         // marking a Node a boundary element is a waste of resources.
-        if ((s_meshDim == 1) && (s_boundaryRegionEntities[0]))
-            if (s_boundaryRegionEntities[0]->find(blockHeader[1]) !=
-                s_boundaryRegionEntities[0]->end())
-                bTag = s_boundaryRegionEntities[0]->at(blockHeader[1]);
+        if ((s_meshDim == 1) && (s_physicalRegionEntities[0]))
+            if (s_physicalRegionEntities[0]->find(blockHeader[1]) !=
+                s_physicalRegionEntities[0]->end())
+                rTag = s_physicalRegionEntities[0]->at(blockHeader[1]);
         for (auto& me : tags_coords) {
             einfo.tag = me.first;
             einfo.coords = me.second;
-            //einfo.bndTag = bTag;
             s_factory->GetElement(einfo);
             if (!s_factory->Created()) {
                 std::cerr << "Duplicated Node tag. Double check mesh file.\n";
                 exit(-1);
             }
+            // Region Tag should be handled here by GraphHandler
+            // s_graphHandler->Add(s_factory->GetElement(einfo), rTag)
+            // or something like it
+            rTag = -1; // reset rTag
         }
+    }
+    s_nodesDone = true;
+}
+
+void GmshReader::ReadEdges() {
+    if (!s_nodesDone) {
+        std::cerr << "Can't read Edges before Nodes.\n";
+        exit(-1);
+    }
+    std::vector<int> header;
+    header = s_sectionReader->GoToSection("Elements")->ReadSectionHeader();
+    if (header.size() != 4) {
+        std::cerr << "Invalid header for Elements section.\n";
+        exit(-1);
+    }
+
+    std::vector<int> blockHeader;
+    std::map<size_t, std::vector<int>> tagsAndNodes;
+    int rTag = -1;
+    ElementInfo einfo;
+    ElementInfo priminfo;
+    einfo.type = eLine;
+    priminfo.type = eNode;
+    for (int i = 0; i != header.front(); ++i) {
+        blockHeader = s_sectionReader->Next(tagsAndNodes);
+        if (blockHeader[0] == 1) {
+            // Check if the entity is a physical region
+            if ((s_meshDim == 2) && s_physicalRegionEntities[1])
+                if (s_physicalRegionEntities[1]->find(blockHeader[1])
+                    != s_physicalRegionEntities[1]->end())
+                    rTag = s_physicalRegionEntities[1]->at(blockHeader[1]);
+
+            // Read nodes and tags
+            for (auto& me : tagsAndNodes) {
+                einfo.tag = me.first;
+                //TODO for each node tag in me.second, add it to primitives list
+                for (auto it = me.second.begin(); it != me.second.end(); ++it) {
+                    priminfo.tag = *it;
+                    einfo.prims.push_back(s_factory->GetElement(priminfo));
+                    if (s_factory->Created()) {
+                        std::cerr << "Duplicated Node tag. "
+                                    << "Double check mesh file.\n";
+                        exit(-1);
+                    }
+                }
+            }
+            s_factory->GetElement(einfo);
+        }
+    }
+
+    s_edgesDone = true;
+}
+
+// Divide further into (private) Read2DElements / Read3DElements ?
+void GmshReader::ReadElements() {
+    if (!s_edgesDone) {
+        std::cerr << "Can't read Element before Edges.\n";
+        exit(-1);
+    }
+    std::vector<int> header;
+    header = s_sectionReader->GoToSection("Elements")->ReadSectionHeader();
+    if (header.size() != 4) {
+        std::cerr << "Invalid header for Elements section.\n";
+        exit(-1);
+    }
+
+    std::vector<int> blockHeader;
+    std::map<size_t, std::vector<int>> tagsAndNodes;
+    ElementInfo einfo;
+    int rTag = -1;
+    for (int i = 0; i != header.front(); ++i) {
+        blockHeader = s_sectionReader->Next(tagsAndNodes);
+        if (tagsAndNodes.empty()) continue; // 0D elements read; nothing to do
+        // 1) check if the entity is a physical region
+        if ((blockHeader[0] >= s_meshDim-1) 
+            && s_physicalRegionEntities[blockHeader[0]])
+            if (s_physicalRegionEntities[blockHeader[0]]->find(blockHeader[1])
+                != s_physicalRegionEntities[blockHeader[0]]->end())
+                rTag = s_physicalRegionEntities[blockHeader[0]]->at(
+                                                            blockHeader[1]);
+        // 2) do the magic trick to get the primitives of the element by
+        // the node tags given
+        if (blockHeader[0] == 1) { // Reading Edges
+
+        }
+        // 3) setup einfo
+        // 4) create element and add to graph
     }
 }
 
@@ -190,7 +282,7 @@ GmshReader::~GmshReader() {
     if (s_sectionReader)
         delete s_sectionReader;
 
-    for (auto& pm : s_boundaryRegionEntities)
+    for (auto& pm : s_physicalRegionEntities)
         if (pm) delete pm;
 }
 
@@ -345,11 +437,56 @@ std::vector<int> GmshASCIISection::Next(std::map<size_t,
     return vinfo;
 }
 
-// Next for reading Elements (tag, vector of nodes it comprises, element type)
-// entity blocks
+// Next for reading Elements (tag, vector of nodes it comprises) entity blocks
 std::vector<int> GmshASCIISection::Next(std::map<size_t, 
                                         std::vector<int>>& tagNodes) {
-    
+    CheckNext("Elements");
+
+    std::vector<int> vinfo;
+    char c;
+    int itmp;
+    while (s_iFile >> itmp) {
+        vinfo.push_back(itmp);
+        while (s_iFile.get(c))
+            if (c != ' ') { s_iFile.unget(); break; }
+        if (s_iFile.peek() == '\n') { s_iFile.get(c); break; }
+    }
+    if (vinfo.size() != 4) {
+        std::cerr << "Invalid Entity Block header for reading Elements.\n";
+        exit(-1);
+    }
+
+    std::string garbage;
+    tagNodes.clear();
+    for (int i = 0; i != vinfo.back(); ++i) {
+        if (vinfo.front()) {
+            // Register tag key into the map with an empty vector of nodes
+            if ((s_iFile >> itmp) && (itmp > 0))
+                tagNodes.emplace(itmp, std::vector<int>());
+            else {
+                std::cerr << "Invalid element tag in entity tagged "
+                            << vinfo[1] << ".\n";
+                exit(-1);
+            }
+            // Now run through the nodes list
+            auto& vec = tagNodes.at(itmp);
+            while (s_iFile >> itmp) {
+                vec.push_back(itmp);
+                while (s_iFile.get(c))
+                    if (c != ' ') { s_iFile.unget(); break; }
+                if (s_iFile.peek() == '\n') { s_iFile.get(c); break; }
+            }
+        } else
+            std::getline(s_iFile, garbage);
+    }
+
+    s_lastEntityBlockRead = s_iFile.tellg();
+    if (s_lastEntityBlockRead >= s_curSectionMarkers[1]) {
+        s_curSectionMarkers[0] = s_curSectionMarkers[1] = 0;
+        s_sectionDone = true;
+    }
+
+    return vinfo;
 }
 
 // Next for reading Boundaries (entity dim. -- curve/suface, region tag, name)

@@ -34,7 +34,7 @@ class MeshReader {
 
     protected:
         virtual Section* GetSectionObj(std::ifstream&) { return nullptr; };
-        virtual void ReadBoundaries() = 0;
+        virtual void ReadBoundaries() {};
         virtual void ReadMeshDim() {};
 
         std::string s_fName;
@@ -43,18 +43,19 @@ class MeshReader {
 
         // Variable to map a physical boundary tag to its name, in order to be
         // able to match and set it to the config. file (user input)
-        std::map<int, std::string> s_boundaryRegionNames;
+        std::map<int, std::string> s_physicalRegionNames;
 
         // Vector of 4 pointers to maps, each containing the entities and
         // the physical region which it belongs.
         // i.e. vec[0] contains the 0-dim. entities (points tag, map_key) that 
         // are in a physical boundary (mapped_value), vec[1] contains the 1-dim 
         // entities (curves tags, map_key) and so on.
-        std::vector<std::map<int, int>*> s_boundaryRegionEntities;
+        std::vector<std::map<int, int>*> s_physicalRegionEntities;
         
-        double s_meshVersion; 
+        double s_meshVersion;
         int s_meshFormat; // bin / ascii
         int s_meshDim;
+        bool s_nodesDone, s_edgesDone;
         ElementFactory* s_factory;
 
     private:
