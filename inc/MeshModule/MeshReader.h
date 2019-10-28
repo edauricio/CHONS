@@ -7,7 +7,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
-#include <unordered_map>
+#include <set>
 #include <tuple>
 #include "ElementFactory.h"
 
@@ -52,6 +52,19 @@ class MeshReader {
         // are in a physical boundary (mapped_value), vec[1] contains the 1-dim 
         // entities (curves tags, map_key) and so on.
         std::vector<std::map<int, int>*> s_physicalRegionEntities;
+
+        // A set containing all the nodes added to the mesh during ReadNodes().
+        // After that, each subsequent higher dimensional read erases the
+        // corresponding element nodes from this list, so the ones who persists
+        // in the list are those possible inside nodes of higher dimensional
+        // elements (faces and volumes). This is done in order to speed up
+        // the check for last nodes on the list describing 2D/3D elements, to 
+        // see if they are internal (face/volume) nodes. Otherwise, a loop would
+        // be needed for each primitive (edge) or primitive of primitive (edges
+        // of faces in 3D) checking for each of its nodes to compare with the
+        // node given in t he element definition so we can have the info about
+        // whether its a primitive node or a interior one.
+        std::set<int> s_danglingNodes;
 
         // Vector to maps of 1D and 2D elements, each containing a list with
         // the nodes that define its linear element so that a higher-dimensional
@@ -106,7 +119,6 @@ class GmshReader : public MeshReader {
         void Read2DElements();
         void Read3DElements();
 
-
 };
 
 
@@ -117,7 +129,7 @@ class Section {
 
         Section(std::ifstream& f) : s_iFile(f), s_curSectionMarkers(2) {};
 
-        virtual void ReadFirst() = 0;
+        //virtual void ReadFirst() = 0;
 
         // Next for Nodes
         virtual std::vector<int> Next(std::map<size_t, 
@@ -154,7 +166,7 @@ class GmshSection : public Section {
     public:
         GmshSection(std::ifstream& f) : Section(f) {};
 
-        virtual void ReadFirst() = 0;
+        //virtual void ReadFirst() = 0;
         // Next for Nodes
         virtual std::vector<int> Next(std::map<size_t, 
                                         std::vector<double>>&) = 0;
@@ -191,7 +203,7 @@ class GmshASCIISection : public GmshSection {
         GmshASCIISection(std::ifstream& f) : GmshSection(f) {} ;
 
 
-        virtual void ReadFirst() override;
+        //virtual void ReadFirst() override;
         // Next for Nodes
         virtual std::vector<int> Next(std::map<size_t, 
                                         std::vector<double>>&) override;
@@ -222,7 +234,7 @@ class GmshBinarySection : public GmshSection {
     public:
         GmshBinarySection(std::ifstream& f) : GmshSection(f) {};
 
-        virtual void ReadFirst() override;
+        //virtual void ReadFirst() override;
         // Next for Nodes
         virtual std::vector<int> Next(std::map<size_t, 
                                         std::vector<double>>&) override;

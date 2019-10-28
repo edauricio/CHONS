@@ -20,7 +20,7 @@ will need boundary NAME info when setting the boundary conditions for every iter
 the only object having it is MeshReader, which will soon be destroyed (b4 the boundary cond.
 can be applied). Hence, this info must be passed along to the MeshGraph.
 
-3) FACE NODES FOR 2D+ ELEMENTS
+3) FACE NODES FOR 2D+ ELEMENTS ----- DONE
 Create a "list" (std::set?) of every Node added to the mesh while reading the nodes. When
 reading Edges, every Node in an Edge should be erased from this list. The reamining nodes are
 "dangling" nodes, which can only be 2D face nodes or 3D volume nodes. Hence, when looking for
@@ -36,3 +36,4 @@ everytime an element is defined, no matter the order/type, its linear-equivalent
 defined first. If this map is not to be used, if/case statements would need to be constructed to
 check for each element type (currently, 92!!!) and then read the nodes on the line defining it
 accordingly. Looks like a bad idea, at first.
+
