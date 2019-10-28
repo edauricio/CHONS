@@ -7,6 +7,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <tuple>
 #include "ElementFactory.h"
 
@@ -51,6 +52,30 @@ class MeshReader {
         // are in a physical boundary (mapped_value), vec[1] contains the 1-dim 
         // entities (curves tags, map_key) and so on.
         std::vector<std::map<int, int>*> s_physicalRegionEntities;
+
+        // Vector to maps of 1D and 2D elements, each containing a list with
+        // the nodes that define its linear element so that a higher-dimensional
+        // element can check for its primitive quick and efficiently, given the
+        // first nodes in the mesh file
+        std::vector<std::map<std::list<int>, size_t>> s_linearElementsNodes;
+
+        // This is a vector to maps of tags and nodes defining 2D and 3D elements.
+        // It is populated by ReadEdges function while reading the 1D elements (
+        // edges). It is a cache-like vector to avoid reading the whole Elements
+        // section two (three) times for 2D (3D) meshes, which would be very costly
+        // for large meshes. Since ReadEdges reads the whole section anyways, it is
+        // wise to write down the elements read but not (yet) processed. This
+        // vector also make it easy to read all 2D elements before the 3D ones,
+        // since they will be stored in separate maps.
+        // Another approach would be to make ReadEdges skip entity blocks other
+        // than that containing 1D elements; however, since the responsibility
+        // for reading this info is on another object (Section), this approach
+        // is trickier.
+        // PAIR: 
+        // first - block header
+        // second - map from Element tag to a vector of Nodes defining it.
+        std::vector<std::map<std::vector<int>, std::map<size_t, 
+                            std::vector<int> > > > s_higherDimCache;
         
         double s_meshVersion;
         int s_meshFormat; // bin / ascii
@@ -78,7 +103,8 @@ class GmshReader : public MeshReader {
 
 
     private:
-
+        void Read2DElements();
+        void Read3DElements();
 
 
 };

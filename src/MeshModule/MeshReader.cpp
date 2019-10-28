@@ -1,4 +1,5 @@
 #include "MeshModule/MeshReader.h"
+#include "MeshModule/GmshElements.h"
 #include <iostream>
 #include <sstream>
 
@@ -18,6 +19,11 @@ MeshReader::MeshReader(const std::string& fName) : s_sectionReader(nullptr),
         exit(-1);
     }
     ReadMeshDim();
+    for (int i = 0; i != s_meshDim-1; ++i) {
+        s_linearElementsNodes.push_back(std::map<std::list<int>, size_t>());
+        s_higherDimCache.push_back(std::map<std::vector<int>, 
+                                    std::map<size_t, std::vector<int>>>());
+    }
     ReadBoundaries();
     s_factory = ElementFactory::GetInstance();
 }
@@ -108,9 +114,6 @@ void GmshReader::ReadBoundaries() {
     }
 }
 
-// TODO: Insert boundary region awareness into Node creation
-// REMINDER: Boundary region awareness is important for elements of dimension
-// GetMeshDim-1, i.e., if mesh is 2D, only 1D+ elements is of interest.
 void GmshReader::ReadNodes() {
     std::vector<int> header;
     header = s_sectionReader->GoToSection("Nodes")->ReadSectionHeader();
@@ -121,12 +124,13 @@ void GmshReader::ReadNodes() {
 
     std::vector<int> blockHeader;
     ElementInfo einfo;
-    int rTag = -1;
+    int rTag;
     einfo.type = eNode;
     std::map<size_t, std::vector<double>> tags_coords;
     // In Gmsh context, Next() means to read the next EntityBlock, outputting
     // a set of tags mapped to node coordinates
     for (size_t i = 0; i != header.front(); i++) {
+        rTag = -1; // reset rTag
         blockHeader = s_sectionReader->Next(tags_coords);
         // Checking for boundary/region entity is only meaningful for entities
         // greater or equal to s_meshDim-1. That is, if mesh dimension is 1D,
@@ -153,7 +157,6 @@ void GmshReader::ReadNodes() {
             // Region Tag should be handled here by GraphHandler
             // s_graphHandler->Add(s_factory->GetElement(einfo), rTag)
             // or something like it
-            rTag = -1; // reset rTag
         }
     }
     s_nodesDone = true;
@@ -173,14 +176,19 @@ void GmshReader::ReadEdges() {
 
     std::vector<int> blockHeader;
     std::map<size_t, std::vector<int>> tagsAndNodes;
-    int rTag = -1;
+    int rTag;
     ElementInfo einfo;
     ElementInfo priminfo;
     einfo.type = eLine;
     priminfo.type = eNode;
     for (int i = 0; i != header.front(); ++i) {
+        rTag = -1; // reset rTag
         blockHeader = s_sectionReader->Next(tagsAndNodes);
-        if (blockHeader[0] == 1) {
+        if (blockHeader[0] == 2) {
+            s_higherDimCache[0].emplace(blockHeader, tagsAndNodes);
+        } else if (blockHeader[0] == 3) {
+            s_higherDimCache[1].emplace(blockHeader, tagsAndNodes);
+        } else if (blockHeader[0] == 1) {
             // Check if the entity is a physical region
             if ((s_meshDim == 2) && s_physicalRegionEntities[1])
                 if (s_physicalRegionEntities[1]->find(blockHeader[1])
@@ -188,20 +196,29 @@ void GmshReader::ReadEdges() {
                     rTag = s_physicalRegionEntities[1]->at(blockHeader[1]);
 
             // Read nodes and tags
+            // Add nodes for linear Edge into associated map for later retrieval
             for (auto& me : tagsAndNodes) {
                 einfo.tag = me.first;
-                //TODO for each node tag in me.second, add it to primitives list
                 for (auto it = me.second.begin(); it != me.second.end(); ++it) {
                     priminfo.tag = *it;
                     einfo.prims.push_back(s_factory->GetElement(priminfo));
                     if (s_factory->Created()) {
-                        std::cerr << "Duplicated Node tag. "
+                        std::cerr << "Wrong node list for Edge creation. "
                                     << "Double check mesh file.\n";
                         exit(-1);
                     }
                 }
+                s_factory->GetElement(einfo);
+                if (!s_factory->Created()) {
+                    std::cerr << "Duplicated Edge tag. "
+                            << "Double check mesh file.\n";
+                    exit(-1);
+                }
+                if (!s_linearElementsNodes.empty()) {
+                    s_linearElementsNodes[0].emplace(std::list<int>{
+                        me.second[0], me.second[1]}, me.first);
+                }
             }
-            s_factory->GetElement(einfo);
         }
     }
 
@@ -214,34 +231,138 @@ void GmshReader::ReadElements() {
         std::cerr << "Can't read Element before Edges.\n";
         exit(-1);
     }
-    std::vector<int> header;
-    header = s_sectionReader->GoToSection("Elements")->ReadSectionHeader();
-    if (header.size() != 4) {
-        std::cerr << "Invalid header for Elements section.\n";
-        exit(-1);
-    }
+    if (s_meshDim < 2) return; // should this check be here?
+                            // maybe add a ReadMesh() interface for MeshReader
+                            // so that it checks meshDim and call accordingly?
+    
+    // Since Edges have been read already, all we need to do is read the cached
+    // information for 2D and 3D elements
 
-    std::vector<int> blockHeader;
-    std::map<size_t, std::vector<int>> tagsAndNodes;
+    Read2DElements();
+    if (s_meshDim == 3) Read3DElements();
+
+    
+}
+
+void GmshReader::Read2DElements() {
     ElementInfo einfo;
-    int rTag = -1;
-    for (int i = 0; i != header.front(); ++i) {
-        blockHeader = s_sectionReader->Next(tagsAndNodes);
-        if (tagsAndNodes.empty()) continue; // 0D elements read; nothing to do
-        // 1) check if the entity is a physical region
-        if ((blockHeader[0] >= s_meshDim-1) 
-            && s_physicalRegionEntities[blockHeader[0]])
-            if (s_physicalRegionEntities[blockHeader[0]]->find(blockHeader[1])
-                != s_physicalRegionEntities[blockHeader[0]]->end())
-                rTag = s_physicalRegionEntities[blockHeader[0]]->at(
-                                                            blockHeader[1]);
-        // 2) do the magic trick to get the primitives of the element by
-        // the node tags given
-        if (blockHeader[0] == 1) { // Reading Edges
+    ElementInfo priminfo;
+    int numEdges;
+    priminfo.type = eLine;
+    int rTag;
+    // for each cached 2D entity block
+    for (auto blkHeader_TagsAndNodes = s_higherDimCache[0].begin(); 
+            blkHeader_TagsAndNodes != s_higherDimCache[0].end(); 
+            ++blkHeader_TagsAndNodes) { 
+        // Check if entity is a physical region
+        //HERE
+        
+        einfo.type = GmshElementsMapping[
+                            blkHeader_TagsAndNodes->first[2]].first;
+        einfo.eleOrder = GmshElementsMapping[
+                            blkHeader_TagsAndNodes->first[2]].second;
+        switch (einfo.type) {
+            case eQuad:
+                numEdges = 4;
+                break;
 
+            case eTri:
+                numEdges = 3;
+                break;
+
+            default:
+                std::cerr << "Cached non-2D element in place of 2D elements.\n";
+                exit(-1);
         }
-        // 3) setup einfo
-        // 4) create element and add to graph
+        // Run through the nodes list to retrive the primitive Edges that 
+        // contain those nodes.
+        // Also, add 2D linear elements to the list of linear elements so that
+        // 3D elements can find its primitives easily.
+        for (auto tagsAndNodes = blkHeader_TagsAndNodes->second.begin(); 
+                tagsAndNodes != blkHeader_TagsAndNodes->second.end(); 
+                ++tagsAndNodes) {
+            einfo.tag = tagsAndNodes->first;
+            for (int i = 0; i != numEdges; ++i) {
+                auto prim_tag = s_linearElementsNodes[0].find(
+                    std::list<int>{tagsAndNodes->second[i%numEdges],
+                        tagsAndNodes->second[(i+1)%numEdges]});
+                if (prim_tag == s_linearElementsNodes[0].end()) {
+                    std::cerr << "Can't find Edge primitive of 2D element.\n";
+                    exit(-1);
+                }
+                priminfo.tag = prim_tag->second;
+                einfo.prims.push_back(s_factory->GetElement(priminfo));
+                if (s_factory->Created()) {
+                    std::cerr << "Invalid primitive Edge for 2D element "
+                                << "creation?\n";
+                    exit(-1);
+                }
+            }
+            // Now check for face nodes (higher order elements)
+            priminfo.type = eNode;
+            std::list<Element*> edgeNodesList;
+            bool newPrim = true;
+            for (auto lastNodes = tagsAndNodes->second.rbegin();
+                    lastNodes != tagsAndNodes->second.rend();
+                    ++lastNodes) {
+
+                for (auto& edgePrim : einfo.prims) {
+                    edgeNodesList = (edgePrim->GetPrimitives()).at(eNode);
+                    for (auto& nodeInEdge : edgeNodesList) {
+                        if (nodeInEdge->GetTag() == *lastNodes) {
+                            newPrim = false;
+                            break;
+                        }
+                    }
+                    if (!newPrim) break;
+                }
+                if (!newPrim) break;
+                    
+                priminfo.tag = *lastNodes;
+                einfo.prims.push_back(s_factory->GetElement(priminfo));
+                if (s_factory->Created()) {
+                    std::cerr << "Invalid primitive Face node for 2D "
+                                << "element.\n";
+                    exit(-1);
+                }
+            }
+
+            // Check primitive info and add element to linear elements map
+            switch (einfo.type) {
+                case eQuad:
+                    if (einfo.prims.size() < 4) {
+                        std::cerr << "Invalid number of Edges to create Quad.\n";
+                        exit(-1);
+                    }
+                    s_factory->GetElement(einfo);
+                    if (s_linearElementsNodes.size() > 1) { // add element to 
+                    // linear nodes->element map.
+                        s_linearElementsNodes[1].emplace(std::list<int>{
+                            tagsAndNodes->second[0], tagsAndNodes->second[1],
+                            tagsAndNodes->second[2], tagsAndNodes->second[3]},
+                            tagsAndNodes->first);
+                    }
+                    break;
+
+                case eTri:
+                    if (einfo.prims.size() < 3) {
+                        std::cerr << "Invalid number of Edges to create Tri.\n";
+                        exit(-1);
+                    }
+                    s_factory->GetElement(einfo);
+                    if (s_linearElementsNodes.size() > 1) { // add element to 
+                    // linear nodes->element map.
+                        s_linearElementsNodes[1].emplace(std::list<int>{
+                            tagsAndNodes->second[0], tagsAndNodes->second[1],
+                            tagsAndNodes->second[2]}, tagsAndNodes->first);
+                    }
+                    break;
+
+                default:
+                std::cerr << "Unknown 2D element type to be created.\n";
+                exit(-1);
+            }
+        }
     }
 }
 

@@ -1,7 +1,7 @@
-- Create an Assert class to throw a (handling) exception and put a message to std:cerr
+1) Create an Assert class to throw a (handling) exception and put a message to std:cerr
   instead of checking errors with if statements and hard-coded exiting the program.
 
-- ADJACENCY:
+2) ADJACENCY:
 The MeshGraph should contain a list of Element adjacencies (check if this is really necessary)
 relating Element-to-Element and also ElementFace-to-ElementFace. In order to compute the nume-
 rical flux (e.g., to solve a Riemann problem), one element only asks MeshGraph the element
@@ -19,3 +19,20 @@ so that we concentrate every mesh-related requests in one object. For example, t
 will need boundary NAME info when setting the boundary conditions for every iteration. Right now,
 the only object having it is MeshReader, which will soon be destroyed (b4 the boundary cond.
 can be applied). Hence, this info must be passed along to the MeshGraph.
+
+3) FACE NODES FOR 2D+ ELEMENTS
+Create a "list" (std::set?) of every Node added to the mesh while reading the nodes. When
+reading Edges, every Node in an Edge should be erased from this list. The reamining nodes are
+"dangling" nodes, which can only be 2D face nodes or 3D volume nodes. Hence, when looking for
+the last nodes on a line defining a 2D+ element, it is easy to check if it is one defining
+face/volume nodes, i.e., if it's not on this list, its an edge/face node so nothing should be done;
+otherwise, it's a face/volume node so it should be added to the primitives list. The erasing proccess
+continues when reading 2D elements, i.e., every face node is erased from this list, so that when
+finishing reading 2D elements, the "dangling nodes" on the list must be volume nodes of 3D
+elements.
+To find the correct list of primitive elements for 2D+ elements, the map of a list to the nodes
+defining the edge/face linear elements mapping to the edge/face tag should still be used, since
+everytime an element is defined, no matter the order/type, its linear-equivalent nodes are
+defined first. If this map is not to be used, if/case statements would need to be constructed to
+check for each element type (currently, 92!!!) and then read the nodes on the line defining it
+accordingly. Looks like a bad idea, at first.
