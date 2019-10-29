@@ -1,5 +1,6 @@
 #include "MeshModule/ElementFactory.h"
 #include <iostream>
+#include <string>
 
 namespace CHONS {
 
@@ -8,6 +9,27 @@ namespace CHONS {
 //     ElementFactory::s_elements = std::map<ElementType, 
 //                 std::unordered_map<size_t, Element*> >();
 ElementFactory* ElementFactory::s_singleInstance = nullptr;
+
+// DELETE THIS -- FOR DEBUGGING PURPOSES ONLY
+void ElementFactory::RunThrough() {
+    std::vector<std::string> EnumToString{"eNode", "eLine", "eQuad", "eTri"};
+    for (auto& type_map : s_elements) {
+        std::cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
+        std::cout << "Element type: " << EnumToString[type_map.first] << "\n";
+        for (auto& tag_ele : type_map.second) {
+            std::cout << "Tag: " << tag_ele.first << "\n";
+            std::cout << "Primitives:\n";
+            for (auto& prims : tag_ele.second->GetPrimitives()) {
+                std::cout << "\ttype: " << EnumToString[prims.first] << "\n";;
+                std::cout << "\ttag: ";
+                for (auto& primtag : prims.second)
+                    std::cout << primtag->GetTag() << " ";
+                std::cout << "\n";
+            }
+        }
+    }
+}
+
 
 ElementFactory* ElementFactory::GetInstance() {
     if (!s_singleInstance)

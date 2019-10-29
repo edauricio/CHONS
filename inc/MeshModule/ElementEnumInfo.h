@@ -24,6 +24,7 @@ enum ElementType {
 };
 
 struct ElementInfo {
+    void clear() { coords.clear(); prims.clear(); }
     size_t tag;
     ElementType type;
     size_t eleOrder;

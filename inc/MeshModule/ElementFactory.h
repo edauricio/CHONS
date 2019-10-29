@@ -18,7 +18,11 @@ class ElementFactory {
         Element* GetElement(const ElementInfo&);
         bool Created() { return s_created; };
         static ElementFactory* GetInstance();
-
+        // DELETE THIS -- FOR DEBUGGING PURPOSES ONLY
+        size_t HowMany(const ElementType& et) { return s_elements.find(et)->second.size(); }
+        // DELETE THIS -- FOR DEBUGGING PURPOSES ONLY
+        void RunThrough();
+        
     protected:
         ElementFactory() = default;
         

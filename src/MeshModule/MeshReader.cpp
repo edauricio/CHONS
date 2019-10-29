@@ -2,6 +2,7 @@
 #include "MeshModule/GmshElements.h"
 #include <iostream>
 #include <sstream>
+#include <cassert>
 
 namespace CHONS {
 
@@ -14,17 +15,6 @@ MeshReader::MeshReader(const std::string& fName) : s_sectionReader(nullptr),
         std::cout << "Unable to open given mesh file.\n";
         exit(-1);
     }
-    if (!(s_sectionReader = GetSectionObj(s_meshFile))) {
-        std::cerr << "Unable to get a Section reader object.\n";
-        exit(-1);
-    }
-    ReadMeshDim();
-    for (int i = 0; i != s_meshDim-1; ++i) {
-        s_linearElementsNodes.push_back(std::map<std::list<int>, size_t>());
-        s_higherDimCache.push_back(std::map<std::vector<int>, 
-                                    std::map<size_t, std::vector<int>>>());
-    }
-    ReadBoundaries();
     s_factory = ElementFactory::GetInstance();
 }
 
@@ -37,6 +27,10 @@ MeshReader::~MeshReader() {
 // ---------- GmshReader Member Function Definitions --------- //
 
 GmshReader::GmshReader(const std::string& fName) : MeshReader(fName) {
+    if (!(s_sectionReader = GetSectionObj(s_meshFile))) {
+        std::cerr << "Unable to get a Section reader object.\n";
+        exit(-1);
+    }
     // Check if msh version is supported.
     // TODO: implement support for format 2.2
     if (s_meshVersion != 4.1) {
@@ -44,12 +38,24 @@ GmshReader::GmshReader(const std::string& fName) : MeshReader(fName) {
                     << " Please upgrade to file version 4.1.\n";
         exit(-1);
     }
+    ReadMeshDim();
+    for (int i = 0; i != s_meshDim-1; ++i) {
+        s_linearElementsNodes.push_back(std::map<std::list<int>, size_t>());
+        s_higherDimCache.push_back(std::map<std::vector<int>, 
+                                    std::map<size_t, std::vector<int>>>());
+        s_lastTagCreated.push_back(0);
+    }
+    ReadBoundaries();
 }
 
 void GmshReader::ReadMeshDim() {
     std::vector<int> header;
     header = s_sectionReader->GoToSection("Entities")->ReadSectionHeader();
     if (header.size() != 4) {
+        std::cout << header.size() << "\n";
+        for (auto e : header)
+            std::cout << e << " ";
+        std::cout << std::endl;
         std::cerr << "Invalid header for Entities section.\n";
         exit(-1);
     }
@@ -151,6 +157,7 @@ void GmshReader::ReadNodes() {
                 s_physicalRegionEntities[0]->end())
                 rTag = s_physicalRegionEntities[0]->at(blockHeader[1]);
         for (auto& me : tags_coords) {
+            einfo.clear(); // reset containers in ElementInfo
             einfo.tag = me.first;
             einfo.coords = me.second;
             s_factory->GetElement(einfo);
@@ -196,6 +203,8 @@ void GmshReader::ReadEdges() {
         } else if (blockHeader[0] == 3) {
             s_higherDimCache[1].emplace(blockHeader, tagsAndNodes);
         } else if (blockHeader[0] == 1) {
+            // Set order of element
+            einfo.eleOrder = GmshElementsMapping[blockHeader[2]].second;
             // Check if the entity is a physical region
             if ((s_meshDim == 2) && s_physicalRegionEntities[1])
                 if (s_physicalRegionEntities[1]->find(blockHeader[1])
@@ -205,6 +214,7 @@ void GmshReader::ReadEdges() {
             // Read nodes and tags
             // Add nodes for linear Edge into associated map for later retrieval
             for (auto& me : tagsAndNodes) {
+                einfo.clear(); // reset containers in ElementInfo
                 einfo.tag = me.first;
                 for (auto it = me.second.begin(); it != me.second.end(); ++it) {
                     priminfo.tag = *it;
@@ -223,6 +233,7 @@ void GmshReader::ReadEdges() {
                             << "Double check mesh file.\n";
                     exit(-1);
                 }
+                s_lastTagCreated[0] = einfo.tag;
                 if (!s_linearElementsNodes.empty()) {
                     std::list<int> linear_prim_list = std::list<int>{
                         me.second[0], me.second[1]};
@@ -256,6 +267,10 @@ void GmshReader::ReadElements() {
     
 }
 
+
+// TODO: Edges on 2D entities must be created! (As seen previously analyzing it in Gmsh)
+// Hence, element type will need to be inserted in this function as well so we know the
+// order of the element
 void GmshReader::Read2DElements() {
     ElementInfo einfo;
     ElementInfo priminfo;
@@ -291,29 +306,58 @@ void GmshReader::Read2DElements() {
                 exit(-1);
         }
         // Run through the nodes list to retrive the primitive Edges that 
-        // contain those nodes.
+        // contain those nodes. Some of it might not have been created by 
+        // ReadEdges() yet, since it reads only edges in 1D entities. The if
+        // check on prim_tag takes care of creating it if it's non existent.
         // Also, add 2D linear elements to the list of linear elements so that
-        // 3D elements can find its primitives easily.
+        // 3D elements can find its primitives (on 2D entities) easily.
         for (auto& tagsAndNodes : blkHeader_TagsAndNodes.second) {
+            einfo.clear(); // reset containers in ElementInfo
             einfo.tag = tagsAndNodes.first;
             // Retrive primitive edges from the first nodes in list
             priminfo.type = eLine;
             for (int i = 0; i != numEdges; ++i) {
+                priminfo.clear(); // reset containers in ElementInfo
                 edgeNodesList = std::list<int>{tagsAndNodes.second[i%numEdges],
                         tagsAndNodes.second[(i+1)%numEdges]};
                 edgeNodesList.sort();
                 auto prim_tag = s_linearElementsNodes[0].find(edgeNodesList);
                 if (prim_tag == s_linearElementsNodes[0].end()) {
-                    std::cerr << "Can't find Edge primitive of 2D element.\n";
-                    exit(-1);
-                }
-                priminfo.tag = prim_tag->second;
+                    // Put node ordering back in unsorted list
+                    edgeNodesList.front() = tagsAndNodes.second[i%numEdges];
+                    edgeNodesList.back() = tagsAndNodes.second[(i+1)%numEdges];
+                    // Edge doesn't exist; it must be an edge on a
+                    // 2D entity (hence not yet created by ReadEdges(), which
+                    // reads only 1D entities)
+                    ElementInfo edgeprim_info;
+                    edgeprim_info.type = eNode;
+                    // for each node in the list of linear nodes defining edge
+                    for (auto& nodetag : edgeNodesList) {
+                        edgeprim_info.tag = nodetag;
+                        priminfo.prims.push_back(s_factory->GetElement(
+                                                            edgeprim_info));
+                        assert(!s_factory->Created());
+                        s_danglingNodes.erase(edgeprim_info.tag);
+                    }
+                    // for each node defining the higher order of the edge
+                    for (int j = 0; j != einfo.eleOrder-1; ++j) {
+                        edgeprim_info.tag = tagsAndNodes.second[
+                                            numEdges+(i*(einfo.eleOrder-1))+j];
+                        priminfo.prims.push_back(s_factory->GetElement(
+                                                            edgeprim_info));
+                        assert(!s_factory->Created());
+                        s_danglingNodes.erase(edgeprim_info.tag);
+                    }
+                    priminfo.tag = ++s_lastTagCreated[0];
+                    // Add it to the linear elements list so that the adjacent
+                    // 2D elements doesn't create it with another that
+                    edgeNodesList.sort();
+                    s_linearElementsNodes[0].emplace(edgeNodesList, 
+                                                        priminfo.tag);
+                } else
+                    priminfo.tag = prim_tag->second;
+                
                 einfo.prims.push_back(s_factory->GetElement(priminfo));
-                if (s_factory->Created()) {
-                    std::cerr << "Invalid primitive Edge for 2D element "
-                                << "creation?\n";
-                    exit(-1);
-                }
             }
             // Now check for face nodes (higher order elements)
             priminfo.type = eNode;
@@ -327,7 +371,7 @@ void GmshReader::Read2DElements() {
                     std::cerr << "Non-existent face node for 2D element?\n";
                     exit(-1);
                 }
-            }            
+            }
 
             // Check primitive info, create element and add it to linear 
             // elements map
@@ -370,6 +414,7 @@ void GmshReader::Read2DElements() {
                 std::cerr << "Unknown 2D element type to be created.\n";
                 exit(-1);
             }
+            s_lastTagCreated[1] = einfo.tag;
         }
     }
 }
@@ -383,7 +428,7 @@ void GmshReader::Read3DElements() {
     std::vector<std::vector<size_t>> faceNodesMap;
     std::list<int> faceNodeList;
     // For each cached 3D entity block
-    for (auto& blkHeader_TagsAndNodes : s_higherDimCache[2]) {
+    for (auto& blkHeader_TagsAndNodes : s_higherDimCache[1]) {
         rTag = -1; // reset region tag
         // Check if entity is a physical region
         if (s_physicalRegionEntities[3])
@@ -446,9 +491,11 @@ void GmshReader::Read3DElements() {
 
         // for each element (tag + nodes)
         for (auto& tagsAndNodes : blkHeader_TagsAndNodes.second) {
+            einfo.clear(); // clear containers in ElementInfo
             einfo.tag = tagsAndNodes.first;
             // get primitive faces
             for (size_t i = 0; i != faceNodesMap.size(); ++i) { // for each face
+                priminfo.clear(); // clear containers in ElementInfo
                 priminfo.type = (faceNodesMap[i].size() == 3) ? eTri : eQuad;
                 faceNodeList.clear();
                 for (auto& j : faceNodesMap[i])
@@ -532,9 +579,26 @@ GmshReader::~GmshReader() {
         if (pm) delete pm;
 }
 
+// DELETE THIS
+// FUNCTION FOR PURPOSES OF DEBUGGING ONLY
+void GmshReader::ShoutOutAll() {
+    std::cout << "Number of dangling Nodes: " << s_danglingNodes.size();
+    std::cout << "\nNumber of Edges read: " << s_factory->HowMany(eLine);
+    std::cout << "\nNumber of 2D Elements read: " << s_factory->HowMany(eQuad);
+    std::cout << "\nNumber of cached 2D Elements blocks: " << s_higherDimCache[0].size();
+    if (s_meshDim == 3)
+        std::cout << "\nNumber of cached 3D Elements blocks: " << s_higherDimCache[1].size();
+    std::cout << std::endl;
+}
+
 // ---------- End Of GmshReader Member Function Definitions --------- //
 
 // ---------- Section Member Function Definitions --------- //
+
+Section::Section(std::ifstream& f) : s_iFile(f), s_curSectionMarkers(2),
+                s_headerDone(false), s_sectionDone(false) {
+
+}
 
 Section::~Section() {
 
@@ -544,6 +608,11 @@ Section::~Section() {
 
 
 // ---------- GmshSection Member Function Definitions --------- //
+
+GmshSection::GmshSection(std::ifstream& f) : Section(f), 
+                                        s_lastEntityBlockRead(0) {
+
+}
 
 Section* GmshSection::GoToSection(const std::string& sec) {
 
@@ -607,8 +676,12 @@ GmshSection::~GmshSection() {
 
 // ---------- GmshASCIISection Member Function Definitions --------- //
 
+GmshASCIISection::GmshASCIISection(std::ifstream& f) : GmshSection(f) {
+
+}
+
 std::vector<int> GmshASCIISection::ReadSectionHeader() {
-    if (s_name.empty() || s_curSectionMarkers[1]) {
+    if (s_name.empty() || !s_curSectionMarkers[1]) {
         std::cerr << "No Section to read. Use GoToSection(...) fisrt.\n";
         exit(-1);
     }
@@ -620,7 +693,7 @@ std::vector<int> GmshASCIISection::ReadSectionHeader() {
     int itmp;
     while (s_iFile >> itmp) {
         ret.push_back(itmp);
-        while (s_iFile >> ch)
+        while (s_iFile.get(ch))
             if (ch != ' ') { s_iFile.unget(); break; }
         if (s_iFile.peek() == '\n') { s_iFile.get(ch); break; }
     }
@@ -684,6 +757,7 @@ std::vector<int> GmshASCIISection::Next(std::map<size_t,
     if (s_lastEntityBlockRead >= s_curSectionMarkers[1]) {
         s_curSectionMarkers[0] = s_curSectionMarkers[1] = 0;
         s_sectionDone = true;
+        s_name.clear();
     }
 
     return vinfo;

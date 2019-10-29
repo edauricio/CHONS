@@ -34,9 +34,9 @@ class MeshReader {
         int GetMeshFormat() { return s_meshFormat; };
 
     protected:
-        virtual Section* GetSectionObj(std::ifstream&) { return nullptr; };
-        virtual void ReadBoundaries() {};
-        virtual void ReadMeshDim() {};
+        virtual Section* GetSectionObj(std::ifstream&) = 0;
+        virtual void ReadBoundaries() = 0;
+        virtual void ReadMeshDim() = 0;
 
         std::string s_fName;
         std::ifstream s_meshFile;
@@ -64,7 +64,7 @@ class MeshReader {
         // of faces in 3D) checking for each of its nodes to compare with the
         // node given in t he element definition so we can have the info about
         // whether its a primitive node or a interior one.
-        std::set<int> s_danglingNodes;
+        std::set<size_t> s_danglingNodes;
 
         // Vector to maps of 1D and 2D elements, each containing a list with
         // the nodes that define its linear element so that a higher-dimensional
@@ -89,6 +89,13 @@ class MeshReader {
         // second - map from Element tag to a vector of Nodes defining it.
         std::vector<std::map<std::vector<int>, std::map<size_t, 
                             std::vector<int> > > > s_higherDimCache;
+
+        // A vector containing the tag of the latest edge / face created
+        // This is needed so whenever higher dimensional elements create its
+        // primitives (i.e. primitives in entity with dimension higher than 
+        // itself), they know which tag to add.
+        std::vector<size_t> s_lastTagCreated;
+
         
         double s_meshVersion;
         int s_meshFormat; // bin / ascii
@@ -109,6 +116,9 @@ class GmshReader : public MeshReader {
         virtual void ReadEdges() override;
         virtual void ReadElements() override;
 
+                void ShoutOutAll(); // DELETE THIS --- FOR DEBUGGING PURPOSES ONLY
+
+
     protected:
         virtual Section* GetSectionObj(std::ifstream&) override;
         virtual void ReadMeshDim() override;
@@ -119,6 +129,7 @@ class GmshReader : public MeshReader {
         void Read2DElements();
         void Read3DElements();
 
+
 };
 
 
@@ -127,7 +138,7 @@ class GmshReader : public MeshReader {
 class Section {
     public:
 
-        Section(std::ifstream& f) : s_iFile(f), s_curSectionMarkers(2) {};
+        Section(std::ifstream& f);
 
         //virtual void ReadFirst() = 0;
 
@@ -157,14 +168,14 @@ class Section {
     protected:
         std::ifstream& s_iFile;
         std::vector<std::ifstream::pos_type> s_curSectionMarkers;
-        bool s_headerDone = false;
-        bool s_sectionDone = false;
+        bool s_headerDone;
+        bool s_sectionDone;
 
 };
 
 class GmshSection : public Section {
     public:
-        GmshSection(std::ifstream& f) : Section(f) {};
+        GmshSection(std::ifstream& f);
 
         //virtual void ReadFirst() = 0;
         // Next for Nodes
@@ -195,12 +206,12 @@ class GmshSection : public Section {
 
 
         std::string s_name;
-        std::ifstream::pos_type s_lastEntityBlockRead = 0;
+        std::ifstream::pos_type s_lastEntityBlockRead;
 };
 
 class GmshASCIISection : public GmshSection {
     public:
-        GmshASCIISection(std::ifstream& f) : GmshSection(f) {} ;
+        GmshASCIISection(std::ifstream& f);
 
 
         //virtual void ReadFirst() override;
