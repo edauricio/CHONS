@@ -1,5 +1,5 @@
 #include "MeshModule/MeshReader.h"
-#include "MeshModule/GmshElements.h"
+#include "MeshModule/GmshAuxiliaryDefs.h"
 #include <iostream>
 #include <sstream>
 #include <cassert>
@@ -190,6 +190,7 @@ void GmshReader::ReadEdges() {
 
     std::vector<int> blockHeader;
     std::map<size_t, std::vector<int>> tagsAndNodes;
+    std::list<int> edgeNodesList;
     int rTag;
     ElementInfo einfo;
     ElementInfo priminfo;
@@ -198,11 +199,7 @@ void GmshReader::ReadEdges() {
     for (int i = 0; i != header.front(); ++i) {
         rTag = -1; // reset rTag
         blockHeader = s_sectionReader->Next(tagsAndNodes);
-        if (blockHeader[0] == 2) {
-            s_higherDimCache[0].emplace(blockHeader, tagsAndNodes);
-        } else if (blockHeader[0] == 3) {
-            s_higherDimCache[1].emplace(blockHeader, tagsAndNodes);
-        } else if (blockHeader[0] == 1) {
+        if (blockHeader[0] == 1) {
             // Set order of element
             einfo.eleOrder = GmshElementsMapping[blockHeader[2]].second;
             // Check if the entity is a physical region
@@ -235,13 +232,228 @@ void GmshReader::ReadEdges() {
                 }
                 s_lastTagCreated[0] = einfo.tag;
                 if (!s_linearElementsNodes.empty()) {
-                    std::list<int> linear_prim_list = std::list<int>{
+                    edgeNodesList = std::list<int>{
                         me.second[0], me.second[1]};
-                        linear_prim_list.sort();
-                    s_linearElementsNodes[0].emplace(linear_prim_list, 
+                    edgeNodesList.sort();
+                    s_linearElementsNodes[0].emplace(edgeNodesList, 
                                                         me.first);
                 }
             }
+        } else if (blockHeader[0] == 2) {
+             // reset containers in ElementInfo
+            int numEdges;
+            rTag = -1; // edges on surface entities are not a region
+            einfo.eleOrder = GmshElementsMapping[blockHeader[2]].second;
+            switch (GmshElementsMapping[blockHeader[2]].first) {
+                case eQuad:
+                    numEdges = 4; // numNodes == numEdges
+                    break;
+
+                case eTri:
+                    numEdges = 3; // numNodes == numEdges
+                    break;
+
+                default:
+                std::cerr << "Invalid element type for 2D entity.\n";
+                exit(-1);
+            }
+
+            for (auto& eleNodes : tagsAndNodes) {
+            // for each edge defining the element
+                for (int i = 0; i != numEdges; ++i) {
+                    einfo.clear();
+                    edgeNodesList = std::list<int>{eleNodes.second[i%numEdges],
+                            eleNodes.second[(i+1)%numEdges]};
+                    edgeNodesList.sort();
+                    if (s_linearElementsNodes[0].find(edgeNodesList) 
+                        != s_linearElementsNodes[0].end()) continue;
+                    else {
+                        // Edge doesn't exist; create it then
+
+                        // Put nodes back in unsorted order
+                        edgeNodesList.front() = eleNodes.second[i%numEdges];
+                        edgeNodesList.back() = eleNodes.second[(i+1)%numEdges];
+                        // for each node in the list of linear nodes defining edge
+                        for (auto& nodetag : edgeNodesList) {
+                            priminfo.tag = nodetag;
+                            einfo.prims.push_back(s_factory->GetElement(
+                                                                priminfo));
+                            assert(!s_factory->Created());
+                            s_danglingNodes.erase(priminfo.tag);
+                        }
+                        // for each node defining the higher order of the edge
+                        for (int j = 0; j != einfo.eleOrder-1; ++j) {
+                            priminfo.tag = eleNodes.second[
+                                            numEdges+(i*(einfo.eleOrder-1))+j];
+                            einfo.prims.push_back(s_factory->GetElement(
+                                                                priminfo));
+                            assert(!s_factory->Created());
+                            s_danglingNodes.erase(priminfo.tag);
+                        }
+                        // TODO: Change edge creation from 1D entity blocks to
+                        // be sequential too, instead of the tags on gmsh file;
+                        // this prevents double tags when the entity blocks in
+                        // gmsh file aren't ordered (e.g. a 2D entity block
+                        // before a 1D one will create edges with tags adding
+                        // to the last one, then when defining edges itself
+                        // in 1D entity block, those tags might already be taken)
+                        einfo.tag = ++s_lastTagCreated[0];
+                        // Add it to the linear elements list so that the adjacent
+                        // 2D elements doesn't create it with another tag
+                        edgeNodesList.sort();
+                        s_linearElementsNodes[0].emplace(edgeNodesList, 
+                                                                einfo.tag);
+
+                        s_factory->GetElement(einfo);
+                        assert(s_factory->Created());
+                    }
+                }
+            }
+            // Cache this entity block so we don't need to read again for 2D
+            // elements
+            s_higherDimCache[0].emplace(blockHeader, tagsAndNodes);
+
+        } else if (blockHeader[0] == 3) {
+            int numEdges, numNodes;
+            // vector to define edge number and corresponding nodes defining
+            // it linearly
+            std::vector<std::vector<int>> edgesAndNodes;
+            rTag = -1; // edges on a 3D entity are disregarded as inside regions
+            einfo.eleOrder = GmshElementsMapping[blockHeader[2]].second;
+            ElementType cur_type = GmshElementsMapping[blockHeader[2]].first;
+            switch (cur_type) {
+                // not a very elegant solution, i know...
+                case eHexa:
+                    numNodes = 8;
+                    numEdges = 12;
+                    // edgesAndNodes = std::vector<std::vector<int>>{
+                    //     {0, 1},
+                    //     {0, 3},
+                    //     {0, 4},
+                    //     {1, 2},
+                    //     {1, 5},
+                    //     {2, 3},
+                    //     {2, 6},
+                    //     {3, 7},
+                    //     {4, 5},
+                    //     {4, 7},
+                    //     {5, 6},
+                    //     {6, 7}
+                    // };
+                    break;
+
+                case eTetra:
+                    numNodes = 4;
+                    numEdges = 6;
+                    // edgesAndNodes = std::vector<std::vector<int>>{
+                    //     {0, 1},
+                    //     {1, 2},
+                    //     {2, 0},
+                    //     {0, 3},
+                    //     {2, 3},
+                    //     {1, 3}
+                    // };
+                    break;
+
+                case ePrism:
+                    numNodes = 6;
+                    numEdges = 9;
+                    // edgesAndNodes = std::vector<std::vector<int>>{
+                    //     {0, 1},
+                    //     {0, 2},
+                    //     {0, 3},
+                    //     {1, 2},
+                    //     {1, 4},
+                    //     {2, 5},
+                    //     {3, 4},
+                    //     {3, 5},
+                    //     {4, 5}
+                    // };
+                    break;
+
+                case ePyram:
+                    numNodes = 5;
+                    numEdges = 8;
+                    // edgesAndNodes = std::vector<std::vector<int>>{
+                    //     {0, 1},
+                    //     {0, 3},
+                    //     {0, 4},
+                    //     {1, 2},
+                    //     {1, 4},
+                    //     {2, 3},
+                    //     {2, 4},
+                    //     {3, 4}
+                    // };
+                    break;
+            }
+
+            // For each element defined in this entity block
+            for (auto& eleNodes : tagsAndNodes) {
+                // for each edge on the 3D element
+                for (int i = 0; i != numEdges; ++i) {
+                    // set the nodes defining the linear edge to the list
+                    edgeNodesList = std::list<int>{
+                                        eleNodes.second[
+                                        GmshEdgesOn3DElements[cur_type][i][0]
+                                        ],
+                                        eleNodes.second[
+                                        GmshEdgesOn3DElements[cur_type][i][1]
+                                        ]
+                                    };
+                    edgeNodesList.sort();
+                    // check if edge already exists; if so, go to the next
+                    if (s_linearElementsNodes[0].find(edgeNodesList)
+                        != s_linearElementsNodes[0].end()) continue;
+                    else {
+                    // edge doesn't exist; create it then
+                        einfo.clear();
+                        // set the list back to unsorted order
+                        edgeNodesList.front() = 
+                                        eleNodes.second[
+                                        GmshEdgesOn3DElements[cur_type][i][0]
+                                        ];
+                        edgeNodesList.back() = 
+                                        eleNodes.second[
+                                        GmshEdgesOn3DElements[cur_type][i][1]
+                                        ];
+                        for (auto& nodetag : edgeNodesList) {
+                            priminfo.tag = nodetag;
+                            einfo.prims.push_back(
+                                            s_factory->GetElement(priminfo));
+                            assert(!s_factory->Created());
+                            s_danglingNodes.erase(priminfo.tag);
+                        }
+                        // now add the nodes defining the higher order element
+                        for (int j = 0; j != einfo.eleOrder-1; ++j) {
+                            priminfo.tag = eleNodes.second[numNodes
+                                            + (i*(einfo.eleOrder-1)) + j];
+                            einfo.prims.push_back(
+                                            s_factory->GetElement(priminfo));
+                            assert(!s_factory->Created());
+                            s_danglingNodes.erase(priminfo.tag);
+                        }
+                        // TODO: Change edge creation from 1D entity blocks to
+                        // be sequential too, instead of the tags on gmsh file;
+                        // this prevents double tags when the entity blocks in
+                        // gmsh file aren't ordered (e.g. a 2D entity block
+                        // before a 1D one will create edges with tags adding
+                        // to the last one, then when defining edges itself
+                        // in 1D entity block, those tags might already be taken)
+                        // OR: also cache 1D entity blocks so we read only from
+                        // cached info, guaranteeing reading in dimension order
+                        einfo.tag = ++s_lastTagCreated[0];
+                        edgeNodesList.sort();
+                        s_linearElementsNodes[0].emplace(edgeNodesList, 
+                                                                einfo.tag);
+
+                        s_factory->GetElement(einfo);
+                        assert(s_factory->Created());
+                    }
+                }
+            }
+            // Cache this entity block so we don't need to read again for 3D
+            // elements
+            s_higherDimCache[1].emplace(blockHeader, tagsAndNodes);
         }
     }
 
@@ -268,16 +480,13 @@ void GmshReader::ReadElements() {
 }
 
 
-// TODO: Edges on 2D entities must be created! (As seen previously analyzing it in Gmsh)
-// Hence, element type will need to be inserted in this function as well so we know the
-// order of the element
 void GmshReader::Read2DElements() {
     ElementInfo einfo;
     ElementInfo priminfo;
-    int numEdges;
+    int numNodes, numEdges, numFaces;
     int rTag;
-    std::list<int> edgeNodesList;
-    // for each cached 2D entity block
+    std::list<int> edgeNodesList, faceNodeList;
+    // read 2D elements on cached 2D entity blocks
     for (auto& blkHeader_TagsAndNodes : s_higherDimCache[0]) {
         rTag = -1; // reset region tag
         // Check if entity is a physical region
@@ -294,11 +503,11 @@ void GmshReader::Read2DElements() {
                             blkHeader_TagsAndNodes.first[2]].second;
         switch (einfo.type) {
             case eQuad:
-                numEdges = 4;
+                numEdges = 4; // numNodes == numEdges
                 break;
 
             case eTri:
-                numEdges = 3;
+                numEdges = 3; // numNodes == numEdges
                 break;
 
             default:
@@ -306,9 +515,7 @@ void GmshReader::Read2DElements() {
                 exit(-1);
         }
         // Run through the nodes list to retrive the primitive Edges that 
-        // contain those nodes. Some of it might not have been created by 
-        // ReadEdges() yet, since it reads only edges in 1D entities. The if
-        // check on prim_tag takes care of creating it if it's non existent.
+        // contain those nodes. 
         // Also, add 2D linear elements to the list of linear elements so that
         // 3D elements can find its primitives (on 2D entities) easily.
         for (auto& tagsAndNodes : blkHeader_TagsAndNodes.second) {
@@ -321,41 +528,9 @@ void GmshReader::Read2DElements() {
                 edgeNodesList = std::list<int>{tagsAndNodes.second[i%numEdges],
                         tagsAndNodes.second[(i+1)%numEdges]};
                 edgeNodesList.sort();
-                auto prim_tag = s_linearElementsNodes[0].find(edgeNodesList);
-                if (prim_tag == s_linearElementsNodes[0].end()) {
-                    // Put node ordering back in unsorted list
-                    edgeNodesList.front() = tagsAndNodes.second[i%numEdges];
-                    edgeNodesList.back() = tagsAndNodes.second[(i+1)%numEdges];
-                    // Edge doesn't exist; it must be an edge on a
-                    // 2D entity (hence not yet created by ReadEdges(), which
-                    // reads only 1D entities)
-                    ElementInfo edgeprim_info;
-                    edgeprim_info.type = eNode;
-                    // for each node in the list of linear nodes defining edge
-                    for (auto& nodetag : edgeNodesList) {
-                        edgeprim_info.tag = nodetag;
-                        priminfo.prims.push_back(s_factory->GetElement(
-                                                            edgeprim_info));
-                        assert(!s_factory->Created());
-                        s_danglingNodes.erase(edgeprim_info.tag);
-                    }
-                    // for each node defining the higher order of the edge
-                    for (int j = 0; j != einfo.eleOrder-1; ++j) {
-                        edgeprim_info.tag = tagsAndNodes.second[
-                                            numEdges+(i*(einfo.eleOrder-1))+j];
-                        priminfo.prims.push_back(s_factory->GetElement(
-                                                            edgeprim_info));
-                        assert(!s_factory->Created());
-                        s_danglingNodes.erase(edgeprim_info.tag);
-                    }
-                    priminfo.tag = ++s_lastTagCreated[0];
-                    // Add it to the linear elements list so that the adjacent
-                    // 2D elements doesn't create it with another that
-                    edgeNodesList.sort();
-                    s_linearElementsNodes[0].emplace(edgeNodesList, 
-                                                        priminfo.tag);
-                } else
-                    priminfo.tag = prim_tag->second;
+
+                priminfo.tag = s_linearElementsNodes[0].find(
+                                                    edgeNodesList)->second;
                 
                 einfo.prims.push_back(s_factory->GetElement(priminfo));
             }
@@ -384,11 +559,11 @@ void GmshReader::Read2DElements() {
                     s_factory->GetElement(einfo);
                     if (s_linearElementsNodes.size() > 1) { // add element to 
                     // linear nodes->element map.
-                        std::list<int> linear_prim_list = std::list<int>{
+                        std::list<int> faceNodeList = std::list<int>{
                             tagsAndNodes.second[0], tagsAndNodes.second[1],
                             tagsAndNodes.second[2], tagsAndNodes.second[3]};
-                        linear_prim_list.sort();
-                        s_linearElementsNodes[1].emplace(linear_prim_list,
+                        faceNodeList.sort();
+                        s_linearElementsNodes[1].emplace(faceNodeList,
                                                     tagsAndNodes.first);
                     }
                     break;
@@ -401,11 +576,11 @@ void GmshReader::Read2DElements() {
                     s_factory->GetElement(einfo);
                     if (s_linearElementsNodes.size() > 1) { // add element to 
                     // linear nodes->element map.
-                        std::list<int> linear_prim_list = std::list<int>{
+                        std::list<int> faceNodeList = std::list<int>{
                             tagsAndNodes.second[0], tagsAndNodes.second[1],
                             tagsAndNodes.second[2]};
-                        linear_prim_list.sort();
-                        s_linearElementsNodes[1].emplace(linear_prim_list,
+                        faceNodeList.sort();
+                        s_linearElementsNodes[1].emplace(faceNodeList,
                                                     tagsAndNodes.first);
                     }
                     break;
@@ -415,6 +590,46 @@ void GmshReader::Read2DElements() {
                 exit(-1);
             }
             s_lastTagCreated[1] = einfo.tag;
+        }
+    }
+
+    // read 2D element on cached 3D entity block
+    for (auto& blkHeader_TagsAndNodes : s_higherDimCache[1]) {
+        rTag = -1; // this element being in a region makes no sense
+        ElementType cur_type = GmshElementsMapping[
+                                        blkHeader_TagsAndNodes.first[2]].first;
+        einfo.eleOrder = GmshElementsMapping[
+                            blkHeader_TagsAndNodes.first[2]].second;
+        numFaces = GmshFacesOn3DElements[cur_type].size();
+        // for each element in the entity block being read
+        for (auto& tagsAndNodes : blkHeader_TagsAndNodes.second) {
+            // for each face of this element
+            for (int i = 0; i != numFaces; ++i) {
+                faceNodeList.clear();
+                std::vector<int> cur_face = GmshFacesOn3DElements[cur_type][i];
+                numEdges = cur_face.size();
+                // for each node defining this face
+                for (auto& facenode : cur_face) {
+                    faceNodeList.push_back(tagsAndNodes.second[facenode]);
+                }
+                faceNodeList.sort();
+                if (s_linearElementsNodes[1].find(faceNodeList)
+                    != s_linearElementsNodes[1].end()) continue;
+                else {
+                // face doesn't exist; create it then
+                    // put nodes back in unsorted order
+                    faceNodeList.clear();
+                    for (auto& facenode : cur_face) {
+                        faceNodeList.push_back(facenode);
+                    }
+                    // find primitive edges of this face
+                    for (int j = 0; j != numEdges; ++j) {
+
+                    }
+
+                    // now find primitive face nodes
+                }
+            }
         }
     }
 }
