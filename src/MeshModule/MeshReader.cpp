@@ -42,9 +42,9 @@ GmshReader::GmshReader(const std::string& fName) : MeshReader(fName) {
     }
     ReadMeshDim();
     for (int i = 0; i != s_meshDim-1; ++i) {
-        s_linearElementsNodes.push_back(std::map<std::list<int>, size_t>());
+        s_linearElementsNodes.push_back(std::map<std::set<size_t>, size_t>());
         s_higherDimCache.push_back(std::map<std::vector<int>, 
-                                    std::map<size_t, std::vector<int>>>());
+                                    std::map<size_t, std::vector<size_t>>>());
         s_lastTagCreated.push_back(0);
     }
     ReadBoundaries();
@@ -193,8 +193,8 @@ void GmshReader::ReadEdges() {
     }
 
     std::vector<int> blockHeader;
-    std::map<size_t, std::vector<int>> tagsAndNodes;
-    std::list<int> edgeNodesList;
+    std::map<size_t, std::vector<size_t>> tagsAndNodes;
+    std::set<size_t> edgeNodesList;
     int rTag;
     ElementInfo einfo;
     ElementInfo priminfo;
@@ -237,9 +237,8 @@ void GmshReader::ReadEdges() {
                 }
                 s_lastTagCreated[0] = einfo.tag;
                 if (!s_linearElementsNodes.empty()) {
-                    edgeNodesList = std::list<int>{
+                    edgeNodesList = std::set<size_t>{
                         me.second[0], me.second[1]};
-                    edgeNodesList.sort();
                     s_linearElementsNodes[0].emplace(edgeNodesList, 
                                                         me.first);
                 }
@@ -268,20 +267,16 @@ void GmshReader::ReadEdges() {
             for (auto& eleNodes : tagsAndNodes) {
             // for each edge defining the element
                 for (int i = 0; i != numEdges; ++i) {
-                    edgeNodesList = std::list<int>{eleNodes.second[i%numEdges],
+                    edgeNodesList = std::set<size_t>{eleNodes.second[i%numEdges],
                             eleNodes.second[(i+1)%numEdges]};
-                    edgeNodesList.sort();
                     if (s_linearElementsNodes[0].find(edgeNodesList) 
                         != s_linearElementsNodes[0].end()) continue;
                     else {
                         // Edge doesn't exist; create it then
                         einfo.clear();
-                        // Put nodes back in unsorted order
-                        edgeNodesList.front() = eleNodes.second[i%numEdges];
-                        edgeNodesList.back() = eleNodes.second[(i+1)%numEdges];
                         // for each node in the list of linear nodes defining edge
-                        for (auto& nodetag : edgeNodesList) {
-                            priminfo.tag = nodetag;
+                        for (int j = i; j != i+2; ++j) {
+                            priminfo.tag = eleNodes.second[j%numEdges];
                             einfo.prims.push_back(s_factory->GetElement(
                                                                 priminfo));
                             assert(!s_factory->Created());
@@ -306,7 +301,6 @@ void GmshReader::ReadEdges() {
                         einfo.tag = ++s_lastTagCreated[0];
                         // Add it to the linear elements list so that the adjacent
                         // 2D elements doesn't create it with another tag
-                        edgeNodesList.sort();
                         s_linearElementsNodes[0].emplace(edgeNodesList, 
                                                                 einfo.tag);
 
@@ -324,9 +318,6 @@ void GmshReader::ReadEdges() {
         } else if (blockHeader[0] == 3) {
             auto t0_3d = std::chrono::high_resolution_clock::now();
             int numEdges, numNodes;
-            // vector to define edge number and corresponding nodes defining
-            // it linearly
-            std::vector<std::vector<int>> edgesAndNodes;
             rTag = -1; // edges on a 3D entity are disregarded as inside regions
             einfo.eleOrder = GmshElementsMapping[blockHeader[2]].second;
             ElementType cur_type = GmshElementsMapping[blockHeader[2]].first;
@@ -357,7 +348,7 @@ void GmshReader::ReadEdges() {
                 // for each edge on the 3D element
                 for (int i = 0; i != numEdges; ++i) {
                     // set the nodes defining the linear edge to the list
-                    edgeNodesList = std::list<int>{
+                    edgeNodesList = std::set<size_t>{
                                         eleNodes.second[
                                         GmshEdgesOn3DElements[cur_type][i][0]
                                         ],
@@ -365,24 +356,17 @@ void GmshReader::ReadEdges() {
                                         GmshEdgesOn3DElements[cur_type][i][1]
                                         ]
                                     };
-                    edgeNodesList.sort();
                     // check if edge already exists; if so, go to the next
                     if (s_linearElementsNodes[0].find(edgeNodesList)
                         != s_linearElementsNodes[0].end()) continue;
                     else {
                     // edge doesn't exist; create it then
                         einfo.clear();
-                        // set the list back to unsorted order
-                        edgeNodesList.front() = 
-                                        eleNodes.second[
-                                        GmshEdgesOn3DElements[cur_type][i][0]
+                        // for each node defining the linear edge (vertices nodes)
+                        for (int j = 0; j != 2; ++j) {
+                            priminfo.tag = eleNodes.second[
+                                        GmshEdgesOn3DElements[cur_type][i][j]
                                         ];
-                        edgeNodesList.back() = 
-                                        eleNodes.second[
-                                        GmshEdgesOn3DElements[cur_type][i][1]
-                                        ];
-                        for (auto& nodetag : edgeNodesList) {
-                            priminfo.tag = nodetag;
                             einfo.prims.push_back(
                                             s_factory->GetElement(priminfo));
                             assert(!s_factory->Created());
@@ -407,7 +391,6 @@ void GmshReader::ReadEdges() {
                         // OR: also cache 1D entity blocks so we read only from
                         // cached info, guaranteeing reading in dimension order
                         einfo.tag = ++s_lastTagCreated[0];
-                        edgeNodesList.sort();
                         s_linearElementsNodes[0].emplace(edgeNodesList, 
                                                                 einfo.tag);
 
@@ -473,7 +456,7 @@ void GmshReader::Read2DElements() {
     ElementInfo priminfo;
     int numNodes, numEdges, numFaces;
     int rTag;
-    std::list<int> edgeNodesList, faceNodesList;
+    std::set<size_t> edgeNodesList, faceNodesList;
     // read 2D elements on cached 2D entity blocks
     for (auto& blkHeader_TagsAndNodes : s_higherDimCache[0]) {
         rTag = -1; // reset region tag
@@ -513,12 +496,12 @@ void GmshReader::Read2DElements() {
             priminfo.type = eLine;
             for (int i = 0; i != numEdges; ++i) {
                 priminfo.clear(); // reset containers in ElementInfo
-                edgeNodesList = std::list<int>{tagsAndNodes.second[i%numEdges],
+                edgeNodesList = std::set<size_t>{tagsAndNodes.second[i%numEdges],
                         tagsAndNodes.second[(i+1)%numEdges]};
-                edgeNodesList.sort();
-
-                priminfo.tag = s_linearElementsNodes[0].find(
-                                                    edgeNodesList)->second;
+                // since all edges have been read, no check needed here, i.e.
+                // the edge exists and this find will return its tag.
+                priminfo.tag = s_linearElementsNodes[0].at(
+                                                    edgeNodesList);
                 
                 einfo.prims.push_back(s_factory->GetElement(priminfo));
             }
@@ -547,10 +530,9 @@ void GmshReader::Read2DElements() {
                     s_factory->GetElement(einfo);
                     if (s_linearElementsNodes.size() > 1) { // add element to 
                     // linear nodes->element map.
-                        std::list<int> faceNodesList = std::list<int>{
+                        std::set<size_t> faceNodesList = std::set<size_t>{
                             tagsAndNodes.second[0], tagsAndNodes.second[1],
                             tagsAndNodes.second[2], tagsAndNodes.second[3]};
-                        faceNodesList.sort();
                         s_linearElementsNodes[1].emplace(faceNodesList,
                                                     tagsAndNodes.first);
                     }
@@ -564,10 +546,9 @@ void GmshReader::Read2DElements() {
                     s_factory->GetElement(einfo);
                     if (s_linearElementsNodes.size() > 1) { // add element to 
                     // linear nodes->element map.
-                        std::list<int> faceNodesList = std::list<int>{
+                        std::set<size_t> faceNodesList = std::set<size_t>{
                             tagsAndNodes.second[0], tagsAndNodes.second[1],
                             tagsAndNodes.second[2]};
-                        faceNodesList.sort();
                         s_linearElementsNodes[1].emplace(faceNodesList,
                                                     tagsAndNodes.first);
                     }
@@ -598,36 +579,27 @@ void GmshReader::Read2DElements() {
             // for each face of this element
             for (int i = 0; i != numFaces; ++i) {
                 faceNodesList.clear();
-                std::vector<int> face_inds = GmshFacesOn3DElements[cur_type][i];
+                std::vector<size_t> face_inds = GmshFacesOn3DElements[cur_type][i];
                 numEdges = face_inds.size();
                 einfo.type = (numEdges == 3) ? eTri : eQuad;
                 // for each node defining this face
-                for (auto& facenode : face_inds) {
-                    faceNodesList.push_back(tagsAndNodes.second[facenode]);
-                }
-                faceNodesList.sort();
+                for (auto& index : face_inds)
+                    faceNodesList.insert(tagsAndNodes.second[index]);
                 if (s_linearElementsNodes[1].find(faceNodesList)
                     != s_linearElementsNodes[1].end()) continue;
                 else {
                 // face doesn't exist; create it then
                     einfo.clear(); // reset containers in face ElementInfo
-                    // put nodes back in unsorted order and create a vector
-                    // with the same info for member access through subscripting
-                    std::vector<int> face_nodes(faceNodesList.size());
-                    faceNodesList.clear();
-                    for (auto& facenode : face_inds) {
-                        faceNodesList.push_back(tagsAndNodes.second[facenode]);
-                    }
-                    std::copy(faceNodesList.begin(), faceNodesList.end(),
-                                face_nodes.begin());
+                    std::vector<size_t> face_nodes(face_inds.size());
+                    for (int j = 0; j != face_inds.size(); ++j)
+                        face_nodes[j] = tagsAndNodes.second[face_inds[j]];
                     // find primitive edges of this face
                     priminfo.type = eLine;
                     for (int j = 0; j != numEdges; ++j) {
-                        edgeNodesList = std::list<int>{
+                        edgeNodesList = std::set<size_t>{
                             face_nodes[i%numEdges],
                             face_nodes[(i+1)%numEdges]
                         };
-                        edgeNodesList.sort();
                         priminfo.tag = s_linearElementsNodes[0].at(
                                                                 edgeNodesList);
                         // since every single edge in the mesh has already been
@@ -654,7 +626,6 @@ void GmshReader::Read2DElements() {
                     einfo.tag = ++s_lastTagCreated[1];
                     // Add it to the linear elements so that we can easily find
                     // it while reading 3D elements
-                    faceNodesList.sort();
                     s_linearElementsNodes[1].emplace(faceNodesList, einfo.tag);
 
                     s_factory->GetElement(einfo);
@@ -669,7 +640,7 @@ void GmshReader::Read3DElements() {
     ElementInfo einfo, priminfo;
     int numNodes, numEdges, numFaces;
     int rTag;
-    std::list<int> faceNodesList;
+    std::set<size_t> faceNodesList;
     // For each cached 3D entity block
     for (auto& blkHeader_TagsAndNodes : s_higherDimCache[1]) {
         rTag = -1; // reset region tag
@@ -692,14 +663,12 @@ void GmshReader::Read3DElements() {
             einfo.tag = tagsAndNodes.first;
             // get primitive faces
             for (int i = 0; i != numFaces; ++i) { // for each face
-                std::vector<int> face_inds = GmshFacesOn3DElements[
-                                                                einfo.type][i];
-                priminfo.clear(); // clear containers in ElementInfo
-                priminfo.type = (face_inds.size() == 3) ? eTri : eQuad;
                 faceNodesList.clear();
-                for (auto& j : face_inds)
-                    faceNodesList.push_back(tagsAndNodes.second[j]);
-                faceNodesList.sort();
+                std::vector<size_t> face_inds = GmshFacesOn3DElements[
+                                                                einfo.type][i];
+                priminfo.type = (face_inds.size() == 3) ? eTri : eQuad;
+                for (auto& index : face_inds)
+                    faceNodesList.insert(tagsAndNodes.second[index]);
                 priminfo.tag = s_linearElementsNodes[1].at(faceNodesList);
 
                 einfo.prims.push_back(s_factory->GetElement(priminfo));
@@ -947,12 +916,13 @@ std::vector<int> GmshASCIISection::Next(std::map<size_t,
 
 // Next for reading Elements (tag, vector of nodes it comprises) entity blocks
 std::vector<int> GmshASCIISection::Next(std::map<size_t, 
-                                        std::vector<int>>& tagNodes) {
+                                        std::vector<size_t>>& tagNodes) {
     CheckNext("Elements");
 
     std::vector<int> vinfo;
     char c;
     int itmp;
+    size_t stmp;
     while (s_iFile >> itmp) {
         vinfo.push_back(itmp);
         while (s_iFile.get(c))
@@ -970,16 +940,17 @@ std::vector<int> GmshASCIISection::Next(std::map<size_t,
         if (vinfo.front()) {
             // Register tag key into the map with an empty vector of nodes
             if ((s_iFile >> itmp) && (itmp > 0))
-                tagNodes.emplace(itmp, std::vector<int>());
+                tagNodes.emplace(static_cast<size_t>(itmp), std::vector<size_t>());
             else {
                 std::cerr << "Invalid element tag in entity tagged "
                             << vinfo[1] << ".\n";
                 exit(-1);
             }
             // Now run through the nodes list
-            auto& vec = tagNodes.at(itmp);
-            while (s_iFile >> itmp) {
-                vec.push_back(itmp);
+            stmp = static_cast<size_t>(itmp);
+            auto& vec = tagNodes.at(stmp);
+            while (s_iFile >> stmp) {
+                vec.push_back(stmp);
                 while (s_iFile.get(c))
                     if (c != ' ') { s_iFile.unget(); break; }
                 if (s_iFile.peek() == '\n') { s_iFile.get(c); break; }
@@ -1144,7 +1115,7 @@ std::vector<int> GmshBinarySection::Next(std::map<size_t,
 
 // Next for reading Elements (tag, vector of nodes it comprises) entity blocks
 std::vector<int> GmshBinarySection::Next(std::map<size_t, 
-                                        std::vector<int>>& tagNodes) {
+                                        std::vector<size_t>>& tagNodes) {
 
 }
 

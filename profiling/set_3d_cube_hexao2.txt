@@ -1,0 +1,18 @@
+Trying to read Nodes.
+Number of Nodes read: 274625
+Trying to read Edges.
+Total duration of ReadEdges() function: 22.309 sec
+Time took to read Edges on 1D entities: 0.011 sec
+Time took to read Edges on 2D entities: 0.685 sec
+Time took to read Edges on 3D entities: 20.493 sec
+Number of Edges read: 811200
+Trying to read Elements.
+Total duration of ReadElements() function: 35.495 sec
+Time took to read 2D Elements: 26.639 sec
+Time took to read 3D Elements: 8.856 sec
+Number of Tris read: 94615435348016
+Number of Quads read: 798720
+Number of Hexas read: 262144
+Number of Tetras read: 94615435348016
+Number of Prisms read: 94615435348016
+Number of Pyrams read: 94615435348016

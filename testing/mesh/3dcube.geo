@@ -43,7 +43,7 @@ Recombine Surface {13};
 //+
 Recombine Surface {25};
 //+
-Transfinite Volume{1} = {1, 2, 3, 4, 5, 6, 10, 14};
+Transfinite Volume{2} = {1, 2, 3, 4, 5, 6, 10, 14};
 //+
 Physical Surface("in") = {26};
 //+

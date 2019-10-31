@@ -9,6 +9,7 @@ opposite results, i.e., it returned a reference to a const value_type hence
 preventing it from being passed to a function expecting a value_type argument.
 */
 
+#include <map>
 #include <set>
 #include <unordered_set>
 #include <iostream>
@@ -49,10 +50,24 @@ int main() {
 
     Derived2 *a2 = new Derived2(stest);
 
+    std::map<std::set<int>, size_t> mapset;
     std::set<int> sord {6, 1, 9, 10, 2, 0};
     for (auto e : sord)
         std::cout << e << " ";
     std::cout << std::endl;
+
+    std::set<int> sord2 {0, 1, 9, 10, 2, 6};
+    for (auto e : sord2)
+        std::cout << e << " ";
+    std::cout << std::endl;
+
+    mapset.emplace(sord, 1);
+    if (mapset.find(sord2) != mapset.end())
+        std::cout << "YESS\n";
+
+
+
+    
 
 }
 

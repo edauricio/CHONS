@@ -53,9 +53,9 @@ std::vector<std::pair<ElementType, int>> GmshElementsMapping = {
 
 // A vector with the nodes defining each edge on a 3D element, according to its
 // type
-std::map<ElementType, std::vector<std::vector<int>>> GmshEdgesOn3DElements = {
+std::map<ElementType, std::vector<std::vector<size_t>>> GmshEdgesOn3DElements = {
     // Edge definition on eHexa element
-    std::make_pair(eHexa, std::vector<std::vector<int>>{
+    std::make_pair(eHexa, std::vector<std::vector<size_t>>{
                         {0, 1},
                         {0, 3},
                         {0, 4},
@@ -70,7 +70,7 @@ std::map<ElementType, std::vector<std::vector<int>>> GmshEdgesOn3DElements = {
                         {6, 7}
                     }),
     // Edge definition on eTetra element
-    std::make_pair(eTetra, std::vector<std::vector<int>>{
+    std::make_pair(eTetra, std::vector<std::vector<size_t>>{
                         {0, 1},
                         {1, 2},
                         {2, 0},
@@ -79,7 +79,7 @@ std::map<ElementType, std::vector<std::vector<int>>> GmshEdgesOn3DElements = {
                         {1, 3}
                     }),
     // Edge definition on ePrism element
-    std::make_pair(ePrism, std::vector<std::vector<int>>{
+    std::make_pair(ePrism, std::vector<std::vector<size_t>>{
                         {0, 1},
                         {0, 2},
                         {0, 3},
@@ -91,7 +91,7 @@ std::map<ElementType, std::vector<std::vector<int>>> GmshEdgesOn3DElements = {
                         {4, 5}
                     }),
     // Edge definition on ePyram element
-    std::make_pair(ePyram, std::vector<std::vector<int>>{
+    std::make_pair(ePyram, std::vector<std::vector<size_t>>{
                         {0, 1},
                         {0, 3},
                         {0, 4},
@@ -105,9 +105,9 @@ std::map<ElementType, std::vector<std::vector<int>>> GmshEdgesOn3DElements = {
 
 // A vector with the nodes defining each face on a 3D element, according to its
 // type
-std::map<ElementType, std::vector<std::vector<int>>> GmshFacesOn3DElements = {
+std::map<ElementType, std::vector<std::vector<size_t>>> GmshFacesOn3DElements = {
     // Face definitions on eHexa element
-    std::make_pair(eHexa, std::vector<std::vector<int>>{
+    std::make_pair(eHexa, std::vector<std::vector<size_t>>{
                         {0, 3, 2, 1},
                         {0, 1, 5, 4},
                         {0, 4, 7, 3},
@@ -116,14 +116,14 @@ std::map<ElementType, std::vector<std::vector<int>>> GmshFacesOn3DElements = {
                         {4, 5, 6, 7}
                     }),
     // Face definitions on eTetra element
-    std::make_pair(eTetra, std::vector<std::vector<int>>{
+    std::make_pair(eTetra, std::vector<std::vector<size_t>>{
                         {0, 2, 1},
                         {0, 3, 2},
                         {1, 2, 3},
                         {0, 1, 3}
                     }),
     // Face definitions on ePrism element
-    std::make_pair(ePrism, std::vector<std::vector<int>>{
+    std::make_pair(ePrism, std::vector<std::vector<size_t>>{
                         {0, 1, 4, 3},
                         {0, 3, 5, 2},
                         {1, 2, 5, 4},
@@ -131,7 +131,7 @@ std::map<ElementType, std::vector<std::vector<int>>> GmshFacesOn3DElements = {
                         {3, 4, 5}                        
                     }),
     // Face definitions on ePyram element
-    std::make_pair(ePyram, std::vector<std::vector<int>>{
+    std::make_pair(ePyram, std::vector<std::vector<size_t>>{
                         {0, 3, 2, 1},
                         {0, 1, 4},
                         {0, 4, 3},

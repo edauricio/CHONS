@@ -70,7 +70,7 @@ class MeshReader {
         // the nodes that define its linear element so that a higher-dimensional
         // element can check for its primitive quick and efficiently, given the
         // first nodes in the mesh file
-        std::vector<std::map<std::list<int>, size_t>> s_linearElementsNodes;
+        std::vector<std::map<std::set<size_t>, size_t>> s_linearElementsNodes;
 
         // This is a vector to maps of tags and nodes defining 2D and 3D elements.
         // It is populated by ReadEdges function while reading the 1D elements (
@@ -88,7 +88,7 @@ class MeshReader {
         // first - block header
         // second - map from Element tag to a vector of Nodes defining it.
         std::vector<std::map<std::vector<int>, std::map<size_t, 
-                            std::vector<int> > > > s_higherDimCache;
+                            std::vector<size_t> > > > s_higherDimCache;
 
         // A vector containing the tag of the latest edge / face created
         // This is needed so whenever higher dimensional elements create its
@@ -148,7 +148,7 @@ class Section {
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
         virtual std::vector<int> Next(std::map<size_t, 
-                                    std::vector<int>>&) = 0;
+                                    std::vector<size_t>>&) = 0;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
         virtual std::vector<int> Next(std::tuple<int, int, std::string>&) = 0;
@@ -184,7 +184,7 @@ class GmshSection : public Section {
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
         virtual std::vector<int> Next(std::map<size_t, 
-                                    std::vector<int>>&) = 0;
+                                    std::vector<size_t>>&) = 0;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
         virtual std::vector<int> Next(std::tuple<int, int, std::string>&) = 0;
@@ -221,7 +221,7 @@ class GmshASCIISection : public GmshSection {
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
         virtual std::vector<int> Next(std::map<size_t, 
-                                    std::vector<int>>&) override;
+                                    std::vector<size_t>>&) override;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
         virtual std::vector<int> Next(std::tuple<int, int, std::string>&) override;
@@ -252,7 +252,7 @@ class GmshBinarySection : public GmshSection {
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
         virtual std::vector<int> Next(std::map<size_t, 
-                                    std::vector<int>>&) override;
+                                    std::vector<size_t>>&) override;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
         virtual std::vector<int> Next(std::tuple<int, int, std::string>&) override;
