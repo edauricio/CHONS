@@ -41,6 +41,14 @@ std::vector<std::pair<ElementType, int>> GmshElementsMapping = {
     {eTetra, 3},     // 29
     {eTetra, 4},     // 30
     {eTetra, 5},     // 31
+    {},     // 32
+    {},     // 33
+    {},     // 34
+    {},     // 35
+    {},     // 36
+    {},     // 37
+    {},     // 38
+    {eQuad, 3},     // 39
 };
 
 // A vector with the nodes defining each edge on a 3D element, according to its

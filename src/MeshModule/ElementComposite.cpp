@@ -173,7 +173,8 @@ void Quad::RemovePrimitive(Element* ele) {
 }
 
 void Quad::AddSharing(Element* ele) {
-    if (ele && ((ele->GetType() == eHexa) || (ele->GetType() == ePrism)))
+    if (ele && ((ele->GetType() == eHexa) || (ele->GetType() == ePrism)
+                || (ele->GetType() == ePyram)))
         s_sharingElements.push_back(ele);
     else {
         std::cout << "Invalid element to share a Quad.\n";

@@ -49,6 +49,11 @@ int main() {
 
     Derived2 *a2 = new Derived2(stest);
 
+    std::set<int> sord {6, 1, 9, 10, 2, 0};
+    for (auto e : sord)
+        std::cout << e << " ";
+    std::cout << std::endl;
+
 }
 
 Derived2::Derived2(std::unordered_set<Base*> s) {

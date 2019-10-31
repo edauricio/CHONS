@@ -6,7 +6,7 @@ TESTDIR=tests/hard-coded
 TESTSRC=integration
 
 
-CXXFLAGS= -g
+CXXFLAGS= -g -lprofiler
 CPPFLAGS= -I$(IDIR)
 
 _HEADERS = MeshModule/ElementComposite.h MeshModule/ElementFactory.h MeshModule/ElementNumInfo.h \

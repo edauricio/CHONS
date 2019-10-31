@@ -1,11 +1,13 @@
 #include "MeshModule/ElementComposite.h"
 #include "MeshModule/ElementFactory.h"
 #include "MeshModule/MeshReader.h"
+#include "gperftools/profiler.h"
 #include <iostream>
 
 using namespace CHONS;
 
 int main() {
+    ProfilerStart("dump.txt");
     ElementFactory* fac = ElementFactory::GetInstance();
 
     GmshReader readertest{"/home/eron/CHONS/testing/mesh/3d_cube_hexao2.msh"};
@@ -22,10 +24,15 @@ int main() {
     std::cout << "Number of Tris read: " << fac->HowMany(eTri) << "\n";
     std::cout << "Number of Quads read: " << fac->HowMany(eQuad) << "\n";
     std::cout << "Number of Hexas read: " << fac->HowMany(eHexa) << "\n";
+    std::cout << "Number of Tetras read: " << fac->HowMany(eTetra) << "\n";
+    std::cout << "Number of Prisms read: " << fac->HowMany(ePrism) << "\n";
+    std::cout << "Number of Pyrams read: " << fac->HowMany(ePyram) << "\n";
+
     //readertest.ShoutOutAll();
 
 
-    
+    ProfilerFlush();
+    ProfilerStop();
 
     //fac->RunThrough();
 
