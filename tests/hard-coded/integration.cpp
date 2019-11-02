@@ -10,7 +10,8 @@ int main() {
     ProfilerStart("dump.txt");
     ElementFactory* fac = ElementFactory::GetInstance();
 
-    GmshReader readertest{"/home/eron/CHONS/testing/mesh/3d_cube_hexao1_fine.msh"};
+    // GmshReader readertest{"/home/eron/workspace/CHONS/testing/mesh/3d_cubeo2.msh"};
+    GmshReader readertest{"/home/eron/Desktop/3dfine.msh"};
     std::cout << "Trying to read Nodes.\n";
     readertest.ReadNodes();
     std::cout << "Number of Nodes read: " << fac->HowMany(eNode) << "\n";

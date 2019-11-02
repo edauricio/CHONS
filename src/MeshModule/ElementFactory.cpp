@@ -41,7 +41,8 @@ ElementFactory* ElementFactory::GetInstance() {
 
 Element* ElementFactory::GetElement(const ElementInfo& ein) {
     Element* ele;
-
+    // TODO: Too many find()'s in this function...
+    // Is there a way to improve it?
     auto itm = s_elements.find(ein.type);
     if (itm != s_elements.end()) {
         auto its = itm->second.find(ein.tag);
