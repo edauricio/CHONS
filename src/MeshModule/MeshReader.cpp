@@ -4,6 +4,7 @@
 #include <sstream>
 #include <cassert>
 #include <algorithm>
+#include <cmath>
 #include <chrono> // DELETE THIS -- For function time measurement purposes while developing only
 
 namespace CHONS {
@@ -14,7 +15,8 @@ namespace CHONS {
 // Growth of its result seems acceptable for our mesh sizes
 // (i.e. fits a size_t).
 inline size_t edge_upairing(const size_t& a, const size_t& b) {
-    return (a+b)*(a*b);
+    // return (a+b)*(a*b);
+    return 0.5*std::fmax(a,b)*(std::fmax(a,b)+1) + std::fmin(a,b);
 }
 inline size_t face_upairing(const size_t& a, const size_t& b, const size_t& c) {
     return (a+b+c)+(a*b*c);

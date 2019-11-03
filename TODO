@@ -1,5 +1,39 @@
-1) Create an Assert class to throw a (handling) exception and put a message to std:cerr
+CHANGE ELEMENTFACETORY MAP TO VECTOR
+The ElementFactory class checks if an element already exists by calling find()
+on a map, that maps each ElementType to another map containing the element's tag and
+a pointer to it. If the ElementType-Tag pair doesn't match the one asked, the element
+doesn't exists and so it is created; otherwise, returns the pointer to the element.
+However, maybe this first find() on the map of ElementType value_key may be improved
+by turning this map into a vector, because in fact tags are not numbered according
+to ElementType, but element dimension. Hence, nodes, lines, 2D and 3D elements will
+be uniquely tagged, respectively. Since the access for a vector is faster than a 
+find(), this might decrease ElementFactory check time.
+Of course, if-else statements will be needed in order to know which vector element
+to look for (or maybe "map" somehow ElementType to the corresponding vector entry).
+
+=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=
+
+CREATE RESOURCE DIRECTOR CLASS
+A Resource Director class should be created to manage all resource requests
+These resources include but are not limited to:
+- Memory (duh!)
+- Threads
+A previous analysis/design should be made in order to define its interface
+and responsibilities.
+
+=-=-=--=-=-=-=--=--=--=-=-=-=-=-=-=-=-=-=--=--=--=-
+
+ANALYSIS/DESIGN OF CLASS TO HANDLE MESH CREATION/GRAPH ADDITIOn
+This class should be responsible for adding the appropriated information to
+the MeshGraph (or MeshInfoHandler) class.
+
+=-=-==-=-=--==-=-==-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-
+
+(USE BOOST/SIMPLE ONE INSTEAD) 
+Assert class to throw a (handling) exception and put a message to std:cerr
   instead of checking errors with if statements and hard-coded exiting the program.
+
+-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=--=--=-=-=-=---=-
 
 2) ADJACENCY:
 The MeshGraph should contain a list of Element adjacencies (check if this is really necessary)
@@ -20,20 +54,23 @@ will need boundary NAME info when setting the boundary conditions for every iter
 the only object having it is MeshReader, which will soon be destroyed (b4 the boundary cond.
 can be applied). Hence, this info must be passed along to the MeshGraph.
 
-3) FACE/VOLUME NODES FOR 2D+ ELEMENTS ----- DONE
-Create a "list" (std::set?) of every Node added to the mesh while reading the nodes. When
-reading Edges, every Node in an Edge should be erased from this list. The reamining nodes are
-"dangling" nodes, which can only be 2D face nodes or 3D volume nodes. Hence, when looking for
-the last nodes on a line defining a 2D+ element, it is easy to check if it is one defining
-face/volume nodes, i.e., if it's not on this list, its an edge/face node so nothing should be done;
-otherwise, it's a face/volume node so it should be added to the primitives list. The erasing proccess
-continues when reading 2D elements, i.e., every face node is erased from this list, so that when
-finishing reading 2D elements, the "dangling nodes" on the list must be volume nodes of 3D
-elements.
-To find the correct list of primitive elements for 2D+ elements, the map of a list to the nodes
-defining the edge/face linear elements mapping to the edge/face tag should still be used, since
-everytime an element is defined, no matter the order/type, its linear-equivalent nodes are
-defined first. If this map is not to be used, if/case statements would need to be constructed to
-check for each element type (currently, 92!!!) and then read the nodes on the line defining it
-accordingly. Looks like a bad idea, at first.
+=--=-=--=-=--=-=-=--=-=-=-=-
 
+CREATE A "NATIVE" MESH FILE FORMAT
+It is important to have a "native" file format for two reasons
+one) It will speed up a lot the prepocessing if we could read the mesh faster. By reading a
+"raw" (msh/cgns) mesh file and writing it down in a "native" format, we could make this
+native format very straightforward to read in the way our software is architected. For example,
+we could put all the nodes, then all the edges, then all 2D faces, then all 3D elements line
+by line so that we would basically just use getline() and ask the factory to create our element.
+
+two) Imagine that our mesh is very, very big, say 500.000.000 (500mil) elements. This amount of
+infomartion probably won't fit even in a 64Gb memory, so obviously the mesh would need to be
+READ separately, i.e. directly in each processes' memory. We could then read the "raw" (msh/cgns)
+mesh file and, according to an option passed about how many processes are going to be used,
+write our "native" mesh file already partitioned (using metis to do so).
+In other words, the input mesh file would be either in serial or parallel format.
+
+To create this native mesh file, a tool would be used (and MeshModule could definitely be reused
+here, probably with another implementation on the Section bridge), either a new executable or
+a parameter like -import should be passed to the main program.
