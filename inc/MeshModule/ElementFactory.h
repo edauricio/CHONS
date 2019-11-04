@@ -19,7 +19,10 @@ class ElementFactory {
         bool Created() { return s_created; };
         static ElementFactory* GetInstance();
         // DELETE THIS -- FOR DEBUGGING PURPOSES ONLY
-        size_t HowMany(const ElementType& et) { return s_elements.find(et)->second.size(); }
+        size_t HowMany(const ElementType& et) { 
+            return ((s_elements.find(et) != s_elements.end()) ? 
+              s_elements.find(et)->second.size()
+            : 0); }
         // DELETE THIS -- FOR DEBUGGING PURPOSES ONLY
         void RunThrough();
         
@@ -30,7 +33,7 @@ class ElementFactory {
       static ElementFactory* s_singleInstance;
         Element* create(const ElementInfo&);
         bool s_created = false;
-        std::map<ElementType, 
+        std::unordered_map<ElementType, 
                 std::unordered_map<size_t, Element*> > s_elements;
 };
 

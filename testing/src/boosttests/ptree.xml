@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu>
+    <drinks>
+        <beverage>coke</beverage>
+        <alcohoolic>wine</alcohoolic>
+        <beverage>water</beverage>
+    </drinks>
+    <food>
+        <fish>salmon</fish>
+        <fish>saint-peter</fish>
+        <meat>prime rib</meat>
+        <meat>T-bone</meat>
+    </food>
+</menu>

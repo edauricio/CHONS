@@ -1,0 +1,970 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"parse_config",
+				"parse_config_file\tbasic_parsed_options<charT> parse_config_file<class charT>(const char *filename, const options_description &)"
+			],
+			[
+				"parse",
+				"parse_config_file\tbasic_parsed_options<charT> parse_config_file(std::basic_istream<charT> &, const options_description &)"
+			],
+			[
+				"posit",
+				"positional_options_description"
+			],
+			[
+				"varia",
+				"variables_map"
+			],
+			[
+				"unorde",
+				"unordered_map\tstandard header (since c++11)"
+			],
+			[
+				"linea",
+				"linear_prim_list"
+			],
+			[
+				"Q",
+				"Q"
+			],
+			[
+				"n",
+				"n"
+			],
+			[
+				"N",
+				"N"
+			],
+			[
+				"forma",
+				"formattedResults"
+			],
+			[
+				"Scala",
+				"ScalarFlowProp"
+			],
+			[
+				"Scalar",
+				"ScalarFlowProp"
+			],
+			[
+				"derit",
+				"derivativeOrder"
+			],
+			[
+				"derivative",
+				"derivativeOrder"
+			],
+			[
+				"deriva",
+				"derivativeOrder"
+			],
+			[
+				"k",
+				"k"
+			],
+			[
+				"X",
+				"X"
+			],
+			[
+				"T",
+				"T"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "inc/MeshModule/ElementComposite.h",
+			"settings":
+			{
+				"buffer_size": 4753,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "inc/MeshModule/ElementEnumInfo.h",
+			"settings":
+			{
+				"buffer_size": 648,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "inc/MeshModule/ElementFactory.h",
+			"settings":
+			{
+				"buffer_size": 1204,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "inc/MeshModule/MeshReader.h",
+			"settings":
+			{
+				"buffer_size": 10099,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/MeshModule/ElementComposite.cpp",
+			"settings":
+			{
+				"buffer_size": 12578,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/MeshModule/ElementFactory.cpp",
+			"settings":
+			{
+				"buffer_size": 2968,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/MeshModule/MeshReader.cpp",
+			"settings":
+			{
+				"buffer_size": 46686,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "tests/hard-coded/integration.cpp",
+			"settings":
+			{
+				"buffer_size": 2639,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "testing/src/boosttests/asserts.cpp",
+			"settings":
+			{
+				"buffer_size": 540,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "testing/src/boosttests/program_options.cpp",
+			"settings":
+			{
+				"buffer_size": 5011,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "testing/src/iostreams.cpp",
+			"settings":
+			{
+				"buffer_size": 3465,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "testing/src/bitwise_ops.cpp",
+			"settings":
+			{
+				"buffer_size": 2811,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "testing/src/cantor_pairing_func.cpp",
+			"settings":
+			{
+				"buffer_size": 9324,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"Package Control: ins",
+				"Package Control: Install Package"
+			],
+			[
+				"git",
+				"Set Syntax: Git Log"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"ena",
+				"Package Control: Enable Package"
+			],
+			[
+				"disab",
+				"Package Control: Disable Package"
+			],
+			[
+				"easycl",
+				"EasyClangComplete: Settings"
+			],
+			[
+				"easyc",
+				"EasyClangComplete: Open completion triggers location"
+			],
+			[
+				"addf",
+				"Add Folders To Project"
+			],
+			[
+				"prv",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"Install P",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: inst",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: in",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 136.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/eron/workspace/CHONS",
+		"/home/eron/workspace/CHONS/inc",
+		"/home/eron/workspace/CHONS/inc/MeshModule",
+		"/home/eron/workspace/CHONS/inc/Utils",
+		"/home/eron/workspace/CHONS/src",
+		"/home/eron/workspace/CHONS/src/MeshModule",
+		"/home/eron/workspace/CHONS/testing",
+		"/home/eron/workspace/CHONS/testing/src",
+		"/home/eron/workspace/CHONS/testing/src/boosttests",
+		"/home/eron/workspace/CHONS/tests",
+		"/home/eron/workspace/CHONS/tests/hard-coded"
+	],
+	"file_history":
+	[
+		"/home/eron/workspace/CHONS/testing/src/boosttests/program_options,cpp",
+		"/home/eron/workspace/CHONS/testing/src/boosttests/asserts.cpp",
+		"/home/eron/workspace/CHONS/chons.sublime-project",
+		"/home/eron/workspace/CHONS/inc/MeshModule/GmshElements.h",
+		"/home/eron/workspace/CHONS/testing/src/modop.cpp",
+		"/home/eron/workspace/CHONS/testing/src/enums.cpp",
+		"/home/eron/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
+		"/home/eron/.config/sublime-text-3/Packages/Default/Preferences.sublime-settings",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/EquationSystems/CompressibleFlowSystem.cpp",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/EquationSystems/NavierStokesCFE.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/EquationSystems/NavierStokesCFE.cpp",
+		"/home/eron/Nektar/library/SpatialDomains/Conditions.h",
+		"/home/eron/Nektar/library/SpatialDomains/Conditions.cpp",
+		"/home/eron/Nektar/library/SolverUtils/Diffusion/Diffusion.h",
+		"/home/eron/Nektar/library/SolverUtils/Diffusion/Diffusion.cpp",
+		"/home/eron/Nektar/library/SolverUtils/Diffusion/Diffusion3DHomogeneous1D.h",
+		"/home/eron/Nektar/library/SolverUtils/Diffusion/Diffusion3DHomogeneous1D.cpp",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/Diffusion/DiffusionLDGNS.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/Diffusion/DiffusionLDGNS.cpp",
+		"/home/eron/Nektar/library/LibUtilities/TimeIntegration/TimeIntegrationScheme.h",
+		"/home/eron/Nektar/library/LibUtilities/TimeIntegration/TimeIntegrationScheme.cpp",
+		"/home/eron/Nektar/library/LibUtilities/TimeIntegration/TimeIntegrationWrapper.h",
+		"/home/eron/Nektar/library/LibUtilities/TimeIntegration/TimeIntegrationWrapper.cpp",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/EquationSystems/CompressibleFlowSystem.h",
+		"/home/eron/Nektar/library/SolverUtils/AdvectionSystem.cpp",
+		"/home/eron/Nektar/library/SolverUtils/AdvectionSystem.h",
+		"/home/eron/Nektar/library/SolverUtils/UnsteadySystem.cpp",
+		"/home/eron/Nektar/library/SolverUtils/UnsteadySystem.h",
+		"/home/eron/Nektar/library/SolverUtils/EquationSystem.cpp",
+		"/home/eron/Nektar/library/SolverUtils/EquationSystem.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/BoundaryConditions/WallModelLES.cpp",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/BoundaryConditions/WallModelLES.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/BoundaryConditions/WallViscousBC.cpp",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/BoundaryConditions/WallViscousBC.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/CompressibleFlowSolver.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/Geo/GEntity.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/Geo/GEntity.h",
+		"/home/eron/Downloads/gmsh-4.4.1-source/Geo/GModel.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/Geo/GModel.h",
+		"/home/eron/Downloads/gmsh-4.4.1-source/Common/gmsh.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/api/gmsh.h",
+		"/home/eron/Downloads/gmsh-4.4.1-source/demos/api/faces.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/demos/api/apitest.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/api/README.txt",
+		"/home/eron/Downloads/gmsh-4.4.1-source/api/gmshc.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/demos/api/t1.cpp",
+		"/home/eron/Downloads/gmsh-4.4.1-source/demos/api/open.cpp",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/BoundaryConditions/CFSBndCond.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/BoundaryConditions/CFSBndCond.cpp",
+		"/home/eron/Desktop/Tensor.h",
+		"/home/eron/Nektar/library/SolverUtils/Advection/Advection3DHomogeneous1D.cpp",
+		"/home/eron/Nektar/library/LibUtilities/BasicUtils/Vmath.cpp",
+		"/home/eron/Nektar/library/LibUtilities/LinearAlgebra/blas.cpp",
+		"/home/eron/Nektar/library/SolverUtils/Diffusion/DiffusionLDG.cpp",
+		"/home/eron/Nektar/library/SolverUtils/Diffusion/DiffusionLDG.h",
+		"/home/eron/Nektar/solvers/CompressibleFlowSolver/BoundaryConditions/WallBC.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/inc/Tensor.h",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/inc/Fem.h",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/src/galerkin.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/inc/Galerkin.h",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/src/poly.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/inc/Poly.h",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/main.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/solver/test.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/Answer/polylib.h",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/Answer/polylib.c",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/solver/Tensor.h",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/src/Poly.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/inc/Poly_bck.h",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/src/Poly_bck.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/Answer/exercise1a.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/Answer/exercise1c.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/Answer/exercise1b.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/Polylib.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/MultiDimSolver/src/Poly.h",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/poly.cpp",
+		"/home/eron/workspace/CFD-Karniadakis/Chapter2/Polylib.h",
+		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/config",
+		"/home/eron/workspace/c++/SolverProject/src/linearsyssolvers.cpp",
+		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/p3.cpp",
+		"/home/eron/workspace/c++/SolverProject/inc/p3Header.h",
+		"/home/eron/workspace/c++/SolverProject/src/p3src.cpp",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto3/solver/Projeto3/bw.cpp",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto3/inc/p3Header.h",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto3/solver/Projeto3/p3.cpp",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto3/src/p3src.cpp",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto3/solver/Projeto3/config",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto2/fvc.h",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto3/inc/Mesh.h",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto2/p-s.cpp",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto2/param.cfg",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto2/lss.h",
+		"/media/eron/Expansion Drive/ERON/Estudos/CFD/CC-298/CC-298/Projeto2/aux.h",
+		"/home/eron/workspace/c++/CC-298/Projeto2/aux.h",
+		"/home/eron/workspace/c++/CC-298/Projeto2/fvc.h",
+		"/home/eron/workspace/c++/CC-298/Projeto2/param.cfg",
+		"/home/eron/workspace/c++/CC-298/Projeto2/p-s.cpp",
+		"/home/eron/workspace/c++/CC-298/Projeto2/p-s",
+		"/home/eron/workspace/c++/cc-298-project2/aux.h",
+		"/home/eron/workspace/c++/cc-298-project2/fvc.h",
+		"/home/eron/workspace/c++/SolverProject/inc/Operators.h",
+		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/test.cpp",
+		"/home/eron/workspace/c++/SolverProject/inc/LinearSysSolvers.h",
+		"/home/eron/workspace/c++/SolverProject/src/mesh.cpp",
+		"/home/eron/workspace/c++/SolverProject/inc/Mesh.h",
+		"/home/eron/workspace/c++/cc-298-project2/p-s.cpp",
+		"/home/eron/workspace/c++/SolverProject/src/linearsyssolver.cpp",
+		"/home/eron/workspace/c++/SolverProject/src/linearsyssolver\\.cpp",
+		"/home/eron/workspace/c++/SolverProject/src/numerics.cpp",
+		"/home/eron/workspace/c++/SolverProject/inc/Numerics.h",
+		"/home/eron/workspace/c++/SolverProject/src/mecflu.cpp",
+		"/home/eron/workspace/c++/SolverProject/inc/MecFlu.h",
+		"/home/eron/workspace/c++/SolverProject/inc/FlowSolver.h",
+		"/home/eron/workspace/c++/SolverProject/src/flowSolver.cpp",
+		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/aa.cpp",
+		"/home/eron/workspace/c++/SolverProject/inc/test.cpp",
+		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/flow",
+		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/numerics",
+		"/home/eron/workspace/c++/SolverProject/inc/Aux.h",
+		"/home/eron/workspace/c++/SolverProject/inc/json.hpp",
+		"/home/eron/workspace/c++/SolverProject/inc/numerics.json",
+		"/home/eron/workspace/c++/SolverProject/inc/numerics",
+		"/home/eron/workspace/c++/SolverProject/inc/Bulk.h",
+		"/home/eron/workspace/c++/cc-298-project2/operators.h",
+		"/home/eron/workspace/c++/SolverProject/solver.sublime-project",
+		"/home/eron/workspace/c++/SolverProject/mesh_gen.cpp",
+		"/home/eron/workspace/c++/SolverProject/Mesh.h",
+		"/home/eron/workspace/c++/cc-298-project2/wall_time.h"
+	],
+	"find":
+	{
+		"height": 39.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"binary",
+			"new ",
+			"szudzik",
+			" ^ ",
+			" & ",
+			"& ",
+			"^ ",
+			"s_physicalRegionNames",
+			"};\n",
+			"numFaces",
+			"s_boundaryRegionNames",
+			"s_boundaryRegionEntities",
+			"s_dim",
+			"stoi",
+			"dim",
+			"ReadSectionHeader",
+			"s_mshVersion",
+			"Created",
+			"GetElement",
+			"s_iFile",
+			"s_mshFormat",
+			"s_meshFormat",
+			"caret",
+			"fold",
+			"2"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"& "
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 2,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "inc/MeshModule/ElementComposite.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4753,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								696,
+								696
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4
+						},
+						"translation.x": 0.0,
+						"translation.y": 51.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "inc/MeshModule/ElementEnumInfo.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 648,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 12,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "inc/MeshModule/ElementFactory.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1204,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								202,
+								202
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "inc/MeshModule/MeshReader.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10099,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								208,
+								208
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 5,
+			"sheets":
+			[
+				{
+					"buffer": 4,
+					"file": "src/MeshModule/ElementComposite.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 12578,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1275.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "src/MeshModule/ElementFactory.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2968,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1567,
+								1567
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4
+						},
+						"translation.x": 0.0,
+						"translation.y": 510.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "src/MeshModule/MeshReader.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 46686,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								487,
+								487
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "tests/hard-coded/integration.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2639,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								420,
+								420
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "testing/src/boosttests/asserts.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 540,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "testing/src/boosttests/program_options.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5011,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3489,
+								3489
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1198.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "testing/src/iostreams.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3465,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2275,
+								2275
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4
+						},
+						"translation.x": 0.0,
+						"translation.y": 1301.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "testing/src/bitwise_ops.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2811,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								126,
+								126
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "testing/src/cantor_pairing_func.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9324,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4511,
+								4511
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1326.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 26.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.5,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.mdpopups":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "chons.sublime-project",
+	"replace":
+	{
+		"height": 70.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 1,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 191.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

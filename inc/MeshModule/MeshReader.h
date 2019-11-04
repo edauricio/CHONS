@@ -7,6 +7,8 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <unordered_map>
+#include <unordered_set>
 #include <set>
 #include <tuple>
 #include "ElementFactory.h"
@@ -64,13 +66,14 @@ class MeshReader {
         // of faces in 3D) checking for each of its nodes to compare with the
         // node given in t he element definition so we can have the info about
         // whether its a primitive node or a interior one.
-        std::set<size_t> s_danglingNodes;
+        std::unordered_set<size_t> s_danglingNodes;
 
         // Vector to maps of 1D and 2D elements, each containing a list with
         // the nodes that define its linear element so that a higher-dimensional
         // element can check for its primitive quick and efficiently, given the
         // first nodes in the mesh file
-        std::vector<std::map<std::set<size_t>, size_t>> s_linearElementsNodes;
+        std::vector<std::unordered_map<size_t, size_t>>
+                                             s_linearElementsNodes;
 
         // This is a vector to maps of tags and nodes defining 2D and 3D elements.
         // It is populated by ReadEdges function while reading the 1D elements (
