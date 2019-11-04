@@ -1,11 +1,23 @@
 #include "MeshModule/MeshReader.h"
 #include "MeshModule/GmshAuxiliaryDefs.h"
+#include "boost/assert.hpp"
 #include <iostream>
 #include <sstream>
 #include <cassert>
 #include <algorithm>
 #include <cmath>
 #include <chrono> // DELETE THIS -- For function time measurement purposes while developing only
+
+namespace boost {
+    void assertion_failed_msg(char const* expr, char const* msg,
+        char const* function, char const* file, long line) {
+        std::cout << "ASSERTION FAILED!\n";
+        std::cout << "\"" << msg << "\"\n";
+        std::cout << "failed: (" << expr << ")\n";
+        std::cout << "in: " << file << ":" << line << ": " << function << "\n";
+        std::abort();
+    }
+}
 
 namespace CHONS {
 
@@ -182,19 +194,22 @@ void GmshReader::ReadNodes() {
             einfo.clear(); // reset containers in ElementInfo
             einfo.tag = me.first;
             einfo.coords = me.second;
-            s_factory->GetElement(einfo);
-            if (!s_factory->Created()) {
-                std::cerr << "Duplicated Node tag. Double check mesh file.\n";
-                exit(-1);
-            }
-            // Add the newly created node to the dangling nodes list
+            BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), "Element placed in "
+                "Order has already been created");
+            // if (!s_factory->Created()) {
+            //     std::cerr << "Duplicated Node tag. Double check mesh file.\n";
+            //     exit(-1);
+            // }
+
+            // Add the newly ordered node to the dangling nodes list
             s_danglingNodes.insert(einfo.tag);
 
             // Region Tag should be handled here by GraphHandler
-            // s_graphHandler->Add(s_factory->GetElement(einfo), rTag)
+            // s_graphHandler->Add(s_factory->OrderElement(einfo), rTag)
             // or something like it
         }
     }
+    s_factory->PlaceOrder();
     s_nodesDone = true;
 }
 
@@ -249,12 +264,13 @@ void GmshReader::ReadEdges() {
                     // Remove primitive node from the dangling nodes list
                     s_danglingNodes.erase(*it);
                 }
-                s_factory->GetElement(einfo);
-                if (!s_factory->Created()) {
-                    std::cerr << "Duplicated Edge tag. "
-                            << "Double check mesh file.\n";
-                    exit(-1);
-                }
+                BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
+                    "Element placed in Order has already been created");
+                // if (!s_factory->Created()) {
+                //     std::cerr << "Duplicated Edge tag. "
+                //             << "Double check mesh file.\n";
+                //     exit(-1);
+                // }
                 s_lastTagCreated[0] = einfo.tag;
                 if (!s_linearElementsNodes.empty()) {
                     s_linearElementsNodes[0].emplace(
@@ -288,8 +304,7 @@ void GmshReader::ReadEdges() {
                 for (int i = 0; i != numEdges; ++i) {
                     edgeNodes = edge_upairing(eleNodes.second[i%numEdges],
                                             eleNodes.second[(i+1)%numEdges]);
-                    if (s_linearElementsNodes[0].find(edgeNodes) 
-                        != s_linearElementsNodes[0].end()) {
+                    if (s_linearElementsNodes[0].count(edgeNodes)) {
                         // std::cout << "Supposedly existing edge: "
                         //         << s_linearElementsNodes[0].at(edgeNodes)
                         //         << "\nLin. nodes: " << eleNodes.second[i%numEdges]
@@ -306,7 +321,8 @@ void GmshReader::ReadEdges() {
                             priminfo.tag = eleNodes.second[j%numEdges];
                             einfo.prims.push_back(s_factory->GetElement(
                                                                 priminfo));
-                            assert(!s_factory->Created());
+                            BOOST_ASSERT_MSG(!s_factory->Created(),
+                                        "Element already exists");
                             s_danglingNodes.erase(priminfo.tag);
                         }
                         // for each node defining the higher order of the edge
@@ -315,7 +331,8 @@ void GmshReader::ReadEdges() {
                                             numEdges+(i*(einfo.eleOrder-1))+j];
                             einfo.prims.push_back(s_factory->GetElement(
                                                                 priminfo));
-                            assert(!s_factory->Created());
+                            // BOOST_ASSERT_MSG(!s_factory->Created(),
+                            //             "Invalid primitive Node Element");
                             s_danglingNodes.erase(priminfo.tag);
                         }
                         // TODO: Change edge creation from 1D entity blocks to
@@ -328,11 +345,13 @@ void GmshReader::ReadEdges() {
                         einfo.tag = ++s_lastTagCreated[0];
                         // Add it to the linear elements list so that the adjacent
                         // 2D elements doesn't create it with another tag
-                        s_linearElementsNodes[0].emplace(edgeNodes, 
+                        s_linearElementsNodes[0].emplace(edgeNodes,
                                                                 einfo.tag);
 
-                        s_factory->GetElement(einfo);
-                        assert(s_factory->Created());
+                        BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
+                            "Element placed in Order has already been created");
+                        // BOOST_ASSERT_MSG(s_factory->Created(),
+                        //                 "Failed to create element");
                     }
                 }
             }
@@ -368,6 +387,10 @@ void GmshReader::ReadEdges() {
                     numNodes = 5;
                     numEdges = 8;
                     break;
+
+                default:
+                    std::cerr << "Unrecognized 3D Element type.\n";
+                    break;
             }
 
             // For each element defined in this entity block
@@ -382,8 +405,7 @@ void GmshReader::ReadEdges() {
                                         GmshEdgesOn3DElements[cur_type][i][1]
                                         ]);
                     // check if edge already exists; if so, go to the next
-                    if (s_linearElementsNodes[0].find(edgeNodes)
-                        != s_linearElementsNodes[0].end()) continue;
+                    if (s_linearElementsNodes[0].count(edgeNodes)) continue;
                     else {
                     // edge doesn't exist; create it then
                         einfo.clear();
@@ -394,7 +416,8 @@ void GmshReader::ReadEdges() {
                                         ];
                             einfo.prims.push_back(
                                             s_factory->GetElement(priminfo));
-                            assert(!s_factory->Created());
+                            // BOOST_ASSERT_MSG(!s_factory->Created(),
+                            //             "Invalid primitive Node Element");
                             s_danglingNodes.erase(priminfo.tag);
                         }
                         // now add the nodes defining the higher order line
@@ -403,7 +426,8 @@ void GmshReader::ReadEdges() {
                                             + (i*(einfo.eleOrder-1)) + j];
                             einfo.prims.push_back(
                                             s_factory->GetElement(priminfo));
-                            assert(!s_factory->Created());
+                            // BOOST_ASSERT_MSG(!s_factory->Created(),
+                            //             "Invalid primitive Node Element");
                             s_danglingNodes.erase(priminfo.tag);
                         }
                         // TODO: Change edge creation from 1D entity blocks to
@@ -419,8 +443,8 @@ void GmshReader::ReadEdges() {
                         s_linearElementsNodes[0].emplace(edgeNodes, 
                                                                 einfo.tag);
 
-                        s_factory->GetElement(einfo);
-                        assert(s_factory->Created());
+                        s_factory->OrderElement(einfo);
+                        // assert(s_factory->Created());
                     }
                 }
             }
@@ -431,7 +455,7 @@ void GmshReader::ReadEdges() {
             total3d += t1_3d-t0_3d;
         }
     }
-
+    s_factory->PlaceOrder();
     s_edgesDone = true;
     auto t1_edge = std::chrono::high_resolution_clock::now(); // time measurement
     std::cout << "Total duration of ReadEdges() function: " 
@@ -540,10 +564,10 @@ void GmshReader::Read2DElements() {
                 if (!s_danglingNodes.erase(*lastNodes)) break;
                 priminfo.tag = *lastNodes;
                 einfo.prims.push_back(s_factory->GetElement(priminfo));
-                if (s_factory->Created()) {
-                    std::cerr << "Non-existent face node for 2D element?\n";
-                    exit(-1);
-                }
+                // if (s_factory->Created()) {
+                //     std::cerr << "Non-existent face node for 2D element?\n";
+                //     exit(-1);
+                // }
             }
 
             // Check primitive info, create element and add it to linear 
@@ -553,7 +577,7 @@ void GmshReader::Read2DElements() {
                                 " element.\n";
                     exit(-1);
                 }
-                s_factory->GetElement(einfo);
+                s_factory->OrderElement(einfo);
                 if (s_linearElementsNodes.size() > 1) { // add element to 
                 // linear nodes->element map.
                     faceNodes = (numEdges == 3) ? 
@@ -600,8 +624,7 @@ void GmshReader::Read2DElements() {
                                             tagsAndNodes.second[face_inds[2]],
                                             tagsAndNodes.second[face_inds[3]]);
 
-                if (s_linearElementsNodes[1].find(faceNodes)
-                    != s_linearElementsNodes[1].end()) continue;
+                if (s_linearElementsNodes[1].count(faceNodes)) continue;
                 else {
                 // face doesn't exist; create it then
                     einfo.clear(); // reset containers in face ElementInfo
@@ -611,8 +634,8 @@ void GmshReader::Read2DElements() {
                     // find primitive edges of this face
                     priminfo.type = eLine;
                     for (int j = 0; j != numEdges; ++j) {
-                        edgeNodes = edge_upairing(face_nodes[i%numEdges],
-                                                face_nodes[(i+1)%numEdges]);
+                        edgeNodes = edge_upairing(face_nodes[j%numEdges],
+                                                face_nodes[(j+1)%numEdges]);
                         priminfo.tag = s_linearElementsNodes[0].at(
                                                                 edgeNodes);
                         // since every single edge in the mesh has already been
@@ -620,7 +643,7 @@ void GmshReader::Read2DElements() {
                         // if it does, a run-time error will occur because the
                         // above types don't match when .end() is returned
                         einfo.prims.push_back(s_factory->GetElement(priminfo));
-                        assert(!s_factory->Created());
+                        // assert(!s_factory->Created());
                     }
 
                     // now find primitive face nodes
@@ -634,19 +657,20 @@ void GmshReader::Read2DElements() {
                         if (!s_danglingNodes.erase(face_node)) break;
                         priminfo.tag = face_node;
                         einfo.prims.push_back(s_factory->GetElement(priminfo));
-                        assert(!s_factory->Created());
+                        // assert(!s_factory->Created());
                     }
                     einfo.tag = ++s_lastTagCreated[1];
                     // Add it to the linear elements so that we can easily find
                     // it while reading 3D elements
                     s_linearElementsNodes[1].emplace(faceNodes, einfo.tag);
 
-                    s_factory->GetElement(einfo);
-                    assert(s_factory->Created());
+                    s_factory->OrderElement(einfo);
+                    // assert(s_factory->Created());
                 }
             }
         }
     }
+    s_factory->PlaceOrder();
 }
 
 void GmshReader::Read3DElements() {
@@ -691,7 +715,7 @@ void GmshReader::Read3DElements() {
                 priminfo.tag = s_linearElementsNodes[1].at(faceNodes);
 
                 einfo.prims.push_back(s_factory->GetElement(priminfo));
-                assert(!s_factory->Created());
+                // assert(!s_factory->Created());
             }
             // get interior (volume) nodes
             priminfo.type = eNode;
@@ -701,13 +725,14 @@ void GmshReader::Read3DElements() {
                 if (!s_danglingNodes.erase(*lastNodes)) break;
                 priminfo.tag = *lastNodes;
                 einfo.prims.push_back(s_factory->GetElement(priminfo));
-                assert(!s_factory->Created());
+                // assert(!s_factory->Created());
             }
             // finally create element
-            s_factory->GetElement(einfo);
-            assert(s_factory->Created());
+            s_factory->OrderElement(einfo);
+            // assert(s_factory->Created());
         }
     }
+    s_factory->PlaceOrder();
 }
 
 Section* GmshReader::GetSectionObj(std::ifstream& file) {

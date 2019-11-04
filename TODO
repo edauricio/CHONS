@@ -1,3 +1,5 @@
+Keep ONE- below (check profiling information and see what can be done differently)
+(std::allocator to allocate an array of elements is taking more memory than individual allocations?!? WTF?)
 CHANGE ELEMENTFACTORY CLASS IN TWO WAYS
 ONE-
 Implement it in a two-step interface.

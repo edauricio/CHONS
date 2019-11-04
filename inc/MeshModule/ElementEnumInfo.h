@@ -20,7 +20,8 @@ enum ElementType {
     eHexa,
     eTetra,
     ePrism,
-    ePyram
+    ePyram,
+    MAX_NUMBER_OF_TYPES
 };
 
 struct ElementInfo {

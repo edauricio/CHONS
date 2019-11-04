@@ -5,18 +5,6 @@
 #include "boost/assert.hpp"
 #include <iostream>
 
-namespace boost {
-void assertion_failed_msg(char const* expr, char const* msg,
-        char const* function, char const* file, long line) {
-        std::cout << "ASSERTION FAILED!\n";
-        std::cout << "\"" << msg << "\"\n";
-        std::cout << "failed: (" << expr << ")\n";
-        std::cout << "in: " << file << ":" << line << ": " << function << "\n";
-        std::abort();
-}
-}
-
-
 using namespace CHONS;
 
 int main(int argc, char* argv[]) {
@@ -45,18 +33,15 @@ int main(int argc, char* argv[]) {
     ProfilerStart("dump.txt");
     ElementFactory* fac = ElementFactory::GetInstance();
 
-<<<<<<< HEAD
-    GmshReader readertest{"/home/eron/CHONS/testing/mesh/2d_quad.msh"};
-=======
-    GmshReader readertest{"/home/eron/workspace/CHONS/testing/mesh/3d_cube_hexao2.msh"};
->>>>>>> 123555d9c607240ee416aa45cc8c67600a207bb5
+    GmshReader readertest{"/home/eron/CHONS/testing/mesh/3d_cube_hexao2.msh"};
+    // GmshReader readertest{"/home/eron/workspace/CHONS/testing/mesh/3d_cube_hexao2.msh"};
     std::cout << "Trying to read Nodes.\n";
     readertest.ReadNodes();
     std::cout << "Number of Nodes read: " << fac->HowMany(eNode) << "\n";
     //readertest.ShoutOutAll();
     std::cout << "Trying to read Edges.\n";
     readertest.ReadEdges();
-    BOOST_ASSERT_MSG(fac->HowMany(eLine) == totaled, "Number of edges read differs from the number of calculated edges.");
+    // BOOST_ASSERT_MSG(fac->HowMany(eLine) == totaled, "Number of edges read differs from the number of calculated edges.");
     std::cout << "Number of Edges read: " << fac->HowMany(eLine) << "\n";
     //readertest.ShoutOutAll();
     std::cout << "Trying to read Elements.\n";

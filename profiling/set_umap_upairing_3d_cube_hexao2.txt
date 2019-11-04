@@ -1,0 +1,24 @@
+Edges in x: 64
+Edges in z: 64
+Edges in y: 64
+Should read 811200 edges.
+and 798720 quads.
+
+Trying to read Nodes.
+Number of Nodes read: 274625
+Trying to read Edges.
+Total duration of ReadEdges() function: 5.445 sec
+Time took to read Edges on 1D entities: 0.007 sec
+Time took to read Edges on 2D entities: 0.168 sec
+Time took to read Edges on 3D entities: 4.148 sec
+Number of Edges read: 811200
+Trying to read Elements.
+Total duration of ReadElements() function: 8.715 sec
+Time took to read 2D Elements: 6.26 sec
+Time took to read 3D Elements: 2.455 sec
+Number of Tris read: 0
+Number of Quads read: 798720
+Number of Hexas read: 262144
+Number of Tetras read: 0
+Number of Prisms read: 0
+Number of Pyrams read: 0

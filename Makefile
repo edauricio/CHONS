@@ -6,7 +6,7 @@ TESTDIR=tests/hard-coded
 TESTSRC=integration
 
 
-CXXFLAGS= -g -lprofiler -O3
+CXXFLAGS= -g -lprofiler
 CPPFLAGS= -I$(IDIR) -Itpls/boost/include -DBOOST_ENABLE_ASSERT_HANDLER
 
 _HEADERS = MeshModule/ElementComposite.h MeshModule/ElementFactory.h MeshModule/ElementNumInfo.h \
