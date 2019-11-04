@@ -108,27 +108,26 @@ int main(int argc, char* argv[]) {
   //           << " seconds\n";
   // std::cout << a << " " << gq << "\n";
 
-  std::cout << "Running Mod. Cantor function on two numbers a and b...\n";
-  auto t0 = std::chrono::high_resolution_clock::now();
-  for (size_t i = 0; i != 10000000; ++i) {
-    a = dists(eng);
-    b = dists(eng);
-    ia = cantor_mod(a,b);
-    ib = cantor_mod(b,a);
-    if (ia != ib) {
-        std::cout << "Ops.... Mod. Cantor is not suitable!\n";
-        exit(-1);
-    }
-  }
-  auto t1 = std::chrono::high_resolution_clock::now();
-  std::cout << "Elapsed time: "
-            << std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count()/1000.
-            << " seconds\n";
-  std::cout << a << " " << ib << "\n";
-  
+  // std::cout << "Running Mod. Cantor function on two numbers a and b...\n";
+  // auto t0 = std::chrono::high_resolution_clock::now();
+  // for (size_t i = 0; i != 10000000; ++i) {
+  //   a = dists(eng);
+  //   b = dists(eng);
+  //   ia = cantor_mod(a,b);
+  //   ib = cantor_mod(b,a);
+  //   if (ia != ib) {
+  //       std::cout << "Ops.... Mod. Cantor is not suitable!\n";
+  //       exit(-1);
+  //   }
+  // }
+  // auto t1 = std::chrono::high_resolution_clock::now();
+  // std::cout << "Elapsed time: "
+  //           << std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count()/1000.
+  //           << " seconds\n";
+  // std::cout << a << " " << ib << "\n";
 
   std::cout << "Running simple function on two numbers a and b...\n";
-  t0 = std::chrono::high_resolution_clock::now();
+  auto t0 = std::chrono::high_resolution_clock::now();
   for (size_t i = 0; i != 10000000; ++i) {
     a = dists(eng);
     b = dists(eng);
@@ -139,7 +138,7 @@ int main(int argc, char* argv[]) {
         exit(-1);
     }
   }
-  t1 = std::chrono::high_resolution_clock::now();
+  auto t1 = std::chrono::high_resolution_clock::now();
   std::cout << "Elapsed time: "
             << std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count()/1000.
             << " seconds\n";
