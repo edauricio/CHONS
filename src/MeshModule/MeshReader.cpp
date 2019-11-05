@@ -6,7 +6,6 @@
 #include <cassert>
 #include <algorithm>
 #include <cmath>
-#include <chrono> // DELETE THIS -- For function time measurement purposes while developing only
 
 namespace boost {
     void assertion_failed_msg(char const* expr, char const* msg,
@@ -61,14 +60,13 @@ MeshReader::~MeshReader() {
 // ---------- GmshReader Member Function Definitions --------- //
 
 GmshReader::GmshReader(const std::string& fName) : MeshReader(fName) {
-    if (!(s_sectionReader = GetSectionObj(s_meshFile))) {
-        std::cerr << "Unable to get a Section reader object.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(s_sectionReader = GetSectionObj(s_meshFile), 
+            "Unable to get a Section reader object");
+
     // Check if msh version is supported.
     // TODO: implement support for format 2.2
     if (s_meshVersion != 4.1) {
-        std::cout << "Gmsh version currently not supported."
+        std::cerr << "Gmsh version currently not supported."
                     << " Please upgrade to file version 4.1.\n";
         exit(-1);
     }
@@ -76,8 +74,8 @@ GmshReader::GmshReader(const std::string& fName) : MeshReader(fName) {
     for (int i = 0; i != s_meshDim-1; ++i) {
         s_linearElementsNodes.push_back(std::unordered_map<size_t, size_t>());
         s_higherDimCache.push_back(std::map<std::vector<int>, 
-                                    std::map<size_t, std::vector<size_t>>>());
-        s_lastTagCreated.push_back(0);
+                                    std::unordered_map<size_t, std::vector<size_t>>>());
+        s_maxTagCreated.push_back(0);
     }
     ReadBoundaries();
 }
@@ -85,14 +83,8 @@ GmshReader::GmshReader(const std::string& fName) : MeshReader(fName) {
 void GmshReader::ReadMeshDim() {
     std::vector<int> header;
     header = s_sectionReader->GoToSection("Entities")->ReadSectionHeader();
-    if (header.size() != 4) {
-        std::cout << header.size() << "\n";
-        for (auto e : header)
-            std::cout << e << " ";
-        std::cout << std::endl;
-        std::cerr << "Invalid header for Entities section.\n";
-        exit(-1);
-    }
+
+    BOOST_ASSERT_MSG(header.size() == 4, "Invalid header for Entities section");
 
     s_meshDim = -1;
     for (auto& e : header) {
@@ -100,10 +92,8 @@ void GmshReader::ReadMeshDim() {
             s_meshDim++;
     }
 
-    if (s_meshDim < 0) {
-        std::cerr << "Invalid Mesh dimension. (Check Entities section?)\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(s_meshDim > 0, 
+                "Invalid Mesh dimension. (Check Entities section?)");
 }
 
 void GmshReader::ReadBoundaries() {
@@ -117,28 +107,28 @@ void GmshReader::ReadBoundaries() {
     // Reading physical boundary tags and its name into the associated map
     std::vector<int> header;
     header = s_sectionReader->GoToSection("PhysicalNames")->ReadSectionHeader();
-    if (header.size() != 1) {
-        std::cerr << "Invalid header for PhysicalNames section.\n";
-        exit(-1);
-    }
+    
+    BOOST_ASSERT_MSG(header.size() == 1, 
+                "Invalid header for PhysicalNames section");
+    
     
     std::tuple<int, int, std::string> tbnd;
     for (int i = 0; i != header.front(); ++i) {
         s_sectionReader->Next(tbnd);
-        if (std::get<0>(tbnd) > s_meshDim) {
-            std::cerr << "Invalid definition of Physical boundary entity. "
-                    << "Dimension of entity is greater than mesh dimension.\n";
-            exit(-1);
-        }
+
+        BOOST_ASSERT_MSG(std::get<0>(tbnd) <= s_meshDim,
+            "Invalid definition of Physical boundary entity. "
+            "Dimension of entity is greater than mesh dimension");
+
         s_physicalRegionNames.emplace(std::get<1>(tbnd), std::get<2>(tbnd));
     }
 
     // Now reading which entities belong to which boundary region
     header = s_sectionReader->GoToSection("Entities")->ReadSectionHeader();
-    if (header.size() != 4) {
-        std::cerr << "Invalid header for Entities section.\n";
-        exit(-1);
-    }
+
+    BOOST_ASSERT_MSG(header.size() == 4, 
+                "Invalid header for Entities section");
+
 
     std::pair<int, int> mbndents;
     for (int i = 0; i != header.size(); ++i) {
@@ -161,16 +151,15 @@ void GmshReader::ReadBoundaries() {
 void GmshReader::ReadNodes() {
     std::vector<int> header;
     header = s_sectionReader->GoToSection("Nodes")->ReadSectionHeader();
-    if (header.size() != 4) {
-        std::cerr << "Invalid header for Nodes section.\n";
-        exit(-1);
-    }
+    
+    BOOST_ASSERT_MSG(header.size() == 4, 
+                "Invalid header for Nodes section");
 
     std::vector<int> blockHeader;
     ElementInfo einfo;
     int rTag;
     einfo.type = eNode;
-    std::map<size_t, std::vector<double>> tags_coords;
+    std::unordered_map<size_t, std::vector<double>> tags_coords;
     // In Gmsh context, Next() means to read the next EntityBlock, outputting
     // a set of tags mapped to node coordinates
     for (size_t i = 0; i != header.front(); i++) {
@@ -196,17 +185,6 @@ void GmshReader::ReadNodes() {
             einfo.coords = me.second;
             BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), "Element placed in "
                 "Order has already been created");
-            // if (!s_factory->Created()) {
-            //     std::cerr << "Duplicated Node tag. Double check mesh file.\n";
-            //     exit(-1);
-            // }
-
-            // Add the newly ordered node to the dangling nodes list
-            s_danglingNodes.insert(einfo.tag);
-
-            // Region Tag should be handled here by GraphHandler
-            // s_graphHandler->Add(s_factory->OrderElement(einfo), rTag)
-            // or something like it
         }
     }
     s_factory->PlaceOrder();
@@ -214,21 +192,16 @@ void GmshReader::ReadNodes() {
 }
 
 void GmshReader::ReadEdges() {
-    auto t0_edge = std::chrono::high_resolution_clock::now(); // time measurement
-    decltype(t0_edge-t0_edge) total1d{}, total2d{}, total3d{};
-    if (!s_nodesDone) {
-        std::cerr << "Can't read Edges before Nodes.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(s_nodesDone, "Can't read Edges before Nodes");
+
     std::vector<int> header;
     header = s_sectionReader->GoToSection("Elements")->ReadSectionHeader();
-    if (header.size() != 4) {
-        std::cerr << "Invalid header for Elements section.\n";
-        exit(-1);
-    }
+
+    BOOST_ASSERT_MSG(header.size() == 4, 
+                "Invalid header for Nodes section");
 
     std::vector<int> blockHeader;
-    std::map<size_t, std::vector<size_t>> tagsAndNodes;
+    std::unordered_map<size_t, std::vector<size_t>> tagsAndNodes;
     size_t edgeNodes;
     int rTag;
     ElementInfo einfo;
@@ -239,7 +212,6 @@ void GmshReader::ReadEdges() {
         rTag = -1; // reset rTag
         blockHeader = s_sectionReader->Next(tagsAndNodes);
         if (blockHeader[0] == 1) {
-            auto t0_1d = std::chrono::high_resolution_clock::now();
             // Set order of element
             einfo.eleOrder = GmshElementsMapping[blockHeader[2]].second;
             // Check if the entity is a physical region
@@ -256,32 +228,20 @@ void GmshReader::ReadEdges() {
                 for (auto it = me.second.begin(); it != me.second.end(); ++it) {
                     priminfo.tag = *it;
                     einfo.prims.push_back(s_factory->GetElement(priminfo));
-                    if (s_factory->Created()) {
-                        std::cerr << "Wrong node list for Edge creation. "
-                                    << "Double check mesh file.\n";
-                        exit(-1);
-                    }
-                    // Remove primitive node from the dangling nodes list
-                    s_danglingNodes.erase(*it);
                 }
                 BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
                     "Element placed in Order has already been created");
-                // if (!s_factory->Created()) {
-                //     std::cerr << "Duplicated Edge tag. "
-                //             << "Double check mesh file.\n";
-                //     exit(-1);
-                // }
-                s_lastTagCreated[0] = einfo.tag;
+
+                s_maxTagCreated[0] = (einfo.tag > s_maxTagCreated[0]) ?
+                                        einfo.tag : s_maxTagCreated[0];
+
                 if (!s_linearElementsNodes.empty()) {
                     s_linearElementsNodes[0].emplace(
                                     edge_upairing(me.second[0], me.second[1]), 
-                                    me.first);
+                                    einfo.tag);
                 }
             }
-            auto t1_1d = std::chrono::high_resolution_clock::now();
-            total1d += t1_1d-t0_1d;
         } else if (blockHeader[0] == 2) {
-            auto t0_2d = std::chrono::high_resolution_clock::now();
             int numEdges;
             rTag = -1; // edges on surface entities are not a region
             einfo.eleOrder = GmshElementsMapping[blockHeader[2]].second;
@@ -321,9 +281,6 @@ void GmshReader::ReadEdges() {
                             priminfo.tag = eleNodes.second[j%numEdges];
                             einfo.prims.push_back(s_factory->GetElement(
                                                                 priminfo));
-                            BOOST_ASSERT_MSG(!s_factory->Created(),
-                                        "Element already exists");
-                            s_danglingNodes.erase(priminfo.tag);
                         }
                         // for each node defining the higher order of the edge
                         for (int j = 0; j != einfo.eleOrder-1; ++j) {
@@ -331,9 +288,6 @@ void GmshReader::ReadEdges() {
                                             numEdges+(i*(einfo.eleOrder-1))+j];
                             einfo.prims.push_back(s_factory->GetElement(
                                                                 priminfo));
-                            // BOOST_ASSERT_MSG(!s_factory->Created(),
-                            //             "Invalid primitive Node Element");
-                            s_danglingNodes.erase(priminfo.tag);
                         }
                         // TODO: Change edge creation from 1D entity blocks to
                         // be sequential too, instead of the tags on gmsh file;
@@ -342,7 +296,7 @@ void GmshReader::ReadEdges() {
                         // before a 1D one will create edges with tags adding
                         // to the last one, then when defining edges itself
                         // in 1D entity block, those tags might already be taken)
-                        einfo.tag = ++s_lastTagCreated[0];
+                        einfo.tag = ++s_maxTagCreated[0];
                         // Add it to the linear elements list so that the adjacent
                         // 2D elements doesn't create it with another tag
                         s_linearElementsNodes[0].emplace(edgeNodes,
@@ -350,19 +304,16 @@ void GmshReader::ReadEdges() {
 
                         BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
                             "Element placed in Order has already been created");
-                        // BOOST_ASSERT_MSG(s_factory->Created(),
-                        //                 "Failed to create element");
                     }
                 }
             }
             // Cache this entity block so we don't need to read again for 2D
-            // elements
+            // elements ---- this would be removed after implementing the
+            // "native" mesh file, since we wouldn't have mixed elements defined
+            // there. Hence, less memory needed.
             s_higherDimCache[0].emplace(blockHeader, tagsAndNodes);
-            auto t1_2d = std::chrono::high_resolution_clock::now();
-            total2d += t1_2d-t0_2d;
 
         } else if (blockHeader[0] == 3) {
-            auto t0_3d = std::chrono::high_resolution_clock::now();
             int numEdges, numNodes;
             rTag = -1; // edges on a 3D entity are disregarded as inside regions
             einfo.eleOrder = GmshElementsMapping[blockHeader[2]].second;
@@ -416,9 +367,6 @@ void GmshReader::ReadEdges() {
                                         ];
                             einfo.prims.push_back(
                                             s_factory->GetElement(priminfo));
-                            // BOOST_ASSERT_MSG(!s_factory->Created(),
-                            //             "Invalid primitive Node Element");
-                            s_danglingNodes.erase(priminfo.tag);
                         }
                         // now add the nodes defining the higher order line
                         for (int j = 0; j != einfo.eleOrder-1; ++j) {
@@ -426,9 +374,6 @@ void GmshReader::ReadEdges() {
                                             + (i*(einfo.eleOrder-1)) + j];
                             einfo.prims.push_back(
                                             s_factory->GetElement(priminfo));
-                            // BOOST_ASSERT_MSG(!s_factory->Created(),
-                            //             "Invalid primitive Node Element");
-                            s_danglingNodes.erase(priminfo.tag);
                         }
                         // TODO: Change edge creation from 1D entity blocks to
                         // be sequential too, instead of the tags on gmsh file;
@@ -439,64 +384,37 @@ void GmshReader::ReadEdges() {
                         // in 1D entity block, those tags might already be taken)
                         // OR: also cache 1D entity blocks so we read only from
                         // cached info, guaranteeing reading in dimension order
-                        einfo.tag = ++s_lastTagCreated[0];
+                        einfo.tag = ++s_maxTagCreated[0];
                         s_linearElementsNodes[0].emplace(edgeNodes, 
                                                                 einfo.tag);
 
-                        s_factory->OrderElement(einfo);
-                        // assert(s_factory->Created());
+                        BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
+                            "Element placed in Order has already been created");
                     }
                 }
             }
             // Cache this entity block so we don't need to read again for 3D
             // elements
             s_higherDimCache[1].emplace(blockHeader, tagsAndNodes);
-            auto t1_3d = std::chrono::high_resolution_clock::now();
-            total3d += t1_3d-t0_3d;
         }
     }
     s_factory->PlaceOrder();
     s_edgesDone = true;
-    auto t1_edge = std::chrono::high_resolution_clock::now(); // time measurement
-    std::cout << "Total duration of ReadEdges() function: " 
-                << std::chrono::duration_cast<std::chrono::milliseconds>(t1_edge-t0_edge).count()/1000. << " sec\n";
-    std::cout << "Time took to read Edges on 1D entities: "
-            << std::chrono::duration_cast<std::chrono::milliseconds>(total1d).count()/1000. << " sec\n";
-    std::cout << "Time took to read Edges on 2D entities: "
-            << std::chrono::duration_cast<std::chrono::milliseconds>(total2d).count()/1000. << " sec\n";
-    std::cout << "Time took to read Edges on 3D entities: "
-            << std::chrono::duration_cast<std::chrono::milliseconds>(total3d).count()/1000. << " sec\n";
-
 }
 
 // Divide further into (private) Read2DElements / Read3DElements ?
 void GmshReader::ReadElements() {
-    auto t0_eles = std::chrono::high_resolution_clock::now();
 
-    if (!s_edgesDone) {
-        std::cerr << "Can't read Element before Edges.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(s_edgesDone, "Can't read Element before Edges");
+
     if (s_meshDim < 2) return; // should this check be here?
                             // maybe add a ReadMesh() interface for MeshReader
                             // so that it checks meshDim and call accordingly?
     
     // Since Edges have been read already, all we need to do is read the cached
     // information for 2D and 3D elements
-    auto t0_ele2d = std::chrono::high_resolution_clock::now();
     Read2DElements();
-    auto t1_ele2d = std::chrono::high_resolution_clock::now();
-    auto t0_ele3d = std::chrono::high_resolution_clock::now();
     if (s_meshDim == 3) Read3DElements();
-    auto t1_ele3d = std::chrono::high_resolution_clock::now();
-
-    auto t1_eles = std::chrono::high_resolution_clock::now(); // time measurement
-    std::cout << "Total duration of ReadElements() function: " 
-                << std::chrono::duration_cast<std::chrono::milliseconds>(t1_eles-t0_eles).count()/1000. << " sec\n";
-    std::cout << "Time took to read 2D Elements: "
-                << std::chrono::duration_cast<std::chrono::milliseconds>(t1_ele2d-t0_ele2d).count()/1000. << " sec\n";
-    std::cout << "Time took to read 3D Elements: "
-                << std::chrono::duration_cast<std::chrono::milliseconds>(t1_ele3d-t0_ele3d).count()/1000. << " sec\n";
 }
 
 
@@ -532,7 +450,7 @@ void GmshReader::Read2DElements() {
 
             default:
                 std::cerr << "Cached non-2D element in place of 2D elements.\n";
-                exit(-1);
+                std::abort();
         }
         // Run through the nodes list to retrive the primitive Edges that 
         // contain those nodes. 
@@ -558,27 +476,25 @@ void GmshReader::Read2DElements() {
             //TODO: Change this to start at the correct face node
             // (known from numNodes, numEdges and eleOrder)
             priminfo.type = eNode;
-            for (auto lastNodes = tagsAndNodes.second.rbegin();
-                    lastNodes != tagsAndNodes.second.rend();
-                    ++lastNodes) {
-                if (!s_danglingNodes.erase(*lastNodes)) break;
-                priminfo.tag = *lastNodes;
+            for (int j = 0; j != einfo.eleOrder-1; ++j) {
+                priminfo.tag = tagsAndNodes.second[numEdges // numNodes
+                                                + numEdges*(einfo.eleOrder-1)
+                                                + j];
                 einfo.prims.push_back(s_factory->GetElement(priminfo));
-                // if (s_factory->Created()) {
-                //     std::cerr << "Non-existent face node for 2D element?\n";
-                //     exit(-1);
-                // }
             }
 
             // Check primitive info, create element and add it to linear 
             // elements map
-                if (einfo.prims.size() < numEdges) {
-                    std::cerr << "Invalid number of Edges to create 2D"
-                                " element.\n";
-                    exit(-1);
-                }
-                s_factory->OrderElement(einfo);
-                if (s_linearElementsNodes.size() > 1) { // add element to 
+            BOOST_ASSERT_MSG(einfo.prims.size() >= numEdges,
+                        "Invalid number of Edges to create 2D element.\n");
+            
+            BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
+                            "Element placed in Order has already been created");
+
+            s_maxTagCreated[1] = (einfo.tag > s_maxTagCreated[1]) ?
+                                    einfo.tag : s_maxTagCreated[1];
+
+            if (s_linearElementsNodes.size() > 1) { // add element to 
                 // linear nodes->element map.
                     faceNodes = (numEdges == 3) ? 
                                 face_upairing(tagsAndNodes.second[0],
@@ -590,8 +506,7 @@ void GmshReader::Read2DElements() {
                                                 tagsAndNodes.second[3]);
                     s_linearElementsNodes[1].emplace(faceNodes,
                                                     tagsAndNodes.first);
-                }                    
-            s_lastTagCreated[1] = einfo.tag;
+            }                    
         }
     }
 
@@ -654,18 +569,16 @@ void GmshReader::Read2DElements() {
                                     + (numEdges*(einfo.eleOrder-1))
                                     + (i*(einfo.eleOrder-1))
                                     + j];
-                        if (!s_danglingNodes.erase(face_node)) break;
                         priminfo.tag = face_node;
                         einfo.prims.push_back(s_factory->GetElement(priminfo));
-                        // assert(!s_factory->Created());
                     }
-                    einfo.tag = ++s_lastTagCreated[1];
+                    einfo.tag = ++s_maxTagCreated[1];
                     // Add it to the linear elements so that we can easily find
                     // it while reading 3D elements
                     s_linearElementsNodes[1].emplace(faceNodes, einfo.tag);
 
-                    s_factory->OrderElement(einfo);
-                    // assert(s_factory->Created());
+                    BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
+                            "Element placed in Order has already been created");
                 }
             }
         }
@@ -719,17 +632,17 @@ void GmshReader::Read3DElements() {
             }
             // get interior (volume) nodes
             priminfo.type = eNode;
-            for (auto lastNodes = tagsAndNodes.second.rbegin();
-                    lastNodes != tagsAndNodes.second.rend();
-                    ++lastNodes) {
-                if (!s_danglingNodes.erase(*lastNodes)) break;
-                priminfo.tag = *lastNodes;
+            for (int j = 0; j != einfo.eleOrder-1; ++j) {
+                // if (!s_danglingNodes.erase(*lastNodes)) break;
+                priminfo.tag = tagsAndNodes.second[numNodes
+                                + numEdges*(einfo.eleOrder-1)
+                                + numFaces*(einfo.eleOrder-1)
+                                + j];
                 einfo.prims.push_back(s_factory->GetElement(priminfo));
-                // assert(!s_factory->Created());
             }
-            // finally create element
-            s_factory->OrderElement(einfo);
-            // assert(s_factory->Created());
+            // finally order element
+            BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
+                            "Element placed in Order has already been created");
         }
     }
     s_factory->PlaceOrder();
@@ -779,7 +692,7 @@ GmshReader::~GmshReader() {
 // DELETE THIS
 // FUNCTION FOR PURPOSES OF DEBUGGING ONLY
 void GmshReader::ShoutOutAll() {
-    std::cout << "Number of dangling Nodes: " << s_danglingNodes.size();
+    // std::cout << "Number of dangling Nodes: " << s_danglingNodes.size();
     std::cout << "\nNumber of Edges read: " << s_factory->HowMany(eLine);
     std::cout << "\nNumber of 2D Elements read: " << s_factory->HowMany(eQuad);
     std::cout << "\nNumber of cached 2D Elements blocks: " << s_higherDimCache[0].size();
@@ -844,25 +757,21 @@ Section* GmshSection::GoToSection(const std::string& sec) {
 }
 
 void GmshSection::CheckNext(const std::string& sec) {
-    if (!s_headerDone) {
-        std::cerr << "No header has been read for this section. Can't proceed"
-                    << " to Next.\n";
-        exit(-1);
-    }
-    if (s_sectionDone) {
-        std::cerr << "End of Section has been reached. Can't read Next.\n";
-        exit(-1);
-    }
-    if ((s_name != sec) || !s_curSectionMarkers[1]) {
-        std::cerr << "Markers in wrong section or nonexistent."
-                  << " Use GoToSection(\"" << sec << "\") fisrt.\n";
-        exit(-1);
-    }
-    if ((s_iFile.tellg() < s_lastEntityBlockRead) || (s_iFile.tellg() >
-        s_curSectionMarkers[1])) {
-        std::cerr << "Marker for reading Next entity block is out of place.\n";
-        exit(-1);
-    }
+
+    BOOST_ASSERT_MSG(s_headerDone, 
+        "No header has been read for this section. Can't proceed to Next");
+
+    BOOST_ASSERT_MSG(!s_sectionDone, 
+        "End of Section has been reached. Can't read Next.");
+
+    BOOST_ASSERT_MSG((s_name == sec) && s_curSectionMarkers[1],
+        "Markers in wrong section or nonexistent. "
+        "Use GoToSection(...) fisrt.\n");
+
+    BOOST_ASSERT_MSG((s_iFile.tellg() > s_lastEntityBlockRead)
+                    || (s_iFile.tellg() < s_curSectionMarkers[1]), 
+                    "Marker for reading Next entity block is out of place");
+
 }
 
 GmshSection::~GmshSection() {
@@ -878,13 +787,10 @@ GmshASCIISection::GmshASCIISection(std::ifstream& f) : GmshSection(f) {
 }
 
 std::vector<int> GmshASCIISection::ReadSectionHeader() {
-    if (s_name.empty() || !s_curSectionMarkers[1]) {
-        std::cerr << "No Section to read. Use GoToSection(...) fisrt.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(!s_name.empty() && s_curSectionMarkers[1], 
+        "No Section to read. Use GoToSection(...) fisrt");
 
     std::vector<int> ret;
-
     s_iFile.seekg(s_curSectionMarkers[0]); // Position marker at section header
     char ch;
     int itmp;
@@ -903,7 +809,7 @@ std::vector<int> GmshASCIISection::ReadSectionHeader() {
 }
 
 // Next for reading Nodes entity blocks
-std::vector<int> GmshASCIISection::Next(std::map<size_t, 
+std::vector<int> GmshASCIISection::Next(std::unordered_map<size_t, 
                                         std::vector<double>>& tagCoords) {
     CheckNext("Nodes");
 
@@ -916,10 +822,9 @@ std::vector<int> GmshASCIISection::Next(std::map<size_t,
             if (c != ' ') { s_iFile.unget(); break; }
         if (s_iFile.peek() == '\n') { s_iFile.get(c); break; }
     }
-    if (vinfo.size() != 4) {
-        std::cerr << "Invalid Entity Block header for reading Nodes.\n";
-        exit(-1);
-    }
+
+    BOOST_ASSERT_MSG(vinfo.size() == 4, 
+        "Invalid Entity Block header for reading Nodes");
     
     std::string stemp;
     double ctemp;
@@ -927,10 +832,9 @@ std::vector<int> GmshASCIISection::Next(std::map<size_t,
 
     for (int i = 0; i != vinfo.back(); ++i) {
         std::getline(s_iFile, stemp);
-        if (stoi(stemp) < 0) {
-            std::cerr << "Invalid negative tag for a Node.\n";
-            exit(-1);
-        }
+        
+        BOOST_ASSERT_MSG(stoi(stemp) > 0, "Invalid negative tag for a Node");
+        
         tagCoords.emplace(stoul(stemp), std::vector<double>());
     }
 
@@ -941,11 +845,8 @@ std::vector<int> GmshASCIISection::Next(std::map<size_t,
                 if (c != ' ') { s_iFile.unget(); break; }
             if (s_iFile.peek() == '\n') { s_iFile.get(c); break; }
         }
-        if (tagCoords_pair.second.size() != 3) {
-            std::cerr << "Invalid coordinates given for node " << itmp << " in"
-                        << " mesh file.\n";
-            exit(-1);
-        }
+        BOOST_ASSERT_MSG(tagCoords_pair.second.size() == 3,
+                            "Invalid coordinates given for node");
     }
 
     s_lastEntityBlockRead = s_iFile.tellg();
@@ -959,7 +860,7 @@ std::vector<int> GmshASCIISection::Next(std::map<size_t,
 }
 
 // Next for reading Elements (tag, vector of nodes it comprises) entity blocks
-std::vector<int> GmshASCIISection::Next(std::map<size_t, 
+std::vector<int> GmshASCIISection::Next(std::unordered_map<size_t, 
                                         std::vector<size_t>>& tagNodes) {
     CheckNext("Elements");
 
@@ -973,23 +874,18 @@ std::vector<int> GmshASCIISection::Next(std::map<size_t,
             if (c != ' ') { s_iFile.unget(); break; }
         if (s_iFile.peek() == '\n') { s_iFile.get(c); break; }
     }
-    if (vinfo.size() != 4) {
-        std::cerr << "Invalid Entity Block header for reading Elements.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(vinfo.size() == 4, 
+                    "Invalid Entity Block header for reading Elements");
 
     std::string garbage;
     tagNodes.clear();
     for (int i = 0; i != vinfo.back(); ++i) {
         if (vinfo.front()) {
             // Register tag key into the map with an empty vector of nodes
-            if ((s_iFile >> itmp) && (itmp > 0))
-                tagNodes.emplace(static_cast<size_t>(itmp), std::vector<size_t>());
-            else {
-                std::cerr << "Invalid element tag in entity tagged "
-                            << vinfo[1] << ".\n";
-                exit(-1);
-            }
+            BOOST_ASSERT_MSG((s_iFile >> itmp) && (itmp > 0), 
+                                "Invalid element tag in entity");
+            tagNodes.emplace(static_cast<size_t>(itmp), std::vector<size_t>());
+            
             // Now run through the nodes list
             stmp = static_cast<size_t>(itmp);
             auto& vec = tagNodes.at(stmp);
@@ -1024,20 +920,15 @@ std::vector<int> GmshASCIISection::Next(std::tuple<int, int,
     while (s_iFile >> tmp) {
         vi.push_back(tmp);
     }
-    if (vi.size() != 2) {
-        std::cerr << "Invalid definition of Physical Boundaries.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(vi.size() == 2, 
+                    "Invalid definition of Physical Boundaries");
     s_iFile.clear();
     s_iFile.get(ch);
-    if (ch != '\"') {
-        std::cerr << ch << "Invalid definition of Physical Boundaries.\n";
-        exit(-1);
-    }
-    if (!(std::getline(s_iFile, name, '\"'))) {
-        std::cerr << "Invalid definition of Physical Boundaries.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(ch == '\"', "Invalid definition of Physical Boundaries");
+    
+    BOOST_ASSERT_MSG(std::getline(s_iFile, name, '\"'),
+                        "Invalid definition of Physical Boundaries");
+    
     bndRegion = std::make_tuple(vi[0], vi[1], name);
 
     s_lastEntityBlockRead = s_iFile.tellg();
@@ -1073,10 +964,8 @@ std::vector<int> GmshASCIISection::Next(std::pair<int, int>& bndEnts,
 
     switch (entDim) {
         case 0: // Point entity
-            if (tvd.size() < 5) {
-                std::cerr << "Invalid Point entity definition.\n";
-                exit(-1);
-            }
+            BOOST_ASSERT_MSG(tvd.size() >= 5, 
+                            "Invalid Point entity definition");
             if (tvd[4])
                 bndEnts = std::make_pair(static_cast<int>(tvd[0]), 
                             static_cast<int>(tvd[5]));
@@ -1087,10 +976,8 @@ std::vector<int> GmshASCIISection::Next(std::pair<int, int>& bndEnts,
             break;
 
         case 1: // Curve entity
-            if (tvd.size() < 11) {
-                std::cerr << "Invalid Curve entity definition.\n";
-                exit(-1);
-            }
+            BOOST_ASSERT_MSG(tvd.size() >= 11, 
+                            "Invalid Curve entity definition");
             if (tvd[7])
                 bndEnts = std::make_pair(static_cast<int>(tvd[0]), 
                             static_cast<int>(tvd[8]));
@@ -1102,10 +989,8 @@ std::vector<int> GmshASCIISection::Next(std::pair<int, int>& bndEnts,
             
 
         case 2: // Surface entity
-            if (tvd.size() < 10) {
-                std::cerr << "Invalid Surface entity definition.\n";
-                exit(-1);
-            }
+            BOOST_ASSERT_MSG(tvd.size() >= 10, 
+                            "Invalid Surface entity definition");
             if (tvd[7])
                 bndEnts = std::make_pair(static_cast<int>(tvd[0]), 
                             static_cast<int>(tvd[8]));
@@ -1116,10 +1001,8 @@ std::vector<int> GmshASCIISection::Next(std::pair<int, int>& bndEnts,
             break;
 
         case 3: // Volume entity
-            if (tvd.size() < 10) {
-                std::cerr << "Invalid Volume entity definition.\n";
-                exit(-1);
-            }
+            BOOST_ASSERT_MSG(tvd.size() >= 10, 
+                            "Invalid Volume entity definition");
             if (tvd[7])
                 bndEnts = std::make_pair(static_cast<int>(tvd[0]), 
                             static_cast<int>(tvd[8]));
@@ -1151,14 +1034,14 @@ std::vector<int> GmshBinarySection::ReadSectionHeader() {
 }
 
 // Next for reading Nodes entity blocks
-std::vector<int> GmshBinarySection::Next(std::map<size_t, 
+std::vector<int> GmshBinarySection::Next(std::unordered_map<size_t, 
                                         std::vector<double>>& tagCoords) {
 
 }
 
 
 // Next for reading Elements (tag, vector of nodes it comprises) entity blocks
-std::vector<int> GmshBinarySection::Next(std::map<size_t, 
+std::vector<int> GmshBinarySection::Next(std::unordered_map<size_t, 
                                         std::vector<size_t>>& tagNodes) {
 
 }

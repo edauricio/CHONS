@@ -50,7 +50,7 @@ class MeshReader {
 
         // Vector of 4 pointers to maps, each containing the entities and
         // the physical region which it belongs.
-        // i.e. vec[0] contains the 0-dim. entities (points tag, map_key) that 
+        // i.e. vec[0] contains the 0-dim. entities (tag; map_key) that 
         // are in a physical boundary (mapped_value), vec[1] contains the 1-dim 
         // entities (curves tags, map_key) and so on.
         std::vector<std::map<int, int>*> s_physicalRegionEntities;
@@ -90,14 +90,14 @@ class MeshReader {
         // PAIR: 
         // first - block header
         // second - map from Element tag to a vector of Nodes defining it.
-        std::vector<std::map<std::vector<int>, std::map<size_t, 
+        std::vector<std::map<std::vector<int>, std::unordered_map<size_t, 
                             std::vector<size_t> > > > s_higherDimCache;
 
         // A vector containing the tag of the latest edge / face created
         // This is needed so whenever higher dimensional elements create its
         // primitives (i.e. primitives in entity with dimension higher than 
         // itself), they know which tag to add.
-        std::vector<size_t> s_lastTagCreated;
+        std::vector<size_t> s_maxTagCreated;
 
         
         double s_meshVersion;
@@ -146,11 +146,11 @@ class Section {
         //virtual void ReadFirst() = 0;
 
         // Next for Nodes
-        virtual std::vector<int> Next(std::map<size_t, 
+        virtual std::vector<int> Next(std::unordered_map<size_t,
                                         std::vector<double>>&) = 0;
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
-        virtual std::vector<int> Next(std::map<size_t, 
+        virtual std::vector<int> Next(std::unordered_map<size_t,
                                     std::vector<size_t>>&) = 0;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
@@ -182,11 +182,11 @@ class GmshSection : public Section {
 
         //virtual void ReadFirst() = 0;
         // Next for Nodes
-        virtual std::vector<int> Next(std::map<size_t, 
+        virtual std::vector<int> Next(std::unordered_map<size_t,
                                         std::vector<double>>&) = 0;
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
-        virtual std::vector<int> Next(std::map<size_t, 
+        virtual std::vector<int> Next(std::unordered_map<size_t,
                                     std::vector<size_t>>&) = 0;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
@@ -219,11 +219,11 @@ class GmshASCIISection : public GmshSection {
 
         //virtual void ReadFirst() override;
         // Next for Nodes
-        virtual std::vector<int> Next(std::map<size_t, 
+        virtual std::vector<int> Next(std::unordered_map<size_t,
                                         std::vector<double>>&) override;
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
-        virtual std::vector<int> Next(std::map<size_t, 
+        virtual std::vector<int> Next(std::unordered_map<size_t,
                                     std::vector<size_t>>&) override;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)
@@ -250,11 +250,11 @@ class GmshBinarySection : public GmshSection {
 
         //virtual void ReadFirst() override;
         // Next for Nodes
-        virtual std::vector<int> Next(std::map<size_t, 
+        virtual std::vector<int> Next(std::unordered_map<size_t,
                                         std::vector<double>>&) override;
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
-        virtual std::vector<int> Next(std::map<size_t, 
+        virtual std::vector<int> Next(std::unordered_map<size_t,
                                     std::vector<size_t>>&) override;
 
         // Next for Boundaries (entity dimension -- curve/surface, region, name)

@@ -1,0 +1,29 @@
+CONCLUSIONS AFTER COMMIT 1d9b406ec27829db58d3ae14a064d1e21993b27a
+
+In terms of memory, the most memory consumption objects are the allocators of
+all lists of primitives (std::list<Element*>), followed by the list of sharing elements 
+inside each mesh element (std::map<ElementType, std::list<Element*>>). Since this same allocator
+is used to allocated memory for the objects' slot of the hashtable s_elements, it follows
+that this object from ElementFactory is also consuming quite a bit.
+
+In terms of CPU, the most time consuming methods/operations are those that call PlaceOrder().
+This is for obvious reasons: the most expensive operatorion (and on that is done a lot) is
+the memory allocation, done solely inside PlaceOrder<Element>. Hence, this is unlikely to change,
+since we expect the majority of counts (hits) of gperf to indeed be on PlaceOrder function.
+
+Strategies:
+In terms of memory, one strategy to alleviate this high memory usage is to design a new class,
+a ResourceDirector, which will be responsible for managing all resource requests from our application.
+Then, after reading the mesh, every memory allocated on the heap that won't be used anymore, like the 
+hashtables inside ElementFactory class (in fact, the whole class), should be released.
+Of course, this won't let us read finer meshes since the peak memory usage during mesh reading will
+not change. However, the next steps will have more resources, which is also paramount.
+
+Adopted Strategy(ies):
+All std::list<> objects in the Element class (and subclasses) has been substituted by std::vectors,
+since there were no convincing arguments to use the former. The maps were substituted for
+vector indices, hence a map<ElementType, std::list<Element*>> (for the primitive ones, for example)
+is now a simple std::vector<Element*>. To distinguish between ElementType of primitives, we
+rely on the order of them in the vector object. For example, for a Quad, all 4 edges come first,
+followed by the face nodes. For this to be possible, a new state variable should be added for
+each Element, so we know how many primitives define the "incomplete" (no interior nodes) element.

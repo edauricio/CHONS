@@ -32,7 +32,7 @@ struct ElementInfo {
     size_t polyOrder;
     //int bndTag;
     std::vector<double> coords;
-    std::list<Element*> prims;
+    std::vector<Element*> prims;
 };
 
 } // end of CHONS namespace

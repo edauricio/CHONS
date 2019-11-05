@@ -37,12 +37,13 @@ class ElementFactory {
                            s_orderedElements(MAX_NUMBER_OF_TYPES) {};
         
     private:
+        template <typename T>
+        void PlaceOrder(std::unordered_map<size_t, ElementInfo>&);
         // bool OrderElement(const ElementInfo&);
         // void PlaceOrder();
 
 
         static ElementFactory* s_singleInstance;
-        Element* create(const ElementInfo&);
         bool s_created = false;
         std::vector<std::unordered_map<size_t, Element*> > s_elements;
         std::vector<std::unordered_map<size_t, ElementInfo>> s_orderedElements;

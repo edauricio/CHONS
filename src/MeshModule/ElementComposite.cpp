@@ -1,6 +1,7 @@
 #include "MeshModule/ElementComposite.h"
 #include "MeshModule/ElementEnumInfo.h"
 #include <iostream>
+#include <algorithm>
 
 namespace CHONS {
 
@@ -28,12 +29,12 @@ void Element::AddSharing(Element* ele) {
     exit(-1);
 }
 
-std::map<ElementType, std::list<Element*> > Element::GetPrimitives() {
-    return std::map<ElementType, std::list<Element*> >();
+std::vector<Element*> Element::GetPrimitives() {
+    return std::vector<Element*>();
 }
 
-std::list<Element*> Element::GetSharing() {
-    return std::list<Element*>();
+std::vector<Element*> Element::GetSharing() {
+    return std::vector<Element*>();
 }
 
 Point* Element::GetInteriorPoints() {
@@ -73,7 +74,7 @@ void Node::AddSharing(Element* ele) {
     }
 }
 
-std::list<Element*> Node::GetSharing() {
+std::vector<Element*> Node::GetSharing() {
     return s_sharingElements;
 }
 
@@ -92,11 +93,7 @@ Line::Line(const ElementInfo& ein) : Element(ein) {
 
 void Line::AddPrimitive(Element* ele) {
     if (ele && (ele->GetType() == eNode)) {
-        auto it = s_primitives.find(ele->GetType());
-        if (it == s_primitives.end())
-            it = (s_primitives.emplace(ele->GetType(), 
-                                std::list<Element*>())).first;
-        it->second.push_back(ele);
+        s_primitives.push_back(ele);
         ele->AddSharing(this);
     } else {
         std::cout << "Invalid primitive element for Line.\n";
@@ -106,11 +103,11 @@ void Line::AddPrimitive(Element* ele) {
 
 void Line::RemovePrimitive(Element* ele) {
     if (ele) {
-        auto it = s_primitives.find(ele->GetType());
-        if (it != s_primitives.end())
-            it->second.remove(ele);
-        else
-            std::cout << "Element isn't a primitive of Line. Double check?\n";
+        s_primitives.erase(
+                std::remove_if(s_primitives.begin(),
+                            s_primitives.end(),
+                            [&](decltype(s_primitives)::value_type& v){ return v==ele;}),
+                s_primitives.end());
     } else
         std::cout << "Invalid primitive element to remove from Line.\n";        
 }
@@ -123,11 +120,11 @@ void Line::AddSharing(Element* ele) {
         s_sharingElements.push_back(ele);
 }
 
-std::map<ElementType, std::list<Element*> > Line::GetPrimitives() {
+std::vector<Element*> Line::GetPrimitives() {
     return s_primitives;
 }
 
-std::list<Element*> Line::GetSharing() {
+std::vector<Element*> Line::GetSharing() {
     return s_sharingElements;
 }
 
@@ -148,12 +145,7 @@ Quad::Quad(const ElementInfo& ein) : Element(ein) {
 
 void Quad::AddPrimitive(Element* ele) {
     if (ele && ((ele->GetType() == eNode) || (ele->GetType() == eLine))) {
-        auto it = s_primitives.find(ele->GetType());
-        if (it == s_primitives.end()) {
-            it = (s_primitives.emplace(ele->GetType(), 
-                        std::list<Element*>())).first;
-        }
-        it->second.push_back(ele);
+        s_primitives.push_back(ele);
         ele->AddSharing(this);
     } else {
         std::cout << "Invalid primitive for Quad.\n";
@@ -163,11 +155,11 @@ void Quad::AddPrimitive(Element* ele) {
 
 void Quad::RemovePrimitive(Element* ele) {
     if (ele) {
-        auto it = s_primitives.find(ele->GetType());
-        if (it != s_primitives.end())
-            it->second.remove(ele);
-        else
-            std::cout << "Element isn't a primitive of Quad. Double check?\n";
+        s_primitives.erase(
+                std::remove_if(s_primitives.begin(),
+                            s_primitives.end(),
+                            [&](decltype(s_primitives)::value_type& v){ return v==ele;}),
+                s_primitives.end());
     } else
         std::cout << "Invalid primitive element to remove from Quad.\n";
 }
@@ -182,11 +174,11 @@ void Quad::AddSharing(Element* ele) {
     }
 }
 
-std::map<ElementType, std::list<Element*> > Quad::GetPrimitives() {
+std::vector<Element*> Quad::GetPrimitives() {
     return s_primitives;
 }
 
-std::list<Element*> Quad::GetSharing() {
+std::vector<Element*> Quad::GetSharing() {
     return s_sharingElements;
 }
 
@@ -205,11 +197,7 @@ Tri::Tri(const ElementInfo& ein) : Element(ein) {
 
 void Tri::AddPrimitive(Element* ele) {
     if (ele && ((ele->GetType() == eLine) || (ele->GetType() == eNode))) {
-        auto it = s_primitives.find(ele->GetType());
-        if (it == s_primitives.end())
-            it = (s_primitives.emplace(ele->GetType(), 
-                        std::list<Element*>())).first;
-        it->second.push_back(ele);
+        s_primitives.push_back(ele);
         ele->AddSharing(this);
     } else {
         std::cout << "Invalid primitive element for Tri.\n";
@@ -219,11 +207,11 @@ void Tri::AddPrimitive(Element* ele) {
 
 void Tri::RemovePrimitive(Element* ele) {
     if (ele) {
-        auto it = s_primitives.find(ele->GetType());
-        if (it != s_primitives.end())
-            it->second.remove(ele);
-        else
-            std::cout << "Element isn't a primitive of Tri. Double check?\n";
+        s_primitives.erase(
+                std::remove_if(s_primitives.begin(),
+                            s_primitives.end(),
+                            [&](decltype(s_primitives)::value_type& v){ return v==ele;}),
+                s_primitives.end());
     } else
         std::cout << "Invalid primitive element to remove from Tri.\n";
 }
@@ -238,11 +226,11 @@ void Tri::AddSharing(Element* ele) {
     }
 }
 
-std::map<ElementType, std::list<Element*> > Tri::GetPrimitives() {
+std::vector<Element*> Tri::GetPrimitives() {
     return s_primitives;
 }
 
-std::list<Element*> Tri::GetSharing() {
+std::vector<Element*> Tri::GetSharing() {
     return s_sharingElements;
 }
 
@@ -262,11 +250,7 @@ Hexa::Hexa(const ElementInfo& ein) : Element(ein) {
 
 void Hexa::AddPrimitive(Element* ele) {
     if (ele && ((ele->GetType() == eQuad) || (ele->GetType() == eNode))) {
-        auto it = s_primitives.find(ele->GetType());
-        if (it == s_primitives.end())
-            it = (s_primitives.emplace(ele->GetType(),
-                        std::list<Element*>())).first;
-        it->second.push_back(ele);
+        s_primitives.push_back(ele);
         ele->AddSharing(this);
     } else {
         std::cout << "Invalid primitive element for Hexa.\n";
@@ -276,16 +260,16 @@ void Hexa::AddPrimitive(Element* ele) {
 
 void Hexa::RemovePrimitive(Element* ele) {
     if (ele) {
-        auto it = s_primitives.find(ele->GetType());
-        if (it != s_primitives.end())
-            it->second.remove(ele);
-        else
-            std::cout << "Element is not a primitive of Hexa. Double check?\n";
+        s_primitives.erase(
+                std::remove_if(s_primitives.begin(),
+                            s_primitives.end(),
+                            [&](decltype(s_primitives)::value_type& v){ return v==ele;}),
+                s_primitives.end());
     } else
         std::cout << "Invalid primitive element to remove from Hexa.\n";
 }
 
-std::map<ElementType, std::list<Element*> > Hexa::GetPrimitives() {
+std::vector<Element*> Hexa::GetPrimitives() {
     return s_primitives;
 }
 
@@ -305,11 +289,7 @@ Tetra::Tetra(const ElementInfo& ein) : Element(ein) {
 
 void Tetra::AddPrimitive(Element* ele) {
     if (ele && ((ele->GetType() == eTri) || (ele->GetType() == eNode))) {
-        auto it = s_primitives.find(ele->GetType());
-        if (it == s_primitives.end())
-            it = (s_primitives.emplace(ele->GetType(), 
-                        std::list<Element*>())).first;
-        it->second.push_back(ele);
+        s_primitives.push_back(ele);
         ele->AddSharing(this);
     } else {
         std::cout << "Invalid primitive element for Tetra.\n";
@@ -319,16 +299,16 @@ void Tetra::AddPrimitive(Element* ele) {
 
 void Tetra::RemovePrimitive(Element* ele) {
     if (ele) {
-        auto it = s_primitives.find(ele->GetType());
-        if (it != s_primitives.end())
-            it->second.remove(ele);
-        else
-            std::cout << "Element is not a primitive of Tetra. Double check?\n";
+        s_primitives.erase(
+                std::remove_if(s_primitives.begin(),
+                            s_primitives.end(),
+                            [&](decltype(s_primitives)::value_type& v){ return v==ele;}),
+                s_primitives.end());
     } else
         std::cout << "Invalid primitive element to remove from Tetra.\n";
 }
 
-std::map<ElementType, std::list<Element*> > Tetra::GetPrimitives() {
+std::vector<Element*> Tetra::GetPrimitives() {
     return s_primitives;
 }
 
@@ -348,11 +328,7 @@ Prism::Prism(const ElementInfo& ein) : Element(ein) {
 void Prism::AddPrimitive(Element* ele) {
     if (ele && ((ele->GetType() == eTri) || (ele->GetType() == eQuad)
                 || (ele->GetType() == eNode))) {
-        auto it = s_primitives.find(ele->GetType());
-        if (it == s_primitives.end())
-            it = (s_primitives.emplace(ele->GetType(), 
-                        std::list<Element*>())).first;
-        it->second.push_back(ele);
+        s_primitives.push_back(ele);
         ele->AddSharing(this);
     } else {
         std::cout << "Invalid primitive element for Tetra.\n";
@@ -362,16 +338,16 @@ void Prism::AddPrimitive(Element* ele) {
 
 void Prism::RemovePrimitive(Element* ele) {
     if (ele) {
-        auto it = s_primitives.find(ele->GetType());
-        if (it != s_primitives.end())
-            it->second.remove(ele);
-        else
-            std::cout << "Element is not a primitive of Tetra. Double check?\n";
+        s_primitives.erase(
+                std::remove_if(s_primitives.begin(),
+                            s_primitives.end(),
+                            [&](decltype(s_primitives)::value_type& v){ return v==ele;}),
+                s_primitives.end());
     } else
         std::cout << "Invalid primitive element to remove from Tetra.\n";
 }
 
-std::map<ElementType, std::list<Element*> > Prism::GetPrimitives() {
+std::vector<Element*> Prism::GetPrimitives() {
     return s_primitives;
 }
 
@@ -391,11 +367,7 @@ Pyram::Pyram(const ElementInfo& ein) : Element(ein) {
 void Pyram::AddPrimitive(Element* ele) {
     if (ele && ((ele->GetType() == eTri) || (ele->GetType() == eQuad)
                 || (ele->GetType() == eNode))) {
-        auto it = s_primitives.find(ele->GetType());
-        if (it == s_primitives.end())
-            it = (s_primitives.emplace(ele->GetType(), 
-                        std::list<Element*>())).first;
-        it->second.push_back(ele);
+        s_primitives.push_back(ele);
         ele->AddSharing(this);
     } else {
         std::cout << "Invalid primitive element for Tetra.\n";
@@ -405,16 +377,16 @@ void Pyram::AddPrimitive(Element* ele) {
 
 void Pyram::RemovePrimitive(Element* ele) {
     if (ele) {
-        auto it = s_primitives.find(ele->GetType());
-        if (it != s_primitives.end())
-            it->second.remove(ele);
-        else
-            std::cout << "Element is not a primitive of Tetra. Double check?\n";
+        s_primitives.erase(
+                std::remove_if(s_primitives.begin(),
+                            s_primitives.end(),
+                            [&](decltype(s_primitives)::value_type& v){ return v==ele;}),
+                s_primitives.end());
     } else
         std::cout << "Invalid primitive element to remove from Tetra.\n";
 }
 
-std::map<ElementType, std::list<Element*> > Pyram::GetPrimitives() {
+std::vector<Element*> Pyram::GetPrimitives() {
     return s_primitives;
 }
 

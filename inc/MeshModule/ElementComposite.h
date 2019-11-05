@@ -21,9 +21,8 @@ class Element {
         virtual void AddPrimitive(Element*);
         virtual void RemovePrimitive(Element*);
         virtual void AddSharing(Element*);
-        virtual std::map<ElementType, 
-                    std::list<Element*> > GetPrimitives();
-        virtual std::list<Element*> GetSharing();
+        virtual std::vector<Element*> GetPrimitives();
+        virtual std::vector<Element*> GetSharing();
         virtual Point* GetInteriorPoints();
         virtual Point* GetInterfacePoints();
         virtual Point* GetPoints();
@@ -46,12 +45,12 @@ class Node : public Element {
     public:
         Node(const ElementInfo&);
         virtual void AddSharing(Element*);
-        virtual std::list<Element*> GetSharing();
+        virtual std::vector<Element*> GetSharing();
         virtual ~Node() = default;
 
     private:
         std::vector<double> s_coords;
-        std::list<Element*> s_sharingElements;
+        std::vector<Element*> s_sharingElements;
 
 };
 
@@ -61,14 +60,13 @@ class Line : public Element {
         virtual void AddPrimitive(Element*);
         virtual void RemovePrimitive(Element*);
         virtual void AddSharing(Element*);
-        virtual std::map<ElementType, 
-                    std::list<Element*> > GetPrimitives();
-        virtual std::list<Element*> GetSharing();
+        virtual std::vector<Element*> GetPrimitives();
+        virtual std::vector<Element*> GetSharing();
         virtual ~Line() = default;
 
     private:
-        std::map<ElementType, std::list<Element*> > s_primitives;
-        std::list<Element*> s_sharingElements;
+        std::vector<Element*> s_primitives;
+        std::vector<Element*> s_sharingElements;
 };
 
 class Quad : public Element {
@@ -77,14 +75,14 @@ class Quad : public Element {
         virtual void AddPrimitive(Element*);
         virtual void RemovePrimitive(Element*);
         virtual void AddSharing(Element*);
-        virtual std::map<ElementType, 
-                    std::list<Element*> > GetPrimitives();
-        virtual std::list<Element*> GetSharing();
+        virtual std::vector<Element*> GetPrimitives();
+
+        virtual std::vector<Element*> GetSharing();
         virtual ~Quad() = default;
 
     private:
-        std::map<ElementType, std::list<Element*> > s_primitives;
-        std::list<Element*> s_sharingElements;
+        std::vector<Element*> s_primitives;
+        std::vector<Element*> s_sharingElements;
 };
 
 class Tri : public Element {
@@ -93,14 +91,13 @@ class Tri : public Element {
         virtual void AddPrimitive(Element*);
         virtual void RemovePrimitive(Element*);
         virtual void AddSharing(Element*);
-        virtual std::map<ElementType, 
-                    std::list<Element*> > GetPrimitives();
-        virtual std::list<Element*> GetSharing();
+        virtual std::vector<Element*> GetPrimitives();
+        virtual std::vector<Element*> GetSharing();
         virtual ~Tri() = default;
 
     private:
-        std::map<ElementType, std::list<Element*> > s_primitives;
-        std::list<Element*> s_sharingElements;
+        std::vector<Element*> s_primitives;
+        std::vector<Element*> s_sharingElements;
 };
 
 class Hexa : public Element {
@@ -108,12 +105,11 @@ class Hexa : public Element {
         Hexa(const ElementInfo&);
         virtual void AddPrimitive(Element*);
         virtual void RemovePrimitive(Element*);
-        virtual std::map<ElementType, 
-                    std::list<Element*> > GetPrimitives();
+        virtual std::vector<Element*> GetPrimitives();
         virtual ~Hexa() = default;
 
     private:
-        std::map<ElementType, std::list<Element*> > s_primitives;
+        std::vector<Element*> s_primitives;
 };
 
 class Tetra : public Element {
@@ -121,12 +117,11 @@ class Tetra : public Element {
         Tetra(const ElementInfo&);
         virtual void AddPrimitive(Element*);
         virtual void RemovePrimitive(Element*);
-        virtual std::map<ElementType, 
-                    std::list<Element*> > GetPrimitives();
+        virtual std::vector<Element*> GetPrimitives();
         virtual ~Tetra() = default;
 
     private:
-        std::map<ElementType, std::list<Element*> > s_primitives;
+        std::vector<Element*> s_primitives;
 };
 
 class Prism : public Element {
@@ -134,12 +129,11 @@ class Prism : public Element {
         Prism(const ElementInfo&);
         virtual void AddPrimitive(Element*);
         virtual void RemovePrimitive(Element*);
-        virtual std::map<ElementType, 
-                    std::list<Element*> > GetPrimitives();
+        virtual std::vector<Element*> GetPrimitives();
         virtual ~Prism() = default;
 
     private:
-        std::map<ElementType, std::list<Element*> > s_primitives;
+        std::vector<Element*> s_primitives;
 };
 
 class Pyram : public Element {
@@ -147,12 +141,11 @@ class Pyram : public Element {
         Pyram(const ElementInfo&);
         virtual void AddPrimitive(Element*);
         virtual void RemovePrimitive(Element*);
-        virtual std::map<ElementType, 
-                    std::list<Element*> > GetPrimitives();
+        virtual std::vector<Element*> GetPrimitives();
         virtual ~Pyram() = default;
 
     private:
-        std::map<ElementType, std::list<Element*> > s_primitives;
+        std::vector<Element*> s_primitives;
 };
 
 } // end of CHONS namespace
