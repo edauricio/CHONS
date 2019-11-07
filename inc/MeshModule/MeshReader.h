@@ -11,7 +11,9 @@
 #include <unordered_set>
 #include <set>
 #include <tuple>
+#include <memory>
 #include "ElementFactory.h"
+#include "GraphInfoProcessor.h"
 
 namespace CHONS {
 
@@ -36,13 +38,14 @@ class MeshReader {
         int GetMeshFormat() { return s_meshFormat; };
 
     protected:
-        virtual Section* GetSectionObj(std::ifstream&) = 0;
+        virtual std::unique_ptr<Section> GetSectionObj(std::ifstream&) = 0;
         virtual void ReadBoundaries() = 0;
         virtual void ReadMeshDim() = 0;
 
         std::string s_fName;
         std::ifstream s_meshFile;
-        Section* s_sectionReader;
+        std::unique_ptr<Section> s_sectionReader;
+        std::unique_ptr<GraphInfoProcessor> s_graphProc;
 
         // Variable to map a physical boundary tag to its name, in order to be
         // able to match and set it to the config. file (user input)
@@ -123,7 +126,7 @@ class GmshReader : public MeshReader {
 
 
     protected:
-        virtual Section* GetSectionObj(std::ifstream&) override;
+        virtual std::unique_ptr<Section> GetSectionObj(std::ifstream&) override;
         virtual void ReadMeshDim() override;
         virtual void ReadBoundaries() override;
 

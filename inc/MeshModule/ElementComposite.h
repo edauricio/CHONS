@@ -28,15 +28,19 @@ class Element {
         virtual Point* GetPoints();
         const ElementType& GetType() { return s_type; };
         const size_t& GetTag() { return s_tag; };
-        const size_t& GetElementOrder() { return s_eleOrder; };
-        const int& GetPolyOrder() { return s_polyOrder; };
+        const unsigned short int& GetElementOrder() { return s_eleOrder; };
+        const short int& GetPolyOrder() { return s_polyOrder; };
+        const short int& GetIncompletePrimNr() { 
+                                    return s_incompleteElementPrimitivesNr; }
         void SetPolyOrder(const int& o) { s_polyOrder = o; };
 
     protected:
         ElementType s_type;
         size_t s_tag;
-        size_t s_eleOrder;
-        int s_polyOrder;
+        unsigned short int s_eleOrder;
+        unsigned short int s_dim;
+        short int s_incompleteElementPrimitivesNr;
+        short int s_polyOrder;
         std::vector<Point*> s_interiorPoints;
 
 };

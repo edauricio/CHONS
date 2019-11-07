@@ -43,7 +43,7 @@ inline size_t face_upairing(const size_t& a, const size_t& b, const size_t& c,
 
 MeshReader::MeshReader(const std::string& fName) : s_sectionReader(nullptr),
                 s_fName(fName), s_meshFile(fName), s_physicalRegionEntities(4),
-                s_nodesDone(false), s_edgesDone(false) {    
+                s_nodesDone(false), s_edgesDone(false) {
     if (!s_meshFile.is_open()) {
         std::cout << "Unable to open given mesh file.\n";
         exit(-1);
@@ -71,6 +71,8 @@ GmshReader::GmshReader(const std::string& fName) : MeshReader(fName) {
         exit(-1);
     }
     ReadMeshDim();
+    s_graphProc = std::unique_ptr<GraphInfoProcessor>(
+                                            new GraphInfoProcessor(s_meshDim));
     for (int i = 0; i != s_meshDim-1; ++i) {
         s_linearElementsNodes.push_back(std::unordered_map<size_t, size_t>());
         s_higherDimCache.push_back(std::map<std::vector<int>, 
@@ -185,6 +187,7 @@ void GmshReader::ReadNodes() {
             einfo.coords = me.second;
             BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), "Element placed in "
                 "Order has already been created");
+            s_graphProc->AddToMeshInfo(einfo, rTag);
         }
     }
     s_factory->PlaceOrder();
@@ -231,6 +234,8 @@ void GmshReader::ReadEdges() {
                 }
                 BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
                     "Element placed in Order has already been created");
+
+                s_graphProc->AddToMeshInfo(einfo, rTag);
 
                 s_maxTagCreated[0] = (einfo.tag > s_maxTagCreated[0]) ?
                                         einfo.tag : s_maxTagCreated[0];
@@ -304,6 +309,8 @@ void GmshReader::ReadEdges() {
 
                         BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
                             "Element placed in Order has already been created");
+                        
+                        s_graphProc->AddToMeshInfo(einfo, rTag);
                     }
                 }
             }
@@ -390,6 +397,8 @@ void GmshReader::ReadEdges() {
 
                         BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
                             "Element placed in Order has already been created");
+
+                        s_graphProc->AddToMeshInfo(einfo, rTag);
                     }
                 }
             }
@@ -415,6 +424,7 @@ void GmshReader::ReadElements() {
     // information for 2D and 3D elements
     Read2DElements();
     if (s_meshDim == 3) Read3DElements();
+    s_graphProc->Done();
 }
 
 
@@ -490,6 +500,8 @@ void GmshReader::Read2DElements() {
             
             BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
                             "Element placed in Order has already been created");
+
+            s_graphProc->AddToMeshInfo(einfo, rTag);
 
             s_maxTagCreated[1] = (einfo.tag > s_maxTagCreated[1]) ?
                                     einfo.tag : s_maxTagCreated[1];
@@ -579,6 +591,8 @@ void GmshReader::Read2DElements() {
 
                     BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
                             "Element placed in Order has already been created");
+
+                    s_graphProc->AddToMeshInfo(einfo, rTag);
                 }
             }
         }
@@ -643,13 +657,15 @@ void GmshReader::Read3DElements() {
             // finally order element
             BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
                             "Element placed in Order has already been created");
+
+            s_graphProc->AddToMeshInfo(einfo, rTag);
         }
     }
     s_factory->PlaceOrder();
 }
 
-Section* GmshReader::GetSectionObj(std::ifstream& file) {
-    if (!s_sectionReader) {
+std::unique_ptr<Section> GmshReader::GetSectionObj(std::ifstream& file) {
+    if (!s_sectionReader.get()) {
         std::string section;
         char ch; 
         file.seekg(0, file.beg);
@@ -667,10 +683,12 @@ Section* GmshReader::GetSectionObj(std::ifstream& file) {
 
         switch (s_meshFormat) {
             case 0:
-                return new GmshASCIISection(s_meshFile);
+                return std::unique_ptr<Section>(
+                                            new GmshASCIISection(s_meshFile));
 
             case 1:
-                return new GmshBinarySection(s_meshFile);
+                return std::unique_ptr<Section>(
+                                            new GmshBinarySection(s_meshFile));
 
             default:
                 std::cout << "Unrecognized Gmsh file format.\n";
@@ -678,12 +696,11 @@ Section* GmshReader::GetSectionObj(std::ifstream& file) {
         }
     }
     else
-        return s_sectionReader;
+        // mode needed because copy is not allowed
+        return std::move(s_sectionReader); 
 }
 
 GmshReader::~GmshReader() {
-    if (s_sectionReader)
-        delete s_sectionReader;
 
     for (auto& pm : s_physicalRegionEntities)
         if (pm) delete pm;
@@ -748,10 +765,6 @@ Section* GmshSection::GoToSection(const std::string& sec) {
     s_iFile.seekg(s_curSectionMarkers[0]); // set marker at section header
     s_headerDone = false;
     s_sectionDone = false;
-    // std::getline(s_iFile, s); // read section header and set the marker to 
-    //                           // first entity block
-    // s_firstEntityBlock = s_iFile.tellg(); // get first entity block marker
-    // s_lastEntityBlockRead = s_firstEntityBlock;
 
     return this;
 }

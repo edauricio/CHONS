@@ -5,25 +5,34 @@
 #include <vector>
 
 int main() {
-    std::set<size_t>* st = new std::set<size_t>{5, 2, 7, 1};
-    size_t ss = 2;
-    //size_t sum = 
-    std::unordered_map<std::set<size_t>*, size_t> uom;
-    uom.emplace(new std::set<size_t>{5, 2, 7, 1}, ss);
-    for (auto& em : uom)
-        delete em.first;
-    //delete st;
+  std::unordered_multimap<std::string,std::string> myumm = {
+    {"John","Middle East"},
+    {"John","Africa"},
+    {"John","South America"},
+    {"John","North America"},
+    {"Adam","Middle East"},
+    {"Adam","Africa"},
+    {"Adam","South America"},
+    {"Adam","North America"},
+    {"Bill","Middle East"},
+    {"Bill","Africa"},
+    {"Bill","South America"},
+    {"Bill","North America"}
+  };
 
-    std::vector<size_t> ok;
-    std::set<size_t> oks;
-    for (size_t i = 1; i != 201; ++i)
-        ok.push_back(i);
-    for (int i = 0; i != 200; ++i)
-        for (int j = 0; j != 200; ++j) {
-            auto it = oks.insert(ok[i]*ok[i]*ok[j] + ok[i]*ok[j]*ok[j]);
-            if (!it.second)
-                std::cout << i << " " << j << " = " << *(it.first) << "sh1t...\n";
-        }
+  for (auto& x: myumm) {
+    std::cout << "Element [" << x.first << ":" << x.second << "]";
+    std::cout << " is in bucket #" << myumm.bucket (x.first) << std::endl;
+  }
 
-    
+  auto bkt = myumm.equal_range("John");
+  for (auto it = bkt.first; it != bkt.second; ++it)
+    std::cout << it->first << " " << it->second << "\n";
+
+  //    for (auto& x: myumm) {
+  //    std::cout << "Element [" << x.first << ":" << x.second << "]";
+  //    std::cout << " is in bucket #" << myumm.bucket (x.first) << std::endl;
+  //    }
+
+  return 0;
 }

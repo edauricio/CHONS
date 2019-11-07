@@ -1,6 +1,7 @@
 #include "MeshModule/ElementComposite.h"
 #include "MeshModule/ElementFactory.h"
 #include "MeshModule/MeshReader.h"
+#include "MeshModule/MeshInfoHolder.h"
 #include "gperftools/profiler.h"
 #include "boost/assert.hpp"
 #include <iostream>
@@ -32,8 +33,9 @@ int main(int argc, char* argv[]) {
 
     ProfilerStart("dump.txt");
     ElementFactory* fac = ElementFactory::GetInstance();
+    MeshInfoHolder* minfo = MeshInfoHolder::GetInstance();
 
-    GmshReader readertest{"/home/eron/CHONS/testing/mesh/2d_quad_fine.msh"};
+    GmshReader readertest{"/home/eron/CHONS/testing/mesh/3d_cube_hexao2.msh"};
     // GmshReader readertest{"/home/eron/workspace/CHONS/testing/mesh/3d_cube_hexao2.msh"};
     // std::cout << "Trying to read Nodes.\n";
     readertest.ReadNodes();
@@ -52,6 +54,8 @@ int main(int argc, char* argv[]) {
     // std::cout << "Number of Tetras read: " << fac->HowMany(eTetra) << "\n";
     // std::cout << "Number of Prisms read: " << fac->HowMany(ePrism) << "\n";
     // std::cout << "Number of Pyrams read: " << fac->HowMany(ePyram) << "\n";
+
+    std::cout << "Elements sharing interfaces: \n";
 
     //readertest.ShoutOutAll();
 

@@ -33,6 +33,11 @@ ElementFactory* ElementFactory::s_singleInstance = nullptr;
 //     }
 // }
 
+ElementFactory::ElementFactory() : s_elements(MAX_NUMBER_OF_TYPES),
+                           s_orderedElements(MAX_NUMBER_OF_TYPES) {
+
+}
+
 
 ElementFactory* ElementFactory::GetInstance() {
     if (!s_singleInstance)
@@ -121,5 +126,6 @@ void ElementFactory::PlaceOrder() {
         }
     }
 }
+
 
 } // end of CHONS namespace

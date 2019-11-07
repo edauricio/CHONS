@@ -16,15 +16,12 @@ class MeshReader;
 
 // Each element is uniquely identified by its type and tag.
 class ElementFactory {
-    friend MeshReader; // Only MeshReader objects are able to place orders
-
     public:
 
         // Member function for adding/retrieving primitive vertex element
         Element* GetElement(const ElementInfo&);
         bool OrderElement(const ElementInfo&);
         void PlaceOrder();
-        bool Created() { return s_created; };
         static ElementFactory* GetInstance();
         // DELETE THIS -- FOR DEBUGGING PURPOSES ONLY
         size_t HowMany(const ElementType& et) { 
@@ -33,8 +30,7 @@ class ElementFactory {
         void RunThrough();
         
     protected:
-        ElementFactory() : s_elements(MAX_NUMBER_OF_TYPES),
-                           s_orderedElements(MAX_NUMBER_OF_TYPES) {};
+        ElementFactory();
         
     private:
         template <typename T>
@@ -44,7 +40,6 @@ class ElementFactory {
 
 
         static ElementFactory* s_singleInstance;
-        bool s_created = false;
         std::vector<std::unordered_map<size_t, Element*> > s_elements;
         std::vector<std::unordered_map<size_t, ElementInfo>> s_orderedElements;
 

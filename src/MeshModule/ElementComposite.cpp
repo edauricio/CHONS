@@ -57,6 +57,8 @@ Point* Element::GetPoints() {
 Node::Node(const ElementInfo& ein) : Element(ein) {
     s_eleOrder = 0;
     s_polyOrder = -1;
+    s_dim = 0;
+    s_incompleteElementPrimitivesNr = -1;
     if (!ein.coords.empty())
         s_coords = ein.coords;
     else {
@@ -87,6 +89,8 @@ Line::Line(const ElementInfo& ein) : Element(ein) {
         std::cout << "Wrong number of primitives for Line creation\n"; 
         exit(-1); 
     }
+    s_incompleteElementPrimitivesNr = 2;
+    s_dim = 1;
     for (auto prim : ein.prims)
         AddPrimitive(prim);
 }
@@ -137,7 +141,9 @@ Quad::Quad(const ElementInfo& ein) : Element(ein) {
     if (ein.prims.empty() || (ein.prims.size() < 4)) {
         std::cout << "Wrong number of primitives for Quad creation.\n";
         exit(-1);
-    }        
+    }
+    s_incompleteElementPrimitivesNr = 4;
+    s_dim = 2;
     for (auto it = ein.prims.begin(); it != ein.prims.end(); it++) {
         AddPrimitive(*it);
     }
@@ -191,6 +197,8 @@ Tri::Tri(const ElementInfo& ein) : Element(ein) {
         std::cout << "Wrong number of primitives for Tri creation.\n";
         exit(-1);
     }
+    s_incompleteElementPrimitivesNr = 3;
+    s_dim = 2;
     for (auto prim : ein.prims)
         AddPrimitive(prim);
 }
@@ -242,10 +250,11 @@ Hexa::Hexa(const ElementInfo& ein) : Element(ein) {
     if (ein.prims.empty() || (ein.prims.size() < 6)) {
         std::cout << "Wrong number of primitives for Hexa creation.\n";
         exit(-1);
-    } else {
-        for (auto prim : ein.prims)
-            AddPrimitive(prim);
     }
+    s_incompleteElementPrimitivesNr = 6;
+    s_dim = 3;
+    for (auto prim : ein.prims)
+        AddPrimitive(prim);
 }
 
 void Hexa::AddPrimitive(Element* ele) {
@@ -283,6 +292,8 @@ Tetra::Tetra(const ElementInfo& ein) : Element(ein) {
         std::cout << "Wrong number of primitive elements for Tetra creation.\n";
         exit(-1);
     }
+    s_incompleteElementPrimitivesNr = 4;
+    s_dim = 3;
     for (auto prim : ein.prims)
         AddPrimitive(prim);
 }
@@ -321,6 +332,8 @@ Prism::Prism(const ElementInfo& ein) : Element(ein) {
         std::cout << "Wrong number of primitive elements for Tetra creation.\n";
         exit(-1);
     }
+    s_incompleteElementPrimitivesNr = 5;
+    s_dim = 3;
     for (auto prim : ein.prims)
         AddPrimitive(prim);
 }
@@ -360,6 +373,8 @@ Pyram::Pyram(const ElementInfo& ein) : Element(ein) {
         std::cout << "Wrong number of primitive elements for Tetra creation.\n";
         exit(-1);
     }
+    s_incompleteElementPrimitivesNr = 5;
+    s_dim = 3;
     for (auto prim : ein.prims)
         AddPrimitive(prim);
 }

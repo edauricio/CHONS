@@ -28,8 +28,8 @@ struct ElementInfo {
     void clear() { coords.clear(); prims.clear(); }
     size_t tag;
     ElementType type;
-    size_t eleOrder;
-    size_t polyOrder;
+    unsigned short int eleOrder;
+    unsigned short int polyOrder;
     //int bndTag;
     std::vector<double> coords;
     std::vector<Element*> prims;

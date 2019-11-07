@@ -1,14 +1,3 @@
-ADD NEW STATE VARIABLE FOR EACH ELEMENT
-In order to be able to treat element's primitives correctly, a new variable should be
-added for each element so we know how many primitives define the "incomplete" (no interior
-nodes) object. For eaxmple, for a Quad, this should be something like s_incPrims=4. Since 
-we lost the information on primitive type by substituting the map for a simple vector, in
-this way we are still capable of knowing which primitives really define the element, 
-e.g. the edges, and which are the interior, e.g. face, nodes. Of course, for that to work, 
-we rely on the precondition that the primitives are added in such order.
-
-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-
-
 ANALYSIS/DESIGN THE "GRAPHING STRUCTURE" OF OUR MESH
 That is, the class/object that will interact directly (and VERY FREQUENTLY) with the solver
 in order to give it the needed adjacency information. Hence, because of the high frequency,

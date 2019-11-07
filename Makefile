@@ -10,7 +10,7 @@ CXXFLAGS= -g -lprofiler
 CPPFLAGS= -I$(IDIR) -Itpls/boost/include -DBOOST_ENABLE_ASSERT_HANDLER
 
 _HEADERS = MeshModule/ElementComposite.h MeshModule/ElementFactory.h MeshModule/ElementNumInfo.h \
-	  MeshModule/MeshReader.h MeshModule/GmshElements.h
+	  MeshModule/MeshReader.h MeshModule/GmshElements.h MeshModule/MeshInfoHolder.h
 
 HEADERS = $(patsubst %,$(IDIR)/%,$(_HEADERS))
 
@@ -24,6 +24,7 @@ TESTOBJ = $(ODIR)/$(TESTSRC).o
 CHONS: $(OBJ) $(TESTOBJ)
 	$(CXX) -o $@ $^ $(CXXFLAGS)
 
+#obj/MeshReader.o: $(SRCDIR)/MeshInfoHolder.h
 
 $(ODIR)/%.o: $(SRCDIR)/%.cpp
 	$(CXX) -c -o $@ $< $(CXXFLAGS) $(CPPFLAGS)
