@@ -20,47 +20,47 @@ class MeshInfoHolder {
     class ElementIterator;
 
     public:
-        using element_iterator = ElementIterator;
+        using iterator = ElementIterator;
 
 
         MeshInfoHolder() : s_factory(ElementFactory::GetInstance()) {}
         static MeshInfoHolder* GetInstance();
-        const std::array<Element*, 2>& GetSharingElements(const size_t&);
-        element_iterator ElementBegin(const short&);
-        element_iterator ElementEnd(const short&);
+        iterator ElementsBegin(const short& reg = -1);
+        iterator ElementsEnd(const short& reg = -1);
+        iterator BoundaryBegin(const short&);
+        iterator BoundaryEnd(const short&);
+        iterator InterfaceBegin();
+        iterator InterfaceEnd();
 
         
 
     private:
 
-        // TODO: This class should be used only for the interface elements, that
-        // are mapped to a 2-element array. For boundary and interior elements,
-        // we should just return the unordered_map iterators begin and end (of
-        // the corresponding bucket, of course)
-        
-        // Helper class to iterate over the interface elements
-        class ElementIterator : public std::iterator<std::forward_iterator_tag, 
-                                                        Element> {
+        // Helper class to iterate through elements
+        class ElementIterator : public std::iterator<std::forward_iterator_tag,
+                                                                Element*> {
+            using bucket_iterator = 
+                    std::unordered_multimap<short, Element*>::local_iterator;
             public:
-                ElementIterator(Element*, const short&);
-                ElementIterator(const ElementIterator&&);
-                ElementIterator& operator=(const ElementIterator&&);
-                ElementIterator(const ElementIterator&) = delete;
-                ElementIterator& operator=(const ElementIterator&) = delete;
+                // Constructors
+                ElementIterator(bucket_iterator, bucket_iterator);
+                ElementIterator(const ElementIterator&);
 
+                ElementIterator& operator=(const ElementIterator&);
+
+                Element& operator*() { return *elem; }
+                Element* operator->() { return &**this; }
                 ElementIterator& operator++();
                 ElementIterator operator++(int);
-                ElementIterator& operator--();
-                ElementIterator operator--(int);
-                bool operator==(ElementIterator);
-                bool operator!=(ElementIterator);
-                Element& operator*() { return *elem; }
+                bool operator==(const ElementIterator&);
+                bool operator!=(const ElementIterator&);
+
 
             private:
+                bucket_iterator it;
+                bucket_iterator end;
                 Element* elem;
-                short int region;
-                std::unordered_map<short int, Element*>::iterator bkt_beg;
-                std::unordered_map<short int, Element*>::iterator bkt_end;
+
         };
 
         // MARKED TO BE REFACTORED IN ITERATION 2:
@@ -69,14 +69,11 @@ class MeshInfoHolder {
         // (nodes, lines, 2D/3D) will be created, so we can call for memory allocation
         // in the beginning of the section reading. Hence, no more "OrderElement" thing
         // will happen, and elements will be constructed in the previsouly allocated
-        // memory right after reading it. Hence, the first parameter here could be
+        // memory right after reading it. Thus, the first parameter here could be
         // the Element* itself, passed by requesting it with ElementFactory::GetElement()
         // void AddInterfaceElement(const ElementInfo&, const int&);
         // void AddInteriorElement(const ElementInfo&, const int&);
-        void AddBoundaryElement(const ElementInfo&, const int&);
-        void AddInterfaceElement(const size_t&, 
-                                const std::pair<ElementType, size_t>&, 
-                                const std::pair<ElementType, size_t>&);
+        void AddInterfaceElement(const ElementInfo&, const int&);
         void AddInteriorElement(const ElementInfo&, const int&);
         void Consolidate();
 
@@ -89,25 +86,14 @@ class MeshInfoHolder {
 
         // type(region / tag)
         std::array<std::unordered_multimap<short int, size_t>,
-                    MAX_NUMBER_OF_TYPES> s_tmpBndElements;
+                    MAX_NUMBER_OF_TYPES> s_tmpInterElements;
         std::array<std::unordered_multimap<short int, size_t>,
                     MAX_NUMBER_OF_TYPES> s_tmpIntElements;
 
         // same as above, but the definitive structure
         // (after iteration 2 only this structure will be needed)
-        std::unordered_multimap<short int, Element*> s_boundaryElements;
+        std::unordered_multimap<short int, Element*> s_interfaceElements;
         std::unordered_multimap<short int, Element*> s_interiorElements;
-
-        // interface element to sharing elements
-        // interface_tag, (element1_tag, element2_tag)
-        std::unordered_map<size_t, 
-                            std::vector<
-                            std::pair<ElementType, size_t>
-                            > > s_tmpBndToSharings;
-
-        // same as above, but the definitive structure
-        // (after iteration 2 only this structure will be needed)
-        std::unordered_map<size_t, std::array<Element*,2>> s_interfaceElements;
 
         ElementFactory* s_factory;
 };

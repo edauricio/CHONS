@@ -16,8 +16,7 @@ class GraphInfoProcessor {
 
     private:
         short int s_meshDim;
-        std::unordered_map<size_t, 
-                        std::vector<std::pair<ElementType, size_t>>> s_tmpInt;
+        std::unordered_set<size_t> s_tmpInt;
         MeshInfoHolder* s_meshInfo;
 };
 

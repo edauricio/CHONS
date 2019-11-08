@@ -11,16 +11,9 @@ MeshInfoHolder* MeshInfoHolder::GetInstance() {
     return s_soleInstance;
 }
 
-void MeshInfoHolder::AddBoundaryElement(const ElementInfo& ein, 
+void MeshInfoHolder::AddInterfaceElement(const ElementInfo& ein, 
                                         const int& rTag) {
-    s_tmpBndElements[ein.type].emplace(rTag, ein.tag);
-}
-
-void MeshInfoHolder::AddInterfaceElement(const size_t& tag, 
-                                const std::pair<ElementType, size_t>& ele1, 
-                                const std::pair<ElementType, size_t>& ele2) {
-    s_tmpBndToSharings.emplace(tag, std::vector<
-                        std::pair<ElementType, size_t>>{ele1, ele2});
+    s_tmpInterElements[ein.type].emplace(rTag, ein.tag);
 }
 
 void MeshInfoHolder::AddInteriorElement(const ElementInfo& ein, 
@@ -31,17 +24,17 @@ void MeshInfoHolder::AddInteriorElement(const ElementInfo& ein,
 void MeshInfoHolder::Consolidate() {
     ElementInfo einfo;
     for (int i = 0; i != MAX_NUMBER_OF_TYPES; ++i) {
-        if (!s_tmpBndElements[i].empty()) {
+        if (!s_tmpInterElements[i].empty()) {
             einfo.type = static_cast<ElementType>(i);
-            for (auto bcnt = 0; bcnt != s_tmpBndElements[i].bucket_count();
+            for (auto bcnt = 0; bcnt != s_tmpInterElements[i].bucket_count();
                         ++bcnt)
-                for (auto bckt_it = s_tmpBndElements[i].begin(bcnt);
-                            bckt_it != s_tmpBndElements[i].end(bcnt); bckt_it++) {
+                for (auto bckt_it = s_tmpInterElements[i].begin(bcnt);
+                            bckt_it != s_tmpInterElements[i].end(bcnt); bckt_it++) {
                     einfo.tag = bckt_it->second;
-                    s_boundaryElements.emplace(bckt_it->first,
+                    s_interfaceElements.emplace(bckt_it->first,
                                         s_factory->GetElement(einfo));
                 }
-            s_tmpBndElements[i].clear();
+            s_tmpInterElements[i].clear();
         }
 
         if (!s_tmpIntElements[i].empty()) {
@@ -54,74 +47,96 @@ void MeshInfoHolder::Consolidate() {
                     s_interiorElements.emplace(bckt_it->first,
                                         s_factory->GetElement(einfo));
                 }
-            s_tmpBndElements[i].clear();
+            s_tmpIntElements[i].clear();
         }
     }
 
-    for (auto& tmpInter : s_tmpBndToSharings) {
-        std::array<Element*, 2> ar;
-        ElementInfo einfo;
-        einfo.type = tmpInter.second[0].first;
-        einfo.tag = tmpInter.second[0].second;
-        ar[0] = s_factory->GetElement(einfo);
-        ar[1] = nullptr; // Create a Ghost element to hold boundary cond. info?
-        if (tmpInter.second.size() > 1) {
-            einfo.type = tmpInter.second[1].first;
-            einfo.tag = tmpInter.second[1].second;
-            ar[1] = s_factory->GetElement(einfo);
-        }
-        s_interfaceElements.emplace(tmpInter.first, ar);
-    }
-    s_tmpBndToSharings.clear();
 }
 
-const std::array<Element*, 2>& MeshInfoHolder::GetSharingElements(
-                                                const size_t& inter_tag) {
-    try {
-        return s_interfaceElements.at(inter_tag);
-    } catch(...) {
-        std::cerr << "Unable to fetch interface element with tag " << inter_tag
-                    << ".\n";
-        std::abort();
-    }
-}
-
-MeshInfoHolder::element_iterator MeshInfoHolder::ElementBegin(
-                                                        const short& reg = -1) {
+MeshInfoHolder::iterator MeshInfoHolder::ElementsBegin(
+                                                        const short& reg) {
     auto bkt = s_interiorElements.bucket(reg);
-    auto ele = s_interiorElements.begin(bkt);
-
-    return element_iterator(ele->second, reg);
+    return {s_interiorElements.begin(bkt), s_interiorElements.end(bkt)};
 }
 
-// Definition of Helper Class Functions (ElementIterator)
-MeshInfoHolder::ElementIterator::ElementIterator(
-                Element* ele, 
-                const short& reg
-                ) : elem(ele), region(reg) {
-    // TODO
-    // set bkt_beg / bkt_end
+MeshInfoHolder::iterator MeshInfoHolder::ElementsEnd(
+                                                        const short& reg) {
+    auto bkt = s_interiorElements.bucket(reg);
+    return {s_interiorElements.end(bkt), s_interiorElements.end(bkt)};
 }
 
-// Move constructor
-MeshInfoHolder::ElementIterator::ElementIterator(
-                                const ElementIterator&& rr_init) {
-
+MeshInfoHolder::iterator MeshInfoHolder::BoundaryBegin(
+                                                        const short& reg) {
+    auto bkt = s_interfaceElements.bucket(reg);
+    return {s_interfaceElements.begin(bkt), s_interfaceElements.end(bkt)};
 }
 
-// Move assignment
+MeshInfoHolder::iterator MeshInfoHolder::BoundaryEnd(
+                                                        const short& reg) {
+    auto bkt = s_interfaceElements.bucket(reg);
+    return {s_interfaceElements.end(bkt), s_interfaceElements.end(bkt)};
+}
+
+MeshInfoHolder::iterator MeshInfoHolder::InterfaceBegin() {
+    auto bkt = s_interfaceElements.bucket(-1);
+    return {s_interfaceElements.begin(bkt), s_interfaceElements.end(bkt)};
+}
+
+MeshInfoHolder::iterator MeshInfoHolder::InterfaceEnd() {
+    auto bkt = s_interfaceElements.bucket(-1);
+    return {s_interfaceElements.end(bkt), s_interfaceElements.end(bkt)};
+}
+
+// Definition of ElementIterator helper class to iterate through the elements
+
+MeshInfoHolder::ElementIterator::ElementIterator(bucket_iterator me,
+                                            bucket_iterator e) : it(me),
+                                                end(e) {
+    if (it != end)
+        elem = it->second;
+}
+
+MeshInfoHolder::ElementIterator::ElementIterator(const ElementIterator& eit) :
+                                                it(eit.it), end(eit.end) {
+    if (it != end)
+        elem = it->second;
+}
+
 MeshInfoHolder::ElementIterator& MeshInfoHolder::ElementIterator::operator=(
-                                            const ElementIterator&& rr_rhs) {
-    elem = rr_rhs.elem;
-    region = rr_rhs.region;
-    bkt_beg = rr_rhs.bkt_beg;
-    bkt_end = rr_rhs.bkt_end;
-
+                                                    const ElementIterator& eit){
+    it = eit.it;
+    end = eit.end;
+    if (it != end)
+        elem = eit.elem;
+    else
+        elem = nullptr;
     return *this;
 }
 
 MeshInfoHolder::ElementIterator& MeshInfoHolder::ElementIterator::operator++() {
+    it++;
+    if (it != end)
+        elem = it->second;
+    else
+        elem = nullptr;
+    return *this;
+}
 
+MeshInfoHolder::ElementIterator MeshInfoHolder::ElementIterator::operator++(int) {
+    bucket_iterator it_old = it++;
+    if (it != end)
+        elem = it->second;
+    else
+        elem = nullptr;
+    return ElementIterator(it_old, end);
+}
+
+bool MeshInfoHolder::ElementIterator::operator==(const ElementIterator& rhs) {
+    return (it == rhs.it);
+}
+
+bool MeshInfoHolder::ElementIterator::operator!=(const ElementIterator& rhs) {
+    return !(*this == rhs);
 }
 
 } // end of namespace CHONS

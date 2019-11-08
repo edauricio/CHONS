@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     ElementFactory* fac = ElementFactory::GetInstance();
     MeshInfoHolder* minfo = MeshInfoHolder::GetInstance();
 
-    GmshReader readertest{"/home/eron/CHONS/testing/mesh/3d_cube_hexao2.msh"};
+    GmshReader readertest{"/home/eron/CHONS/testing/mesh/2d_quad.msh"};
     // GmshReader readertest{"/home/eron/workspace/CHONS/testing/mesh/3d_cube_hexao2.msh"};
     // std::cout << "Trying to read Nodes.\n";
     readertest.ReadNodes();
@@ -55,7 +55,23 @@ int main(int argc, char* argv[]) {
     // std::cout << "Number of Prisms read: " << fac->HowMany(ePrism) << "\n";
     // std::cout << "Number of Pyrams read: " << fac->HowMany(ePyram) << "\n";
 
-    std::cout << "Elements sharing interfaces: \n";
+    std::cout << "-=-=- Boundary elements -=-=-\n";
+    for (int i = 1; i != 5; ++i) {
+        std::cout << "Region: " << i << "\nElements:\n";
+        for (auto it = minfo->BoundaryBegin(i); it != minfo->BoundaryEnd(i); ++it)
+            std::cout << it->GetTag() << " ";
+        std::cout << "\n";
+    }
+    std::cout << "-=-=- Interface elements -=-=-\n";
+    for (auto it = minfo->InterfaceBegin(); it != minfo->InterfaceEnd(); ++it)
+        std::cout << it->GetTag() << " ";
+    std::cout << "\n";
+    std::cout << "-=-=- Elements -=-=-\n";
+    for (auto it = minfo->ElementsBegin(); it != minfo->ElementsEnd(); ++it)
+        std::cout << it->GetTag() << " ";
+    std::cout << "\n";
+    
+
 
     //readertest.ShoutOutAll();
 

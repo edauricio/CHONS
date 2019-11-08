@@ -22,21 +22,14 @@ void GraphInfoProcessor::AddToMeshInfo(const ElementInfo&
     if (type_dim == s_meshDim-1) {
         if (rTag > 0)
             /*add boundary element*/
-            s_meshInfo->AddBoundaryElement(ein, rTag);
+            s_meshInfo->AddInterfaceElement(ein, rTag);
     } else if (type_dim == s_meshDim) {
         /*add interface element*/
         for (auto& prim : ein.prims) {
-            if (s_tmpInt.count(prim->GetTag())) {
-                auto it = s_tmpInt.find(prim->GetTag());
-                it->second.push_back(std::make_pair(ein.type, ein.tag));
-                s_meshInfo->AddInterfaceElement(prim->GetTag(),
-                            it->second[0],
-                            it->second[1]);
+            if (!s_tmpInt.count(prim->GetTag())) {
+                s_tmpInt.insert(prim->GetTag());
+                s_meshInfo->AddInterfaceElement(ein, -1);
             }
-            else
-                s_tmpInt.emplace(prim->GetTag(), std::vector<
-                                    std::pair<ElementType, size_t>>{
-                                    std::make_pair(ein.type, ein.tag)});
         }
         /*add interior element*/
         s_meshInfo->AddInteriorElement(ein, rTag);
