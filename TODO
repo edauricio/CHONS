@@ -6,6 +6,14 @@ After this "permament" data structure is done setting, we can free most of the m
 for the intermediary data structures (the ones used to actually gather the adjacency information)
 using the ResourceDirector class (below)
 
+Reimplement the behavior of Iterator helper class in order to iterate over all the s_interfaceElements
+multimap for the functions InterfaceBegins, so that not only the interface for the interior of the domain
+is iterated, but also the boundary elements. Remember that this function is to help set the numerical flux
+for all interfaces (e.g. calculating Riemann solution and viscous fluxes too) and this includes the
+domain boundary.
+In order to do so, probably a second helper class should be created, that now behaves differently for
+the operators ++.
+
 =--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=
 
 CREATE RESOURCE DIRECTOR CLASS
