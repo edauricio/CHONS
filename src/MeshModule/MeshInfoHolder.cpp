@@ -53,90 +53,46 @@ void MeshInfoHolder::Consolidate() {
 
 }
 
-MeshInfoHolder::iterator MeshInfoHolder::ElementsBegin(
+MeshInfoHolder::all_iterator MeshInfoHolder::ElementsBegin() {
+    return {s_interiorElements.begin(), s_interiorElements.end()};
+}
+
+MeshInfoHolder::all_iterator MeshInfoHolder::ElementsEnd() {
+    return {s_interiorElements.end(), s_interiorElements.end()};
+}
+
+MeshInfoHolder::region_iterator MeshInfoHolder::ElementsBegin(
                                                         const short& reg) {
     auto bkt = s_interiorElements.bucket(reg);
     return {s_interiorElements.begin(bkt), s_interiorElements.end(bkt)};
 }
 
-MeshInfoHolder::iterator MeshInfoHolder::ElementsEnd(
+MeshInfoHolder::region_iterator MeshInfoHolder::ElementsEnd(
                                                         const short& reg) {
     auto bkt = s_interiorElements.bucket(reg);
     return {s_interiorElements.end(bkt), s_interiorElements.end(bkt)};
 }
 
-MeshInfoHolder::iterator MeshInfoHolder::BoundaryBegin(
+MeshInfoHolder::region_iterator MeshInfoHolder::BoundaryBegin(
                                                         const short& reg) {
     auto bkt = s_interfaceElements.bucket(reg);
     return {s_interfaceElements.begin(bkt), s_interfaceElements.end(bkt)};
 }
 
-MeshInfoHolder::iterator MeshInfoHolder::BoundaryEnd(
+MeshInfoHolder::region_iterator MeshInfoHolder::BoundaryEnd(
                                                         const short& reg) {
     auto bkt = s_interfaceElements.bucket(reg);
     return {s_interfaceElements.end(bkt), s_interfaceElements.end(bkt)};
 }
 
-MeshInfoHolder::iterator MeshInfoHolder::InterfaceBegin() {
+MeshInfoHolder::region_iterator MeshInfoHolder::InterfaceBegin() {
     auto bkt = s_interfaceElements.bucket(-1);
     return {s_interfaceElements.begin(bkt), s_interfaceElements.end(bkt)};
 }
 
-MeshInfoHolder::iterator MeshInfoHolder::InterfaceEnd() {
+MeshInfoHolder::region_iterator MeshInfoHolder::InterfaceEnd() {
     auto bkt = s_interfaceElements.bucket(-1);
     return {s_interfaceElements.end(bkt), s_interfaceElements.end(bkt)};
-}
-
-// Definition of ElementIterator helper class to iterate through the elements
-
-MeshInfoHolder::ElementIterator::ElementIterator(bucket_iterator me,
-                                            bucket_iterator e) : it(me),
-                                                end(e) {
-    if (it != end)
-        elem = it->second;
-}
-
-MeshInfoHolder::ElementIterator::ElementIterator(const ElementIterator& eit) :
-                                                it(eit.it), end(eit.end) {
-    if (it != end)
-        elem = it->second;
-}
-
-MeshInfoHolder::ElementIterator& MeshInfoHolder::ElementIterator::operator=(
-                                                    const ElementIterator& eit){
-    it = eit.it;
-    end = eit.end;
-    if (it != end)
-        elem = eit.elem;
-    else
-        elem = nullptr;
-    return *this;
-}
-
-MeshInfoHolder::ElementIterator& MeshInfoHolder::ElementIterator::operator++() {
-    it++;
-    if (it != end)
-        elem = it->second;
-    else
-        elem = nullptr;
-    return *this;
-}
-
-MeshInfoHolder::ElementIterator MeshInfoHolder::ElementIterator::operator++(int) {
-    bucket_iterator it_old = it++;
-    if (it != end)
-        elem = it->second;
-    else
-        elem = nullptr;
-    return ElementIterator(it_old, end);
-}
-
-bool MeshInfoHolder::ElementIterator::operator==(const ElementIterator& rhs) {
-    return (it == rhs.it);
-}
-
-bool MeshInfoHolder::ElementIterator::operator!=(const ElementIterator& rhs) {
-    return !(*this == rhs);
 }
 
 } // end of namespace CHONS

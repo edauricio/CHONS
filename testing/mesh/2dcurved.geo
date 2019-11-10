@@ -35,3 +35,12 @@ Transfinite Curve {1, 3} = 10 Using Progression 1;
 Transfinite Curve {4, 2} = 20 Using Progression 1;
 //+
 Transfinite Surface {1};
+//+
+//+
+Extrude {0, 0, 1} {
+  Curve{1}; Curve{2}; Curve{3}; Curve{4}; Layers{2}; QuadTriAddVerts;
+}
+//+
+Curve Loop(2) = {5, 9, 13, 17};
+//+
+Surface(21) = {2};

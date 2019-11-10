@@ -20,17 +20,17 @@ void GraphInfoProcessor::AddToMeshInfo(const ElementInfo&
     short int type_dim = ein.type;
     type_dim = (type_dim == 3) ? 2 : ((type_dim > 3) ? 3 : type_dim);
     if (type_dim == s_meshDim-1) {
-        if (rTag > 0)
+        // if (rTag > 0)
             /*add boundary element*/
             s_meshInfo->AddInterfaceElement(ein, rTag);
     } else if (type_dim == s_meshDim) {
         /*add interface element*/
-        for (auto& prim : ein.prims) {
-            if (!s_tmpInt.count(prim->GetTag())) {
-                s_tmpInt.insert(prim->GetTag());
-                s_meshInfo->AddInterfaceElement(ein, -1);
-            }
-        }
+        // for (auto& prim : ein.prims) {
+        //     if (!s_tmpInt.count(prim->GetTag())) {
+        //         s_tmpInt.insert(prim->GetTag());
+        //         s_meshInfo->AddInterfaceElement(ein, -1);
+        //     }
+        // }
         /*add interior element*/
         s_meshInfo->AddInteriorElement(ein, rTag);
     }

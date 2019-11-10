@@ -1,3 +1,37 @@
+IMPLEMENT COMPUTATION OF NORMAL UNIT VECTORS
+For 2D first. This includes the following steps:
+- Find the polynomial representing the curved boundary from an interpolation of the given points
+(using cubic spline interpolation -- better and simpler than Lagrange interpolation, avoids Runge phenomenon, etc)
+(a relatively simple algorithm for determining the cubic spline is given in wikiversity Cubic Spline Interp.)
+https://en.wikiversity.org/wiki/Cubic_Spline_Interpolation
+https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-curve.html
+https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/de-Boor.html
+
+
+- Parametrize the curve according to arc length (Kopriva's book gives 1 method, but CAD literature 
+may have a lot more) --- maybe it isn't really needed. In fact, since we can calculate the derivative of the
+cubic spline directly, its probably gonna be straighforward to do this stuff
+- Find the unit normal
+	1) find the tagent vector to the curve by deriving it once
+	2) rotate the tangent vector 90 degrees clockwise (swap coordinates and make the 2nd negative)
+	(step 2 can be achieved through a matrix-vector multiply as well)
+
+For the element to be mapped to the bilateral standard square, we should also represent the curve 
+by isoparametric mapping. That is, the curve should be interpolated in the Gauss-Lobatto points 
+to the order of the polynomial representing the solution.
+
+For 3D, more research will be needed.
+4332a810cd21bc3fcdb7506633b28b1fffb4.pdf
+1-s2.0-S1002007107000688-main.pdf
+https://math.stackexchange.com/questions/3049969/calculate-surface-normal-and-area-for-a-non-planar-quadrilateral
+
+However, the steps should be similar, i.e., find a suitably representation of the curved surface,
+parametrize the surface and find the unit normal.
+Then, arrange a way to represent it using isoparametric mapping so that we can map the whole element
+to the standard one accordingly.
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
+
 ANALYSIS/DESIGN THE "GRAPHING STRUCTURE" OF OUR MESH
 That is, the class/object that will interact directly (and VERY FREQUENTLY) with the solver
 in order to give it the needed adjacency information. Hence, because of the high frequency,

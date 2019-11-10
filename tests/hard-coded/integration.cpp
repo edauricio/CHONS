@@ -35,8 +35,8 @@ int main(int argc, char* argv[]) {
     ElementFactory* fac = ElementFactory::GetInstance();
     MeshInfoHolder* minfo = MeshInfoHolder::GetInstance();
 
-    GmshReader readertest{"/home/eron/CHONS/testing/mesh/2d_quad.msh"};
-    // GmshReader readertest{"/home/eron/workspace/CHONS/testing/mesh/3d_cube_hexao2.msh"};
+    // GmshReader readertest{"/home/eron/CHONS/testing/mesh/2d_quad.msh"};
+    GmshReader readertest{"/home/eron/workspace/CHONS/testing/mesh/2d_quad.msh"};
     // std::cout << "Trying to read Nodes.\n";
     readertest.ReadNodes();
     std::cout << "Number of Nodes read: " << fac->HowMany(eNode) << "\n";
@@ -66,10 +66,14 @@ int main(int argc, char* argv[]) {
     for (auto it = minfo->InterfaceBegin(); it != minfo->InterfaceEnd(); ++it)
         std::cout << it->GetTag() << " ";
     std::cout << "\n";
-    std::cout << "-=-=- Elements -=-=-\n";
+    std::cout << "-=-=- Elements -=-=- \n";
     for (auto it = minfo->ElementsBegin(); it != minfo->ElementsEnd(); ++it)
         std::cout << it->GetTag() << " ";
     std::cout << "\n";
+
+    ElementInfo einfo;
+    einfo.type = eLine;
+    einfo.tag = 111;
     
 
 

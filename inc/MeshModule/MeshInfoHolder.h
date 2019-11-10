@@ -17,48 +17,61 @@ class GraphInfoProcessor;
 
 class MeshInfoHolder {
     friend GraphInfoProcessor;
+    template <typename T>
     class ElementIterator;
 
     public:
-        using iterator = ElementIterator;
+        using region_iterator = ElementIterator<
+                    std::unordered_multimap<short, Element*>::local_iterator
+                                                >;
+        using all_iterator = ElementIterator<
+                    std::unordered_multimap<short, Element*>::iterator
+                                                >;
 
 
         MeshInfoHolder() : s_factory(ElementFactory::GetInstance()) {}
         static MeshInfoHolder* GetInstance();
-        iterator ElementsBegin(const short& reg = -1);
-        iterator ElementsEnd(const short& reg = -1);
-        iterator BoundaryBegin(const short&);
-        iterator BoundaryEnd(const short&);
-        iterator InterfaceBegin();
-        iterator InterfaceEnd();
-
+        all_iterator ElementsBegin();
+        all_iterator ElementsEnd();
+        region_iterator ElementsBegin(const short&);
+        region_iterator ElementsEnd(const short&);
+        region_iterator BoundaryBegin(const short&);
+        region_iterator BoundaryEnd(const short&);
+        region_iterator InterfaceBegin();
+        region_iterator InterfaceEnd();
         
 
     private:
 
         // Helper class to iterate through elements
-        class ElementIterator : public std::iterator<std::forward_iterator_tag,
-                                                                Element*> {
-            using bucket_iterator = 
-                    std::unordered_multimap<short, Element*>::local_iterator;
+        template <typename T>
+        class ElementIterator {
+            using iterator = T;
             public:
-                // Constructors
-                ElementIterator(bucket_iterator, bucket_iterator);
-                ElementIterator(const ElementIterator&);
+                // Iterator trais (since std::iterator<> is deprecated)
+                using value_type = Element;
+                using pointer = Element*;
+                using reference = Element&;
+                using difference_type = ptrdiff_t;
+                using iterator_category = std::forward_iterator_tag;
 
-                ElementIterator& operator=(const ElementIterator&);
+                // Constructors
+                ElementIterator<T>(T, T);
+                ElementIterator<T>(const ElementIterator<T>&);
+
+                ElementIterator<T>& operator=(const ElementIterator<T>&);
 
                 Element& operator*() { return *elem; }
                 Element* operator->() { return &**this; }
-                ElementIterator& operator++();
-                ElementIterator operator++(int);
-                bool operator==(const ElementIterator&);
-                bool operator!=(const ElementIterator&);
+                ElementIterator<T>& operator++();
+                ElementIterator<T> operator++(int);
+                bool operator==(const ElementIterator<T>&);
+                bool operator!=(const ElementIterator<T>&);
 
 
             private:
-                bucket_iterator it;
-                bucket_iterator end;
+                T it;
+                T end;
                 Element* elem;
 
         };
@@ -97,6 +110,65 @@ class MeshInfoHolder {
 
         ElementFactory* s_factory;
 };
+
+// Definition of ElementIterator helper class to iterate through the elements
+template <typename T>
+MeshInfoHolder::ElementIterator<T>::ElementIterator(iterator me,
+                                            iterator e) : it(me),
+                                                end(e) {
+    if (it != end)
+        elem = it->second;
+}
+
+template <typename T>
+MeshInfoHolder::ElementIterator<T>::ElementIterator(
+                                                const ElementIterator<T>& eit)
+                                            : it(eit.it), end(eit.end) {
+    if (it != end)
+        elem = it->second;
+}
+
+template <typename T>
+MeshInfoHolder::ElementIterator<T>& MeshInfoHolder::ElementIterator<T>::operator=(
+                                                    const ElementIterator& eit){
+    it = eit.it;
+    end = eit.end;
+    if (it != end)
+        elem = eit.elem;
+    else
+        elem = nullptr;
+    return *this;
+}
+
+template <typename T>
+MeshInfoHolder::ElementIterator<T>& MeshInfoHolder::ElementIterator<T>::operator++() {
+    it++;
+    if (it != end)
+        elem = it->second;
+    else
+        elem = nullptr;
+    return *this;
+}
+
+template <typename T>
+MeshInfoHolder::ElementIterator<T> MeshInfoHolder::ElementIterator<T>::operator++(int) {
+    iterator it_old = it++;
+    if (it != end)
+        elem = it->second;
+    else
+        elem = nullptr;
+    return ElementIterator<T>(it_old, end);
+}
+
+template <typename T>
+bool MeshInfoHolder::ElementIterator<T>::operator==(const ElementIterator<T> & rhs) {
+    return (it == rhs.it);
+}
+
+template <typename T>
+bool MeshInfoHolder::ElementIterator<T>::operator!=(const ElementIterator<T>& rhs) {
+    return !(*this == rhs);
+}
 
 } // end of namespace CHONS
 
