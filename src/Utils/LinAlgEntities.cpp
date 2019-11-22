@@ -27,16 +27,14 @@ namespace CHONS {
 
 #endif
 
-// Vector::Vector() : s_isEmpty(true) {
+// ---------- Vector Member Function Definitions --------- //
 
-// }
-
-Vector::Vector(const size_t& sz) : s_size(sz), 
+Vector::Vector(const int& sz) : s_size(sz), 
                                     s_elements(new double[s_size]{0}) {
 
 }
 
-Vector::Vector(const size_t& sz, double& in) : s_size(sz), 
+Vector::Vector(const int& sz, double& in) : s_size(sz), 
                                             s_elements(new double[s_size]{in}) {
 
 }
@@ -87,7 +85,7 @@ Vector::~Vector() {
 
 Vector Vector::operator+(const Vector& vsum) {
     if (s_size != vsum.size()) throw std::out_of_range("Unable to sum"
-                    " vectors for unequal size.");
+                    " vectors of unequal size.");
     double alpha = 1.0;
     int inc=1;
     Vector retval(vsum);
@@ -96,22 +94,63 @@ Vector Vector::operator+(const Vector& vsum) {
 }
 
 double Vector::operator*(const Vector& vdot) {
+    if (s_size != vdot.size()) throw std::out_of_range("Unable to calculate"
+                    "dot product for vectors of unequal size.");
     int inc=1;
     return ddot_(&s_size, s_elements, &inc, vdot.s_elements, &inc);
 }
 
 Vector Vector::operator*(const double& scalar) {
+    int inc=1;
+    double alpha=scalar;
     Vector retval(s_size);
-    for (int i = 0; i != s_size; ++i)
-        retval[i] = s_elements[i]*scalar;
+    daxpy_(&s_size, &alpha, s_elements, &inc, retval.s_elements, &inc);
     return retval;
 }
 
 Vector operator*(const double& scalar, const Vector& vec) {
+    int inc=1, sz=vec.size();
+    double alpha=scalar;
     Vector retval(vec.size());
-    for (int i = 0; i != retval.size(); ++i)
-        retval[i] = vec[i]*scalar;
+    daxpy_(&sz, &alpha, vec.data(), &inc, retval.data(), &inc);
     return retval;   
 }
+
+// ---------- End of Vector Member Function Definitions --------- //
+
+// ---------- VectorIterartor Member Function Definitions --------- //
+
+Vector::VectorIterator::VectorIterator(const VectorIterator& vic) {
+    element = vic.element;
+}
+
+Vector::VectorIterator::VectorIterator(VectorIterator&& vim) {
+    element = vim.element;
+    vim.element = nullptr;
+}
+
+Vector::VectorIterator& Vector::VectorIterator::operator=(
+                                                const VectorIterator& vic) {
+    element = vic.element;
+    return *this;
+}
+
+Vector::VectorIterator& Vector::VectorIterator::operator=(VectorIterator&& vim) {
+    element = vim.element;
+    vim.element = nullptr;   
+    return *this;
+}
+
+// ---------- End of VectorIterator Member Function Definitions --------- //
+
+
+// ---------- Matrix Member Function Definitions --------- //
+
+Matrix::Matrix(const int& m, const int& n) : s_rowSize(m), s_colSize(n),
+                                s_elements(new double[s_rowSize*s_colSize]) {
+
+}
+
+// ---------- End of Matrix Member Function Definitions --------- //
 
 } // end of CHONS namespace

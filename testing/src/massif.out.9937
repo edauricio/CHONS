@@ -1,0 +1,945 @@
+desc: (none)
+cmd: ./a.out
+time_unit: i
+#-----------
+snapshot=0
+#-----------
+time=0
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=1
+#-----------
+time=3661391
+mem_heap_B=1984
+mem_heap_extra_B=8
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=2
+#-----------
+time=3663513
+mem_heap_B=4024
+mem_heap_extra_B=24
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=3
+#-----------
+time=3663549
+mem_heap_B=4044
+mem_heap_extra_B=44
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=4
+#-----------
+time=3665703
+mem_heap_B=8140
+mem_heap_extra_B=52
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=5
+#-----------
+time=3679549
+mem_heap_B=8884
+mem_heap_extra_B=68
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=6
+#-----------
+time=3681284
+mem_heap_B=8972
+mem_heap_extra_B=84
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=7
+#-----------
+time=3684368
+mem_heap_B=8978
+mem_heap_extra_B=102
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=8
+#-----------
+time=3685981
+mem_heap_B=9002
+mem_heap_extra_B=118
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=9
+#-----------
+time=3686023
+mem_heap_B=9514
+mem_heap_extra_B=126
+mem_stacks_B=0
+heap_tree=detailed
+n6: 9514 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 4096 0x5A2E895: register_printf_specifier (reg-printf.c:57)
+  n1: 4096 0x8664500: ??? (in /usr/lib/x86_64-linux-gnu/libquadmath.so.0.0.0)
+   n1: 4096 0x4010731: _dl_init (dl-init.c:72)
+    n0: 4096 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+ n1: 2040 0x5A30FDD: register_printf_modifier (reg-modifier.c:69)
+  n1: 2040 0x86644D9: ??? (in /usr/lib/x86_64-linux-gnu/libquadmath.so.0.0.0)
+   n1: 2040 0x4010731: _dl_init (dl-init.c:72)
+    n0: 2040 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+ n1: 1984 0x5A3128D: register_printf_type (reg-type.c:43)
+  n1: 1984 0x86644BE: ??? (in /usr/lib/x86_64-linux-gnu/libquadmath.so.0.0.0)
+   n1: 1984 0x4010731: _dl_init (dl-init.c:72)
+    n0: 1984 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+ n2: 832 0x829D891: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+  n1: 744 0x8419CD5: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+   n1: 744 0x841A30E: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 744 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 744 0x4010731: _dl_init (dl-init.c:72)
+      n0: 744 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+  n0: 88 in 1 place, below massif's threshold (1.00%)
+ n2: 536 0x829D7F3: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+  n1: 512 0x8422D36: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+   n1: 512 0x841A3B8: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 512 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 512 0x4010731: _dl_init (dl-init.c:72)
+      n0: 512 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+  n0: 24 in 1 place, below massif's threshold (1.00%)
+ n0: 26 in 2 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=10
+#-----------
+time=3687879
+mem_heap_B=10258
+mem_heap_extra_B=142
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=11
+#-----------
+time=3688050
+mem_heap_B=10346
+mem_heap_extra_B=158
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=12
+#-----------
+time=3688174
+mem_heap_B=10353
+mem_heap_extra_B=175
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=13
+#-----------
+time=3688246
+mem_heap_B=10377
+mem_heap_extra_B=191
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=14
+#-----------
+time=3688288
+mem_heap_B=10889
+mem_heap_extra_B=199
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=15
+#-----------
+time=3688396
+mem_heap_B=11633
+mem_heap_extra_B=215
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=16
+#-----------
+time=3688584
+mem_heap_B=11721
+mem_heap_extra_B=231
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=17
+#-----------
+time=3688707
+mem_heap_B=11728
+mem_heap_extra_B=248
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=18
+#-----------
+time=3688780
+mem_heap_B=11752
+mem_heap_extra_B=264
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=19
+#-----------
+time=3688822
+mem_heap_B=12008
+mem_heap_extra_B=272
+mem_stacks_B=0
+heap_tree=detailed
+n6: 12008 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 4096 0x5A2E895: register_printf_specifier (reg-printf.c:57)
+  n1: 4096 0x8664500: ??? (in /usr/lib/x86_64-linux-gnu/libquadmath.so.0.0.0)
+   n1: 4096 0x4010731: _dl_init (dl-init.c:72)
+    n0: 4096 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+ n2: 2496 0x829D891: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+  n3: 2232 0x8419CD5: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+   n1: 744 0x841A30E: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 744 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 744 0x4010731: _dl_init (dl-init.c:72)
+      n0: 744 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 744 0x841A3E7: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 744 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 744 0x4010731: _dl_init (dl-init.c:72)
+      n0: 744 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 744 0x841A4B2: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 744 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 744 0x4010731: _dl_init (dl-init.c:72)
+      n0: 744 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+  n1: 264 0x841B0E5: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+   n0: 264 in 3 places, all below massif's threshold (1.00%)
+ n1: 2040 0x5A30FDD: register_printf_modifier (reg-modifier.c:69)
+  n1: 2040 0x86644D9: ??? (in /usr/lib/x86_64-linux-gnu/libquadmath.so.0.0.0)
+   n1: 2040 0x4010731: _dl_init (dl-init.c:72)
+    n0: 2040 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+ n1: 1984 0x5A3128D: register_printf_type (reg-type.c:43)
+  n1: 1984 0x86644BE: ??? (in /usr/lib/x86_64-linux-gnu/libquadmath.so.0.0.0)
+   n1: 1984 0x4010731: _dl_init (dl-init.c:72)
+    n0: 1984 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+ n2: 1352 0x829D7F3: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+  n3: 1280 0x8422D36: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+   n1: 512 0x841A3B8: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 512 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 512 0x4010731: _dl_init (dl-init.c:72)
+      n0: 512 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 512 0x841A48A: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 512 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 512 0x4010731: _dl_init (dl-init.c:72)
+      n0: 512 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 256 0x841A551: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 256 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 256 0x4010731: _dl_init (dl-init.c:72)
+      n0: 256 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+  n0: 72 in 1 place, below massif's threshold (1.00%)
+ n0: 40 in 2 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=20
+#-----------
+time=3688928
+mem_heap_B=12752
+mem_heap_extra_B=288
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=21
+#-----------
+time=3689114
+mem_heap_B=13496
+mem_heap_extra_B=304
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=22
+#-----------
+time=3705253
+mem_heap_B=46312
+mem_heap_extra_B=312
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=23
+#-----------
+time=3710764
+mem_heap_B=46312
+mem_heap_extra_B=312
+mem_stacks_B=0
+heap_tree=detailed
+n7: 46312 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 32816 0x5AAC9B4: opendir (opendir.c:216)
+  n1: 32816 0x5AEC460: get_nprocs_conf (getsysstats.c:242)
+   n1: 32816 0x5AB3D6F: sysconf (sysconf.c:628)
+    n1: 32816 0x60C2068: get_num_procs (in /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so)
+     n1: 32816 0x60C20F3: blas_get_cpu_number (in /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so)
+      n1: 32816 0x5E9E079: gotoblas_init (in /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so)
+       n1: 32816 0x4010731: _dl_init (dl-init.c:72)
+        n0: 32816 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+ n1: 4096 0x5A2E895: register_printf_specifier (reg-printf.c:57)
+  n1: 4096 0x8664500: ??? (in /usr/lib/x86_64-linux-gnu/libquadmath.so.0.0.0)
+   n1: 4096 0x4010731: _dl_init (dl-init.c:72)
+    n0: 4096 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+ n2: 3984 0x829D891: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+  n5: 3720 0x8419CD5: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+   n1: 744 0x841A2C1: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 744 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 744 0x4010731: _dl_init (dl-init.c:72)
+      n0: 744 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 744 0x841A30E: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 744 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 744 0x4010731: _dl_init (dl-init.c:72)
+      n0: 744 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 744 0x841A3E7: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 744 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 744 0x4010731: _dl_init (dl-init.c:72)
+      n0: 744 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 744 0x841A4B2: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 744 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 744 0x4010731: _dl_init (dl-init.c:72)
+      n0: 744 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 744 0x841A56C: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 744 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 744 0x4010731: _dl_init (dl-init.c:72)
+      n0: 744 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+  n0: 264 in 1 place, below massif's threshold (1.00%)
+ n1: 2040 0x5A30FDD: register_printf_modifier (reg-modifier.c:69)
+  n1: 2040 0x86644D9: ??? (in /usr/lib/x86_64-linux-gnu/libquadmath.so.0.0.0)
+   n1: 2040 0x4010731: _dl_init (dl-init.c:72)
+    n0: 2040 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+ n1: 1984 0x5A3128D: register_printf_type (reg-type.c:43)
+  n1: 1984 0x86644BE: ??? (in /usr/lib/x86_64-linux-gnu/libquadmath.so.0.0.0)
+   n1: 1984 0x4010731: _dl_init (dl-init.c:72)
+    n0: 1984 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+ n2: 1352 0x829D7F3: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+  n3: 1280 0x8422D36: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+   n1: 512 0x841A3B8: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 512 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 512 0x4010731: _dl_init (dl-init.c:72)
+      n0: 512 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 512 0x841A48A: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 512 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 512 0x4010731: _dl_init (dl-init.c:72)
+      n0: 512 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n0: 256 in 1 place, below massif's threshold (1.00%)
+  n0: 72 in 1 place, below massif's threshold (1.00%)
+ n0: 40 in 2 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=24
+#-----------
+time=3710764
+mem_heap_B=13496
+mem_heap_extra_B=304
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=25
+#-----------
+time=3712366
+mem_heap_B=13504
+mem_heap_extra_B=320
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=26
+#-----------
+time=3717280
+mem_heap_B=13496
+mem_heap_extra_B=304
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=27
+#-----------
+time=3730790
+mem_heap_B=13784
+mem_heap_extra_B=312
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=28
+#-----------
+time=3734640
+mem_heap_B=14072
+mem_heap_extra_B=320
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=29
+#-----------
+time=3735345
+mem_heap_B=14360
+mem_heap_extra_B=328
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=30
+#-----------
+time=3736050
+mem_heap_B=14648
+mem_heap_extra_B=336
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=31
+#-----------
+time=3736755
+mem_heap_B=14936
+mem_heap_extra_B=344
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=32
+#-----------
+time=3737460
+mem_heap_B=15224
+mem_heap_extra_B=352
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=33
+#-----------
+time=3738165
+mem_heap_B=15512
+mem_heap_extra_B=360
+mem_stacks_B=0
+heap_tree=detailed
+n7: 15512 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 4096 0x5A2E895: register_printf_specifier (reg-printf.c:57)
+  n1: 4096 0x8664500: ??? (in /usr/lib/x86_64-linux-gnu/libquadmath.so.0.0.0)
+   n1: 4096 0x4010731: _dl_init (dl-init.c:72)
+    n0: 4096 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+ n2: 3984 0x829D891: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+  n5: 3720 0x8419CD5: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+   n1: 744 0x841A2C1: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 744 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 744 0x4010731: _dl_init (dl-init.c:72)
+      n0: 744 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 744 0x841A30E: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 744 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 744 0x4010731: _dl_init (dl-init.c:72)
+      n0: 744 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 744 0x841A3E7: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 744 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 744 0x4010731: _dl_init (dl-init.c:72)
+      n0: 744 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 744 0x841A4B2: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 744 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 744 0x4010731: _dl_init (dl-init.c:72)
+      n0: 744 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 744 0x841A56C: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 744 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 744 0x4010731: _dl_init (dl-init.c:72)
+      n0: 744 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+  n1: 264 0x841B0E5: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+   n0: 264 in 3 places, all below massif's threshold (1.00%)
+ n1: 2040 0x5A30FDD: register_printf_modifier (reg-modifier.c:69)
+  n1: 2040 0x86644D9: ??? (in /usr/lib/x86_64-linux-gnu/libquadmath.so.0.0.0)
+   n1: 2040 0x4010731: _dl_init (dl-init.c:72)
+    n0: 2040 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+ n1: 2016 0x40134A5: _dl_allocate_tls (dl-tls.c:286)
+  n1: 2016 0x806C226: pthread_create@@GLIBC_2.2.5 (allocatestack.c:627)
+   n1: 2016 0x60C2DEE: blas_thread_init (in /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so)
+    n1: 2016 0x5E9E080: gotoblas_init (in /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so)
+     n1: 2016 0x4010731: _dl_init (dl-init.c:72)
+      n0: 2016 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+ n1: 1984 0x5A3128D: register_printf_type (reg-type.c:43)
+  n1: 1984 0x86644BE: ??? (in /usr/lib/x86_64-linux-gnu/libquadmath.so.0.0.0)
+   n1: 1984 0x4010731: _dl_init (dl-init.c:72)
+    n0: 1984 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+ n2: 1352 0x829D7F3: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+  n3: 1280 0x8422D36: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+   n1: 512 0x841A3B8: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 512 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 512 0x4010731: _dl_init (dl-init.c:72)
+      n0: 512 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 512 0x841A48A: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 512 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 512 0x4010731: _dl_init (dl-init.c:72)
+      n0: 512 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+   n1: 256 0x841A551: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+    n1: 256 0x829C866: ??? (in /usr/lib/x86_64-linux-gnu/libgfortran.so.4.0.0)
+     n1: 256 0x4010731: _dl_init (dl-init.c:72)
+      n0: 256 0x40010C8: ??? (in /lib/x86_64-linux-gnu/ld-2.27.so)
+  n0: 72 in 1 place, below massif's threshold (1.00%)
+ n0: 40 in 4 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=34
+#-----------
+time=3738870
+mem_heap_B=15800
+mem_heap_extra_B=368
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=35
+#-----------
+time=3749754
+mem_heap_B=16088
+mem_heap_extra_B=376
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=36
+#-----------
+time=3750539
+mem_heap_B=16376
+mem_heap_extra_B=384
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=37
+#-----------
+time=3751324
+mem_heap_B=16664
+mem_heap_extra_B=392
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=38
+#-----------
+time=3752109
+mem_heap_B=16952
+mem_heap_extra_B=400
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=39
+#-----------
+time=3764263
+mem_heap_B=17240
+mem_heap_extra_B=408
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=40
+#-----------
+time=3771571
+mem_heap_B=17528
+mem_heap_extra_B=416
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=41
+#-----------
+time=3773623
+mem_heap_B=17816
+mem_heap_extra_B=424
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=42
+#-----------
+time=3783605
+mem_heap_B=90520
+mem_heap_extra_B=432
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=43
+#-----------
+time=3901270
+mem_heap_B=800090520
+mem_heap_extra_B=2424
+mem_stacks_B=0
+heap_tree=detailed
+n2: 800090520 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 800000000 0x109AA8: CHONS::Vector::Vector(unsigned long const&) (in /home/eron/CHONS/testing/src/a.out)
+  n0: 800000000 0x109005: main (in /home/eron/CHONS/testing/src/a.out)
+ n0: 90520 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=44
+#-----------
+time=703907518
+mem_heap_B=1600090520
+mem_heap_extra_B=4416
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=45
+#-----------
+time=69903926717
+mem_heap_B=1600091544
+mem_heap_extra_B=4424
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=46
+#-----------
+time=69903931641
+mem_heap_B=2400091544
+mem_heap_extra_B=6416
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=47
+#-----------
+time=70603931781
+mem_heap_B=3200091544
+mem_heap_extra_B=8408
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=48
+#-----------
+time=72748047206
+mem_heap_B=3200091544
+mem_heap_extra_B=8408
+mem_stacks_B=0
+heap_tree=peak
+n3: 3200091544 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n3: 2400000000 0x109AA8: CHONS::Vector::Vector(unsigned long const&) (in /home/eron/CHONS/testing/src/a.out)
+  n0: 800000000 0x109005: main (in /home/eron/CHONS/testing/src/a.out)
+  n0: 800000000 0x109024: main (in /home/eron/CHONS/testing/src/a.out)
+  n0: 800000000 0x10918C: main (in /home/eron/CHONS/testing/src/a.out)
+ n1: 800000000 0x109CC9: CHONS::Vector::Vector(CHONS::Vector const&) (in /home/eron/CHONS/testing/src/a.out)
+  n1: 800000000 0x109F05: CHONS::Vector::operator+(CHONS::Vector const&) (in /home/eron/CHONS/testing/src/a.out)
+   n0: 800000000 0x1091AF: main (in /home/eron/CHONS/testing/src/a.out)
+ n0: 91544 in 12 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=49
+#-----------
+time=72748047206
+mem_heap_B=2400091544
+mem_heap_extra_B=6416
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=50
+#-----------
+time=72748047250
+mem_heap_B=1600091544
+mem_heap_extra_B=4424
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=51
+#-----------
+time=72748047294
+mem_heap_B=800091544
+mem_heap_extra_B=2432
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=52
+#-----------
+time=72748080350
+mem_heap_B=800091256
+mem_heap_extra_B=2424
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=53
+#-----------
+time=72748082462
+mem_heap_B=800090968
+mem_heap_extra_B=2416
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=54
+#-----------
+time=72748083044
+mem_heap_B=800090680
+mem_heap_extra_B=2408
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=55
+#-----------
+time=72748083626
+mem_heap_B=800090392
+mem_heap_extra_B=2400
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=56
+#-----------
+time=72748084208
+mem_heap_B=800090104
+mem_heap_extra_B=2392
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=57
+#-----------
+time=72748084790
+mem_heap_B=800089816
+mem_heap_extra_B=2384
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=58
+#-----------
+time=72748085372
+mem_heap_B=800089528
+mem_heap_extra_B=2376
+mem_stacks_B=0
+heap_tree=detailed
+n2: 800089528 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n2: 800000000 0x109AA8: CHONS::Vector::Vector(unsigned long const&) (in /home/eron/CHONS/testing/src/a.out)
+  n0: 800000000 0x10918C: main (in /home/eron/CHONS/testing/src/a.out)
+  n0: 0 in 2 places, all below massif's threshold (1.00%)
+ n0: 89528 in 13 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=59
+#-----------
+time=72748085954
+mem_heap_B=800089240
+mem_heap_extra_B=2368
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=60
+#-----------
+time=72748086536
+mem_heap_B=800088952
+mem_heap_extra_B=2360
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=61
+#-----------
+time=72748087275
+mem_heap_B=800088664
+mem_heap_extra_B=2352
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=62
+#-----------
+time=72748088373
+mem_heap_B=800088376
+mem_heap_extra_B=2344
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=63
+#-----------
+time=72748099013
+mem_heap_B=800087632
+mem_heap_extra_B=2328
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=64
+#-----------
+time=72748099086
+mem_heap_B=800087544
+mem_heap_extra_B=2312
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=65
+#-----------
+time=72748099208
+mem_heap_B=800087537
+mem_heap_extra_B=2295
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=66
+#-----------
+time=72748099400
+mem_heap_B=800087281
+mem_heap_extra_B=2287
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=67
+#-----------
+time=72748099428
+mem_heap_B=800087257
+mem_heap_extra_B=2271
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=68
+#-----------
+time=72748099490
+mem_heap_B=800086513
+mem_heap_extra_B=2255
+mem_stacks_B=0
+heap_tree=detailed
+n2: 800086513 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n2: 800000000 0x109AA8: CHONS::Vector::Vector(unsigned long const&) (in /home/eron/CHONS/testing/src/a.out)
+  n0: 800000000 0x10918C: main (in /home/eron/CHONS/testing/src/a.out)
+  n0: 0 in 2 places, all below massif's threshold (1.00%)
+ n0: 86513 in 13 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=69
+#-----------
+time=72748099563
+mem_heap_B=800086425
+mem_heap_extra_B=2239
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=70
+#-----------
+time=72748099643
+mem_heap_B=800086418
+mem_heap_extra_B=2222
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=71
+#-----------
+time=72748099835
+mem_heap_B=800085906
+mem_heap_extra_B=2214
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=72
+#-----------
+time=72748099863
+mem_heap_B=800085882
+mem_heap_extra_B=2198
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=73
+#-----------
+time=72748099925
+mem_heap_B=800085138
+mem_heap_extra_B=2182
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=74
+#-----------
+time=72748100239
+mem_heap_B=800084394
+mem_heap_extra_B=2166
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=75
+#-----------
+time=72748100312
+mem_heap_B=800084306
+mem_heap_extra_B=2150
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=76
+#-----------
+time=72748100389
+mem_heap_B=800084300
+mem_heap_extra_B=2132
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=77
+#-----------
+time=72748100581
+mem_heap_B=800083788
+mem_heap_extra_B=2124
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=78
+#-----------
+time=72748100609
+mem_heap_B=800083764
+mem_heap_extra_B=2108
+mem_stacks_B=0
+heap_tree=detailed
+n2: 800083764 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n2: 800000000 0x109AA8: CHONS::Vector::Vector(unsigned long const&) (in /home/eron/CHONS/testing/src/a.out)
+  n0: 800000000 0x10918C: main (in /home/eron/CHONS/testing/src/a.out)
+  n0: 0 in 2 places, all below massif's threshold (1.00%)
+ n0: 83764 in 13 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=79
+#-----------
+time=72748100671
+mem_heap_B=800083020
+mem_heap_extra_B=2092
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=80
+#-----------
+time=72748105937
+mem_heap_B=800010316
+mem_heap_extra_B=2084
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=81
+#-----------
+time=72748108140
+mem_heap_B=800010296
+mem_heap_extra_B=2064
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=82
+#-----------
+time=72748109216
+mem_heap_B=800008256
+mem_heap_extra_B=2048
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=83
+#-----------
+time=72748109274
+mem_heap_B=800007232
+mem_heap_extra_B=2040
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=84
+#-----------
+time=72748109914
+mem_heap_B=800006944
+mem_heap_extra_B=2032
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=85
+#-----------
+time=72748110334
+mem_heap_B=800006656
+mem_heap_extra_B=2024
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=86
+#-----------
+time=72748110754
+mem_heap_B=800006368
+mem_heap_extra_B=2016
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=87
+#-----------
+time=72748111174
+mem_heap_B=800006080
+mem_heap_extra_B=2008
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=88
+#-----------
+time=72748112329
+mem_heap_B=800001984
+mem_heap_extra_B=2000
+mem_stacks_B=0
+heap_tree=detailed
+n2: 800001984 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n2: 800000000 0x109AA8: CHONS::Vector::Vector(unsigned long const&) (in /home/eron/CHONS/testing/src/a.out)
+  n0: 800000000 0x10918C: main (in /home/eron/CHONS/testing/src/a.out)
+  n0: 0 in 2 places, all below massif's threshold (1.00%)
+ n0: 1984 in 13 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=89
+#-----------
+time=72748112360
+mem_heap_B=800000000
+mem_heap_extra_B=1992
+mem_stacks_B=0
+heap_tree=empty

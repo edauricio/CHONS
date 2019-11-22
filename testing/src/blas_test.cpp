@@ -2,6 +2,8 @@
 #include <random>
 #include <chrono>
 #include <fstream>
+#include <numeric>
+#include <algorithm>
 #include "Utils/LinAlgEntities.h"
 
 /*subroutine daxpy    (   integer     N,
@@ -12,7 +14,7 @@ double precision, dimension(*)  DY,
 integer     INCY 
 )       */
 
-// extern "C" {extern void daxpy_(int*, double*, double*, int*, double*, int*);}
+extern "C" {extern void daxpy_(int*, double*, double*, int*, double*, int*);}
 
 /*subroutine dgemv    (   character   TRANS,
 integer     M,
@@ -53,10 +55,11 @@ int main() {
     std::default_random_engine gen(seed);
     std::uniform_real_distribution<double> dist(0., 10.);
 
-    int N = 100000000;
+    int N = 4;
     int incx=1, incy=1, lda=N, ldb=N, ldc=N, m, n, k;
     // double *A, *B, *C, *x, *y;
     CHONS::Vector x(N), y(N);
+    CHONS::Matrix A(N,N);
     double alpha=1.0, beta=0.0;
     char transA='T', transB='T';
 
@@ -65,7 +68,6 @@ int main() {
     // C = new double[N*N];
     // x = new double[N];
     // y = new double[N];
-    auto t1 = std::chrono::high_resolution_clock::now();
 
     for (int i = 0; i != N; ++i) {
         x[i] = dist(gen);
@@ -76,8 +78,6 @@ int main() {
         //     C[i*N+j] = dist(gen);
         // }
     }
-    auto t2 = std::chrono::high_resolution_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count()/1000. << " sec\n";
 
     // std::ofstream oFile ("out.m");
     // oFile << "x = [";
@@ -96,17 +96,11 @@ int main() {
     //         oFile << y[i] << "];\n\n";
     // }
 
-    CHONS::Vector res(N);
-    //  t1 = std::chrono::high_resolution_clock::now();
-    // res = x+y;
-    //  t2 = std::chrono::high_resolution_clock::now();
+    
+    // auto t1 = std::chrono::high_resolution_clock::now();
+    // auto t2 = std::chrono::high_resolution_clock::now();
     // std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count()/1000. << " sec\n";
-
-    t1 = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i != res.size(); ++i)
-        res[i] = x[i] + y[i];
-    t2 = std::chrono::high_resolution_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count()/1000. << " sec\n";
+    
 
     // oFile << "A = [";
     // for (int i = 0; i != N; ++i) {
@@ -149,9 +143,9 @@ int main() {
     // oFile << "ny = [";
     // for (int i = 0; i != N; ++i) {
     //     if (i != N-1)
-    //         oFile << res[i] << ", ";
+    //         oFile << res2[i] << ", ";
     //     else
-    //         oFile << res[i] << "];\n\n";
+    //         oFile << res2[i] << "];\n\n";
     // }
 
     // dgemv_(&transA, &N, &N, &alpha, A, &N, x, &incx, &beta, y, &incy);
