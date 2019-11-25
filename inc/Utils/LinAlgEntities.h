@@ -14,6 +14,9 @@
 
 namespace CHONS {
 
+class Matrix; // Forward declaration for Cross Product
+
+
 // Static vector class
 class Vector {
 
@@ -68,7 +71,27 @@ class Vector {
                 pointer element;
         };
 
+        // Cross product helper class
+        class CrossProduct {
+            public:
+                CrossProduct(Vector& v) : vec(v) {}
+
+                int size() { return vec.size(); }
+                const int size() const { return vec.size(); }
+
+                Matrix operator*(const CrossProduct&);
+                double& operator[](const int& i) { return vec[i]; }
+                const double& operator[](const int& i) const { return vec[i]; }
+
+            private:
+                Vector& vec;
+        };
+
     public:
+        // Type aliases
+        using iterator = VectorIterator;
+        using cross_product = CrossProduct;
+
         // Constructors
         explicit Vector(const int&);
         Vector(const int&, const double&);
@@ -84,26 +107,28 @@ class Vector {
         // Destructor
         ~Vector();
 
-        // Type aliases
-        using iterator = VectorIterator;
-
         // Member functions
 
-        const int size() const { return s_size; };
-        double* data() const { return s_elements; }
+        const int size() const { return s_size; }
+        double* data() { return s_elements; }
+        const double* data() const { return s_elements; }
         iterator begin() { return iterator{s_elements}; }
         iterator end() { return iterator{s_elements+s_size}; }
+        cross_product cross() { return CrossProduct(*this); }
         // bool empty() { return s_isEmpty; };
         // void clear();
 
 
         // Operators overloading
-        double& operator[](const int& i) { check_range(i); 
+        double& operator[](const int& i) { check_range(i);
                                                 return s_elements[i]; }
-        double operator[](const int& i) const { check_range(i); 
+        const double& operator[](const int& i) const { check_range(i);
                                                     return s_elements[i]; }
         Vector operator+(const Vector&);
-        double operator*(const Vector&);
+        Vector operator+(const double&); // Element-wise addition
+        Vector operator-(const Vector&);
+        Vector operator-(const double&); // Element-wise subtraction
+        double operator*(const Vector&); 
         Vector operator*(const double&);
 
         
@@ -119,9 +144,10 @@ class Vector {
         double *s_elements;
 };
 
+// Multiply / scaling operations with a double on the left side
 Vector operator*(const double&, const Vector&);
-
-
+Vector operator+(const double&, const Vector&); // Element-wise addition
+Vector operator-(const double&, const Vector&); // Element-wise subtraction
 
 
 class Matrix {
@@ -129,24 +155,28 @@ class Matrix {
     class MatrixRow { 
         public:
             MatrixRow(double* ele, const int& col) : row_ele(ele), 
-                                                        colSize(col) {}
+                                                        rowSize(col) {}
 
             double& operator[](const int& j) { check_col_range(j);
                                                 return *(row_ele+j); }
+            const double& operator[](const int& j) const { check_col_range(j);
+                                                return *(row_ele+j); }
         private:
-            void check_col_range(const int& j) { 
-            if ((j >= colSize) || (j < 0))
+            void check_col_range(const int& j) const { 
+            if ((j >= rowSize) || (j < 0))
                 throw std::out_of_range("invalid or out of range index for"
                                     " Matrix column subscripting");
             }
             double* row_ele;
-            int colSize;
+            int rowSize;
     };
 
     public:
         // Constructors
+        explicit Matrix(const int&);
         Matrix(const int&, const int&);
-        Matrix(const std::initializer_list<std::initializer_list<double>>&);
+        explicit Matrix(const std::initializer_list<
+                                            std::initializer_list<double>>&);
         Matrix(const Matrix&); // Copy constructor
         Matrix(Matrix&&); // Move constructor
 
@@ -158,17 +188,31 @@ class Matrix {
         ~Matrix();
 
         // Member functions
-        const int rowSize() const { return s_rowSize; }
-        const int colSize() const { return s_colSize; }
-        double* data() const { return s_elements; }
+        const int rows() const { return s_colSize; }
+        const int cols() const { return s_rowSize; }
+        double* data() { return s_elements; }
+        const double* data() const { return s_elements; }
 
 
         // Operators overloading
         MatrixRow operator[](const int& i) { check_row_range(i); 
-                        return MatrixRow(&s_elements[i*s_colSize], s_colSize); }
+                        return MatrixRow(&s_elements[i*s_rowSize], s_rowSize); }
+        const MatrixRow operator[](const int& i) const { check_row_range(i); 
+                        return MatrixRow(&s_elements[i*s_rowSize], s_rowSize); }
+
+            // BLAS Level 2 operations
+        Vector operator*(const Vector&);
+            // BLAS Level 3 operations
+        Matrix operator*(const Matrix&);
+        Matrix operator*(const double&);
+        Matrix operator+(const Matrix&);
+        Matrix operator+(const double&);
+        Matrix operator-(const Matrix&);
+        Matrix operator-(const double&);
+
     
     private:
-        void check_row_range(const int& i) { 
+        void check_row_range(const int& i) const { 
             if ((i >= s_rowSize) || (i < 0))
                 throw std::out_of_range("invalid or out of range index for"
                                     " Matrix row subscripting");
@@ -180,6 +224,11 @@ class Matrix {
         int s_colSize;
         double* s_elements;        
 };
+
+Vector operator*(const Vector&, const Matrix&);
+Matrix operator*(const double&, const Matrix&);
+Matrix operator+(const double&, const Matrix&);
+Matrix operator-(const double&, const Matrix&);
 
 } // end of CHONS namespace
 

@@ -45,8 +45,8 @@ double precision    BETA,
 double precision, dimension(ldc,*)  C,
 integer     LDC 
 )       */                                
-// extern "C" {extern void dgemm_(char*, char*, int*, int*, int*, double*, double*,
-//                                 int*, double*, int*, double*, double*, int*);}
+extern "C" {extern void dgemm_(char*, char*, int*, int*, int*, double*, double*,
+                                int*, double*, int*, double*, double*, int*);}
 
 
 int main() {
@@ -61,7 +61,7 @@ int main() {
     CHONS::Vector x(N), y(N);
     CHONS::Matrix A(N,N), B(N,N);
     double alpha=1.0, beta=0.0;
-    char transA='T', transB='T';
+    char transA='N', transB='N';
 
     for (int i = 0; i != N; ++i) {
         x[i] = dist(gen);
@@ -73,8 +73,11 @@ int main() {
         }
     }
 
-    CHONS::Matrix C = B;
-    C = C;
+    CHONS::Matrix C{ {2.3, 5, 12.56, 6},
+                     {6.5, 1.2, 90, 236.1},
+                     {1.5, 123.1, 3., 0.2},
+                     {11, 15, 19, 20.23}
+                    };
 
     std::ofstream oFile ("out.m");
     oFile << "x = [";
@@ -103,11 +106,11 @@ int main() {
     // std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count()/1000. << " sec\n";
 
     oFile << "A = [";
-    for (int i = 0; i != A.rowSize(); ++i) {
-        for (int j = 0; j != A.colSize(); ++j) {
-            if (j != A.colSize()-1)
+    for (int i = 0; i != A.rows(); ++i) {
+        for (int j = 0; j != A.rows(); ++j) {
+            if (j != A.rows()-1)
                 oFile << A[i][j] << ", ";
-            else if (i != A.rowSize()-1)
+            else if (i != A.rows()-1)
                 oFile << A[i][j] << "; ";
             else
                 oFile << A[i][j] << "];\n\n";
@@ -115,11 +118,11 @@ int main() {
     }
 
     oFile << "B = [";
-    for (int i = 0; i != B.rowSize(); ++i) {
-        for (int j = 0; j != B.colSize(); ++j) {
-            if (j != B.colSize()-1)
+    for (int i = 0; i != B.rows(); ++i) {
+        for (int j = 0; j != B.rows(); ++j) {
+            if (j != B.rows()-1)
                 oFile << B[i][j] << ", ";
-            else if (i != B.rowSize()-1)
+            else if (i != B.rows()-1)
                 oFile << B[i][j] << "; ";
             else
                 oFile << B[i][j] << "];\n\n";
@@ -127,11 +130,11 @@ int main() {
     }
 
     oFile << "C = [";
-    for (int i = 0; i != C.rowSize(); ++i) {
-        for (int j = 0; j != C.colSize(); ++j) {
-            if (j != C.colSize()-1)
+    for (int i = 0; i != C.rows(); ++i) {
+        for (int j = 0; j != C.rows(); ++j) {
+            if (j != C.rows()-1)
                 oFile << C[i][j] << ", ";
-            else if (i != C.rowSize()-1)
+            else if (i != C.rows()-1)
                 oFile << C[i][j] << "; ";
             else
                 oFile << C[i][j] << "];\n\n";
@@ -158,17 +161,17 @@ int main() {
             oFile << res2[i] << "];\n\n";
     }
 
-    // dgemm_(&transA, &transB, &N, &N, &N, &alpha, A, &N, B, &N, &beta, C, &N);
+    // dgemm_(&transA, &transB, &N, &N, &N, &alpha, B.data(), &N, A.data(), &N, &beta, C.data(), &N);
 
     // oFile << "nC = [";
     // for (int i = 0; i != N; ++i) {
     //     for (int j = 0; j != N; ++j) {
     //         if (j != N-1)
-    //             oFile << C[i*N+j] << ", ";
-    //         else if (i != N-1)
-    //             oFile << C[i*N+j] << "; ";
+    //             oFile << C[i][j] << ", ";
+    //         else if (i != C.rowSize()-1)
+    //             oFile << C[i][j] << "; ";
     //         else
-    //             oFile << C[i*N+j] << "];\n\n";
+    //             oFile << C[i][j] << "];\n\n";
     //     }
     // }
 
