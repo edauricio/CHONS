@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"check_c",
+				"check_ctor_lists_size\tvoid check_ctor_lists_size(const List &)"
+			],
+			[
 				"uno",
 				"unordered_multimap\tunordered_multimap<class _Key, class _Tp, class _Hash, class _Pred, class _Alloc>"
 			],
@@ -160,6 +164,15 @@
 			}
 		},
 		{
+			"file": "inc/Utils/LinAlgEntities.h",
+			"settings":
+			{
+				"buffer_size": 6852,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
 			"file": "src/MeshModule/ElementComposite.cpp",
 			"settings":
 			{
@@ -204,80 +217,28 @@
 			}
 		},
 		{
+			"file": "src/Utils/LinAlgEntities.cpp",
+			"settings":
+			{
+				"buffer_size": 7255,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "testing/src/blas_test.cpp",
+			"settings":
+			{
+				"buffer_size": 4837,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
 			"file": "tests/hard-coded/integration.cpp",
 			"settings":
 			{
 				"buffer_size": 3499,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "testing/src/boosttests/asserts.cpp",
-			"settings":
-			{
-				"buffer_size": 578,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "testing/src/boosttests/program_options.cpp",
-			"settings":
-			{
-				"buffer_size": 5011,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "testing/src/boosttests/prop_tree.cpp",
-			"settings":
-			{
-				"buffer_size": 1225,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "testing/src/iostreams.cpp",
-			"settings":
-			{
-				"buffer_size": 4420,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "testing/src/dynamic_allocation_overhead.cpp",
-			"settings":
-			{
-				"buffer_size": 1080,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "testing/src/bitwise_ops.cpp",
-			"settings":
-			{
-				"buffer_size": 2811,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "testing/src/cantor_pairing_func.cpp",
-			"settings":
-			{
-				"buffer_size": 10016,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/eron/workspace/c++/tests/memory_alloc.cpp",
-			"settings":
-			{
-				"buffer_size": 1577,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -366,19 +327,51 @@
 		"/home/eron/workspace/CHONS",
 		"/home/eron/workspace/CHONS/inc",
 		"/home/eron/workspace/CHONS/inc/MeshModule",
+		"/home/eron/workspace/CHONS/inc/Utils",
 		"/home/eron/workspace/CHONS/src",
 		"/home/eron/workspace/CHONS/src/MeshModule",
+		"/home/eron/workspace/CHONS/src/Utils",
 		"/home/eron/workspace/CHONS/testing",
 		"/home/eron/workspace/CHONS/testing/src",
 		"/home/eron/workspace/CHONS/tests",
-		"/home/eron/workspace/CHONS/tests/hard-coded"
+		"/home/eron/workspace/CHONS/tests/hard-coded",
+		"/home/eron/workspace/CHONS/tpls",
+		"/home/eron/workspace/CHONS/tpls/blaspp",
+		"/home/eron/workspace/CHONS/tpls/blaspp/include",
+		"/home/eron/workspace/CHONS/tpls/blaspp/src"
 	],
 	"file_history":
 	[
+		"/home/eron/workspace/CHONS/tpls/blaspp/include/axpy.hh",
+		"/home/eron/workspace/CHONS/tpls/blaspp/src/axpy.cc",
+		"/home/eron/workspace/CHONS/tpls/blaspp/src/gemm.cc",
+		"/home/eron/workspace/CHONS/tpls/blaspp/include/blas.hh",
+		"/home/eron/workspace/CHONS/tpls/blaspp/include/gemm.hh",
+		"/home/eron/workspace/CHONS/tpls/blaspp/include/blas_fortran.hh",
+		"/usr/include/x86_64-linux-gnu/cblas-openblas.h",
+		"/usr/include/x86_64-linux-gnu/cblas.h",
+		"/usr/include/x86_64-linux-gnu/f77blas.h",
+		"/usr/include/x86_64-linux-gnu/openblas_config.h",
+		"/home/eron/Nektar/build/dist/include/nektar++/LibUtilities/LinearAlgebra/NekLinAlgAlgorithms.hpp",
+		"/home/eron/Nektar/build/dist/include/nektar++/LibUtilities/LinearAlgebra/BlasArray.hpp",
+		"/home/eron/Nektar/build/dist/include/nektar++/LibUtilities/LinearAlgebra/Lapack.hpp",
+		"/home/eron/Nektar/build/dist/include/nektar++/LibUtilities/LinearAlgebra/MatrixOperations.hpp",
+		"/home/eron/Nektar/library/LibUtilities/LinearAlgebra/MatrixOperations.cpp",
+		"/home/eron/Nektar/build/dist/include/nektar++/LibUtilities/LinearAlgebra/MatrixBase.hpp",
+		"/home/eron/Nektar/library/LibUtilities/LinearAlgebra/MatrixBase.cpp",
+		"/home/eron/Nektar/build/dist/include/nektar++/LibUtilities/LinearAlgebra/TransF77.hpp",
+		"/home/eron/Nektar/build/dist/include/nektar++/LibUtilities/LinearAlgebra/Blas.hpp",
+		"/home/eron/workspace/CHONS/testing/src/boosttests/asserts.cpp",
+		"/home/eron/workspace/CHONS/testing/src/boosttests/program_options.cpp",
+		"/home/eron/workspace/CHONS/testing/src/boosttests/prop_tree.cpp",
+		"/home/eron/workspace/CHONS/testing/src/iostreams.cpp",
+		"/home/eron/workspace/CHONS/testing/src/dynamic_allocation_overhead.cpp",
+		"/home/eron/workspace/CHONS/testing/src/bitwise_ops.cpp",
+		"/home/eron/workspace/CHONS/testing/src/cantor_pairing_func.cpp",
+		"/home/eron/workspace/c++/tests/memory_alloc.cpp",
 		"/home/eron/Nektar/library/LibUtilities/Kernel/kernel.h",
 		"/home/eron/Nektar/library/LibUtilities/Kernel/kernel.cpp",
 		"/home/eron/workspace/CHONS/testing/src/boosttests/program_options,cpp",
-		"/home/eron/workspace/CHONS/testing/src/boosttests/asserts.cpp",
 		"/home/eron/workspace/CHONS/chons.sublime-project",
 		"/home/eron/workspace/CHONS/inc/MeshModule/GmshElements.h",
 		"/home/eron/workspace/CHONS/testing/src/modop.cpp",
@@ -476,33 +469,7 @@
 		"/home/eron/workspace/c++/CC-298/Projeto2/p-s.cpp",
 		"/home/eron/workspace/c++/CC-298/Projeto2/p-s",
 		"/home/eron/workspace/c++/cc-298-project2/aux.h",
-		"/home/eron/workspace/c++/cc-298-project2/fvc.h",
-		"/home/eron/workspace/c++/SolverProject/inc/Operators.h",
-		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/test.cpp",
-		"/home/eron/workspace/c++/SolverProject/inc/LinearSysSolvers.h",
-		"/home/eron/workspace/c++/SolverProject/src/mesh.cpp",
-		"/home/eron/workspace/c++/SolverProject/inc/Mesh.h",
-		"/home/eron/workspace/c++/cc-298-project2/p-s.cpp",
-		"/home/eron/workspace/c++/SolverProject/src/linearsyssolver.cpp",
-		"/home/eron/workspace/c++/SolverProject/src/linearsyssolver\\.cpp",
-		"/home/eron/workspace/c++/SolverProject/src/numerics.cpp",
-		"/home/eron/workspace/c++/SolverProject/inc/Numerics.h",
-		"/home/eron/workspace/c++/SolverProject/src/mecflu.cpp",
-		"/home/eron/workspace/c++/SolverProject/inc/MecFlu.h",
-		"/home/eron/workspace/c++/SolverProject/inc/FlowSolver.h",
-		"/home/eron/workspace/c++/SolverProject/src/flowSolver.cpp",
-		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/aa.cpp",
-		"/home/eron/workspace/c++/SolverProject/inc/test.cpp",
-		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/flow",
-		"/home/eron/workspace/c++/SolverProject/solver/Projeto3/numerics",
-		"/home/eron/workspace/c++/SolverProject/inc/Aux.h",
-		"/home/eron/workspace/c++/SolverProject/inc/json.hpp",
-		"/home/eron/workspace/c++/SolverProject/inc/numerics.json",
-		"/home/eron/workspace/c++/SolverProject/inc/numerics",
-		"/home/eron/workspace/c++/SolverProject/inc/Bulk.h",
-		"/home/eron/workspace/c++/cc-298-project2/operators.h",
-		"/home/eron/workspace/c++/SolverProject/solver.sublime-project",
-		"/home/eron/workspace/c++/SolverProject/mesh_gen.cpp"
+		"/home/eron/workspace/c++/cc-298-project2/fvc.h"
 	],
 	"find":
 	{
@@ -520,6 +487,22 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"char",
+			"gemm",
+			"lacp",
+			"mc",
+			"C",
+			"const",
+			"lists",
+			"B",
+			"C[i*N+j]",
+			"LChecks",
+			"A",
+			"B[i*N+j]",
+			"B",
+			"i",
+			"Row",
+			"size_t",
 			"spline",
 			"ElementIterator",
 			"s_interiorElements",
@@ -587,7 +570,7 @@
 	"groups":
 	[
 		{
-			"selected": 5,
+			"selected": 6,
 			"sheets":
 			[
 				{
@@ -617,7 +600,7 @@
 						"translation.y": 867.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 7,
+					"stack_index": 10,
 					"type": "text"
 				},
 				{
@@ -647,7 +630,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 10,
+					"stack_index": 12,
 					"type": "text"
 				},
 				{
@@ -677,7 +660,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 11,
+					"stack_index": 13,
 					"type": "text"
 				},
 				{
@@ -704,10 +687,10 @@
 							"tab_size": 4
 						},
 						"translation.x": 0.0,
-						"translation.y": 204.0,
+						"translation.y": 153.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
@@ -736,7 +719,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
@@ -752,8 +735,8 @@
 						"selection":
 						[
 							[
-								2008,
-								2008
+								1031,
+								1031
 							]
 						],
 						"settings":
@@ -767,6 +750,37 @@
 						"translation.y": 306.0,
 						"zoom_level": 1.0
 					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "inc/Utils/LinAlgEntities.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6852,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6198,
+								6198
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2036.0,
+						"zoom_level": 1.0
+					},
 					"stack_index": 2,
 					"type": "text"
 				}
@@ -777,7 +791,7 @@
 			"sheets":
 			[
 				{
-					"buffer": 6,
+					"buffer": 7,
 					"file": "src/MeshModule/ElementComposite.cpp",
 					"semi_transient": false,
 					"settings":
@@ -802,11 +816,11 @@
 						"translation.y": 1275.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 19,
+					"stack_index": 14,
 					"type": "text"
 				},
 				{
-					"buffer": 7,
+					"buffer": 8,
 					"file": "src/MeshModule/ElementFactory.cpp",
 					"semi_transient": false,
 					"settings":
@@ -832,11 +846,11 @@
 						"translation.y": 1224.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
+					"stack_index": 11,
 					"type": "text"
 				},
 				{
-					"buffer": 8,
+					"buffer": 9,
 					"file": "src/MeshModule/MeshReader.cpp",
 					"semi_transient": false,
 					"settings":
@@ -863,11 +877,11 @@
 						"translation.y": 6685.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 9,
 					"type": "text"
 				},
 				{
-					"buffer": 9,
+					"buffer": 10,
 					"file": "src/MeshModule/GraphInfoProcessor.cpp",
 					"semi_transient": false,
 					"settings":
@@ -894,11 +908,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 8,
 					"type": "text"
 				},
 				{
-					"buffer": 10,
+					"buffer": 11,
 					"file": "src/MeshModule/MeshInfoHolder.cpp",
 					"semi_transient": false,
 					"settings":
@@ -925,11 +939,73 @@
 						"translation.y": 708.0,
 						"zoom_level": 1.0
 					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "src/Utils/LinAlgEntities.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7255,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1679,
+								1679
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 765.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "testing/src/blas_test.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4837,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3497,
+								3497
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1632.0,
+						"zoom_level": 1.0
+					},
 					"stack_index": 1,
 					"type": "text"
 				},
 				{
-					"buffer": 11,
+					"buffer": 14,
 					"file": "tests/hard-coded/integration.cpp",
 					"semi_transient": false,
 					"settings":
@@ -941,8 +1017,8 @@
 						"selection":
 						[
 							[
-								1871,
-								1871
+								481,
+								481
 							]
 						],
 						"settings":
@@ -951,248 +1027,10 @@
 							"syntax": "Packages/C++/C++.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 587.0,
+						"translation.y": 51.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 12,
-					"file": "testing/src/boosttests/asserts.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 578,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								85,
-								85
-							]
-						],
-						"settings":
-						{
-							"apply_syntax_touched": true,
-							"syntax": "Packages/C++/C++.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 17,
-					"type": "text"
-				},
-				{
-					"buffer": 13,
-					"file": "testing/src/boosttests/program_options.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 5011,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								984,
-								984
-							]
-						],
-						"settings":
-						{
-							"apply_syntax_touched": true,
-							"syntax": "Packages/C++/C++.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 1071.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 9,
-					"type": "text"
-				},
-				{
-					"buffer": 14,
-					"file": "testing/src/boosttests/prop_tree.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1225,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1001,
-								1001
-							]
-						],
-						"settings":
-						{
-							"apply_syntax_touched": true,
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 16,
-					"type": "text"
-				},
-				{
-					"buffer": 15,
-					"file": "testing/src/iostreams.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4420,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1137,
-								1137
-							]
-						],
-						"settings":
-						{
-							"apply_syntax_touched": true,
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4
-						},
-						"translation.x": 0.0,
-						"translation.y": 467.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 15,
-					"type": "text"
-				},
-				{
-					"buffer": 16,
-					"file": "testing/src/dynamic_allocation_overhead.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1080,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"apply_syntax_touched": true,
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 13,
-					"type": "text"
-				},
-				{
-					"buffer": 17,
-					"file": "testing/src/bitwise_ops.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2811,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								126,
-								126
-							]
-						],
-						"settings":
-						{
-							"apply_syntax_touched": true,
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 18,
-					"type": "text"
-				},
-				{
-					"buffer": 18,
-					"file": "testing/src/cantor_pairing_func.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 10016,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3692,
-								3692
-							]
-						],
-						"settings":
-						{
-							"apply_syntax_touched": true,
-							"syntax": "Packages/C++/C++.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 1742.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 14,
-					"type": "text"
-				},
-				{
-					"buffer": 19,
-					"file": "/home/eron/workspace/c++/tests/memory_alloc.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1577,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1192,
-								1192
-							]
-						],
-						"settings":
-						{
-							"apply_syntax_touched": true,
-							"syntax": "Packages/C++/C++.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 357.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 12,
+					"stack_index": 4,
 					"type": "text"
 				}
 			]

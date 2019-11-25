@@ -59,104 +59,104 @@ int main() {
     int incx=1, incy=1, lda=N, ldb=N, ldc=N, m, n, k;
     // double *A, *B, *C, *x, *y;
     CHONS::Vector x(N), y(N);
-    CHONS::Matrix A(N,N);
+    CHONS::Matrix A(N,N), B(N,N);
     double alpha=1.0, beta=0.0;
     char transA='T', transB='T';
-
-    // A = new double[N*N];
-    // B = new double[N*N];
-    // C = new double[N*N];
-    // x = new double[N];
-    // y = new double[N];
 
     for (int i = 0; i != N; ++i) {
         x[i] = dist(gen);
         y[i] = dist(gen);
-        // for (int j = 0; j != N; ++j) {
-        //     A[i*N+j] = dist(gen);
-        //     B[i*N+j] = dist(gen);
+        for (int j = 0; j != N; ++j) {
+            A[i][j] = dist(gen);
+            B[i][j] = dist(gen);
         //     C[i*N+j] = dist(gen);
-        // }
+        }
     }
 
-    // std::ofstream oFile ("out.m");
-    // oFile << "x = [";
-    // for (int i = 0; i != N; ++i) {
-    //     if (i != N-1)
-    //         oFile << x[i] << ", ";
-    //     else
-    //         oFile << x[i] << "];\n\n";
-    // }
+    CHONS::Matrix C = B;
+    C = C;
 
-    // oFile << "y = [";
-    // for (int i = 0; i != N; ++i) {
-    //     if (i != N-1)
-    //         oFile << y[i] << ", ";
-    //     else
-    //         oFile << y[i] << "];\n\n";
-    // }
+    std::ofstream oFile ("out.m");
+    oFile << "x = [";
+    for (int i = 0; i != N; ++i) {
+        if (i != N-1)
+            oFile << x[i] << ", ";
+        else
+            oFile << x[i] << "];\n\n";
+    }
 
-    
+    oFile << "y = [";
+    for (int i = 0; i != N; ++i) {
+        if (i != N-1)
+            oFile << y[i] << ", ";
+        else
+            oFile << y[i] << "];\n\n";
+    }
+
+    CHONS::Vector res(N);
+    double a = 2.;
+    res = x+y;
+    std::cout << x*y << "\n";
+    CHONS::Vector res2 = a*x;
     // auto t1 = std::chrono::high_resolution_clock::now();
     // auto t2 = std::chrono::high_resolution_clock::now();
     // std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count()/1000. << " sec\n";
-    
 
-    // oFile << "A = [";
-    // for (int i = 0; i != N; ++i) {
-    //     for (int j = 0; j != N; ++j) {
-    //         if (j != N-1)
-    //             oFile << A[i*N+j] << ", ";
-    //         else if (i != N-1)
-    //             oFile << A[i*N+j] << "; ";
-    //         else
-    //             oFile << A[i*N+j] << "];\n\n";
-    //     }
-    // }
+    oFile << "A = [";
+    for (int i = 0; i != A.rowSize(); ++i) {
+        for (int j = 0; j != A.colSize(); ++j) {
+            if (j != A.colSize()-1)
+                oFile << A[i][j] << ", ";
+            else if (i != A.rowSize()-1)
+                oFile << A[i][j] << "; ";
+            else
+                oFile << A[i][j] << "];\n\n";
+        }
+    }
 
-    // oFile << "B = [";
-    // for (int i = 0; i != N; ++i) {
-    //     for (int j = 0; j != N; ++j) {
-    //         if (j != N-1)
-    //             oFile << B[i*N+j] << ", ";
-    //         else if (i != N-1)
-    //             oFile << B[i*N+j] << "; ";
-    //         else
-    //             oFile << B[i*N+j] << "];\n\n";
-    //     }
-    // }
+    oFile << "B = [";
+    for (int i = 0; i != B.rowSize(); ++i) {
+        for (int j = 0; j != B.colSize(); ++j) {
+            if (j != B.colSize()-1)
+                oFile << B[i][j] << ", ";
+            else if (i != B.rowSize()-1)
+                oFile << B[i][j] << "; ";
+            else
+                oFile << B[i][j] << "];\n\n";
+        }
+    }
 
-    // oFile << "C = [";
-    // for (int i = 0; i != N; ++i) {
-    //     for (int j = 0; j != N; ++j) {
-    //         if (j != N-1)
-    //             oFile << C[i*N+j] << ", ";
-    //         else if (i != N-1)
-    //             oFile << C[i*N+j] << "; ";
-    //         else
-    //             oFile << C[i*N+j] << "];\n\n";
-    //     }
-    // }
+    oFile << "C = [";
+    for (int i = 0; i != C.rowSize(); ++i) {
+        for (int j = 0; j != C.colSize(); ++j) {
+            if (j != C.colSize()-1)
+                oFile << C[i][j] << ", ";
+            else if (i != C.rowSize()-1)
+                oFile << C[i][j] << "; ";
+            else
+                oFile << C[i][j] << "];\n\n";
+        }
+    }
 
     // daxpy_(&N, &alpha, x, &incx, y, &incy);
 
-    // oFile << "ny = [";
-    // for (int i = 0; i != N; ++i) {
-    //     if (i != N-1)
-    //         oFile << res2[i] << ", ";
-    //     else
-    //         oFile << res2[i] << "];\n\n";
-    // }
+    oFile << "ny = [";
+    for (int i = 0; i != N; ++i) {
+        if (i != N-1)
+            oFile << res[i] << ", ";
+        else
+            oFile << res[i] << "];\n\n";
+    }
 
     // dgemv_(&transA, &N, &N, &alpha, A, &N, x, &incx, &beta, y, &incy);
 
-    // oFile << "ny = [";
-    // for (int i = 0; i != N; ++i) {
-    //     if (i != N-1)
-    //         oFile << y[i] << ", ";
-    //     else
-    //         oFile << y[i] << "];\n\n";
-    // }
+    oFile << "ny2 = [";
+    for (int i = 0; i != N; ++i) {
+        if (i != N-1)
+            oFile << res2[i] << ", ";
+        else
+            oFile << res2[i] << "];\n\n";
+    }
 
     // dgemm_(&transA, &transB, &N, &N, &N, &alpha, A, &N, B, &N, &beta, C, &N);
 

@@ -9,30 +9,15 @@
 #include <stdexcept>
 #include <iterator>
 #include <type_traits>
+#include <typeinfo> // remove later
+#include <iostream> // remove later
 
 namespace CHONS {
 
 // Static vector class
 class Vector {
-    public:
-        // Constructors
-        // Vector();
-        explicit Vector(const int&);
-        Vector(const int&, double&);
-        explicit Vector(const std::initializer_list<double>&);
-        Vector(const Vector&); // Copy constructor
-        Vector(Vector&&); // Move constructor
 
-        // Assignments
-        Vector& operator=(const Vector&); // Copy assignment
-        Vector& operator=(Vector&&); // Move assignment
-
-
-        // Destructor
-        ~Vector();
-
-    private:
-        // Iterator helper class 
+    // Iterator helper class 
         class VectorIterator {
             public:
                 // Type aliases
@@ -84,11 +69,27 @@ class Vector {
         };
 
     public:
+        // Constructors
+        explicit Vector(const int&);
+        Vector(const int&, const double&);
+        explicit Vector(const std::initializer_list<double>&);
+        Vector(const Vector&); // Copy constructor
+        Vector(Vector&&); // Move constructor
+
+        // Assignments
+        Vector& operator=(const Vector&); // Copy assignment
+        Vector& operator=(Vector&&); // Move assignment
+
+
+        // Destructor
+        ~Vector();
+
         // Type aliases
         using iterator = VectorIterator;
 
         // Member functions
-        int size() const { return s_size; };
+
+        const int size() const { return s_size; };
         double* data() const { return s_elements; }
         iterator begin() { return iterator{s_elements}; }
         iterator end() { return iterator{s_elements+s_size}; }
@@ -120,63 +121,65 @@ class Vector {
 
 Vector operator*(const double&, const Vector&);
 
+
+
+
 class Matrix {
+    // Helper class to make double subscripting possible
+    class MatrixRow { 
+        public:
+            MatrixRow(double* ele, const int& col) : row_ele(ele), 
+                                                        colSize(col) {}
+
+            double& operator[](const int& j) { check_col_range(j);
+                                                return *(row_ele+j); }
+        private:
+            void check_col_range(const int& j) { 
+            if ((j >= colSize) || (j < 0))
+                throw std::out_of_range("invalid or out of range index for"
+                                    " Matrix column subscripting");
+            }
+            double* row_ele;
+            int colSize;
+    };
+
     public:
         // Constructors
         Matrix(const int&, const int&);
-
-        template <typename... Lists>
-        Matrix(const Lists&...);
+        Matrix(const std::initializer_list<std::initializer_list<double>>&);
+        Matrix(const Matrix&); // Copy constructor
+        Matrix(Matrix&&); // Move constructor
 
         // Assignments
-
+        Matrix& operator=(const Matrix&); // Copy assignment
+        Matrix& operator=(Matrix&&); // Move assignment
 
         // Destructor
-
+        ~Matrix();
 
         // Member functions
+        const int rowSize() const { return s_rowSize; }
+        const int colSize() const { return s_colSize; }
+        double* data() const { return s_elements; }
 
 
         // Operators overloading
+        MatrixRow operator[](const int& i) { check_row_range(i); 
+                        return MatrixRow(&s_elements[i*s_colSize], s_colSize); }
     
     private:
-        template <typename List>
-        void check_ctor_lists(const List&);
-
-        template <typename List, typename... LChecks>
-        void check_ctor_lists(const List&, const LChecks&...);
+        void check_row_range(const int& i) { 
+            if ((i >= s_rowSize) || (i < 0))
+                throw std::out_of_range("invalid or out of range index for"
+                                    " Matrix row subscripting");
+        }
+        void check_ctor_lists_size(const std::initializer_list<
+                                            std::initializer_list<double>>&);
 
         int s_rowSize;
         int s_colSize;
-        double* s_elements;
+        double* s_elements;        
 };
-
-// Templated c'tor
-template<typename... Lists>
-Matrix::Matrix(const Lists&... lst) {
-    check_ctor_lists(lst...);
-    
-}
-
-template <typename List>
-void check_ctor_lists(const List& lst) {
-    bool isConvertible = std::is_convertible<
-                    std::remove_const<std::remove_reference<decltype(lst)>>,
-                    std::initializer_list<double>>::value;
-    if (!isConvertible)
-        throw std::invalid_argument("Invalid argument for Matrix construction");
-}
-
-template <typename List, typename... LChecks>
-void check_ctor_lists(const List& lst, const LChecks&... rest) {
-    bool isConvertible = std::is_convertible<
-                    std::remove_const<std::remove_reference<decltype(lst)>>,
-                    std::initializer_list<double>>::value;
-    if (!isConvertible)
-        throw std::invalid_argument("Invalid argument for Matrix construction");
-
-    check_ctor_lists(rest...);
-}
 
 } // end of CHONS namespace
 
