@@ -109,6 +109,7 @@ class Vector {
         Vector operator+(const Vector&);
         Vector operator-(const Vector&);
         Vector operator*(const double&);
+        Vector operator*(const Matrix&);
 
         
     private:
@@ -149,6 +150,21 @@ class Matrix {
             int rowSize;
     };
 
+    // Helper class to multiply by the transpose
+    // This is just a rearrange so that the Matrix is now column major
+    class TrMatrix {
+        friend Matrix operator*(const Matrix&, const TrMatrix&);
+        public:
+            TrMatrix(const Matrix& m) : trM(m) {}
+
+            Matrix operator*(const Matrix&);
+
+        private:
+            const Matrix& trM;
+    };
+
+    friend Matrix operator*(const Matrix&, const TrMatrix&);    
+
     public:
         // Constructors
         explicit Matrix(const int&);
@@ -170,13 +186,15 @@ class Matrix {
         const int cols() const { return s_rowSize; }
         double* data() { return s_elements; }
         const double* data() const { return s_elements; }
+        TrMatrix transpose() const { return TrMatrix(*this); }
 
 
         // Operators overloading
-        MatrixRow operator[](const int& i) { check_row_range(i); 
+        virtual MatrixRow operator[](const int& i) { check_row_range(i); 
                         return MatrixRow(&s_elements[i*s_rowSize], s_rowSize); }
-        const MatrixRow operator[](const int& i) const { check_row_range(i); 
-                        return MatrixRow(&s_elements[i*s_rowSize], s_rowSize); }
+        virtual const MatrixRow operator[](const int& i) const 
+                { check_row_range(i); 
+                    return MatrixRow(&s_elements[i*s_rowSize], s_rowSize); }
         const bool operator==(const Matrix&) const;
         const bool operator!=(const Matrix& m) const { return !(*this == m); }
 
@@ -203,8 +221,8 @@ class Matrix {
         double* s_elements;        
 };
 
-Vector operator*(const Vector&, const Matrix&);
 Matrix operator*(const double&, const Matrix&);
+Matrix operator*(const Matrix&, const Matrix::TrMatrix&);
 
 } // end of Math namespace
 

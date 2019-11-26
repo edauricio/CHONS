@@ -1,19 +1,41 @@
 CXX = g++
 
-INCFOLD = ../../../inc ../../tpls
+INCFOLD = ../../../inc ../../../tpls
 
 MODFOLD = ../../../src/MathModule
 
 LIBFOLD = ../../../tpls/blaspp/lib
+LIBSO = blaspp
 
-CXXFLAGS = -lblaspp 
+CXXFLAGS := $(patsubst %,-I%,$(INCFOLD))
+LINKFLAGS := $(patsubst %,-L%,$(LIBFOLD))
+LINKFLAGS += $(patsubst %,-l%,$(LIBSO))
 
-SRCS = $(wildcard $(MODFOLD)/*.cpp)
-OBJ = $(patsubst $(SRCDIR)/%.cpp,./%.o,$(SRCS))
+MODSRCS = $(wildcard $(MODFOLD)/*.cpp)
+MODOBJ = $(patsubst $(MODFOLD)/%.cpp,obj/%.o,$(MODSRCS))
 
-test: $(OBJ)
-	$(CXX) -o $@ $^ $(CXXFLAGS)
-	rm *.o
+TESTSRC = $(wildcard *.cpp)
+TESTOBJ = $(patsubst %.cpp, obj/%.o, $(TESTSRC))
 
-./%.o: $(MODFOLD)/%.cpp
-	$(CXX) -c -o $@ $< $(LIBFOLD) $(CXXFLAGS)
+MAINDIR = ../
+MAINTESTOBJ = obj/units-def-inc.o
+
+test: $(MODOBJ) $(TESTOBJ) $(MAINTESTOBJ)
+	$(CXX) -o $@ $^ $(CXXFLAGS) $(LINKFLAGS) -g
+
+obj/%.o: $(MODFOLD)/%.cpp | mkfold
+	$(CXX) -c -o $@ $< $(CXXFLAGS) -g
+
+obj/%.o: %.cpp
+	$(CXX) -c -o $@ $< $(CXXFLAGS) -g
+
+obj/%.o: ../%.cpp
+	$(CXX) -c -o $@ $< $(CXXFLAGS) -g
+
+mkfold:
+	@mkdir -p obj
+
+clean:
+	rm -rf obj/
+	rm -rf *.o
+	rm -rf test

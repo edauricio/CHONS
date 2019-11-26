@@ -147,6 +147,15 @@ Vector Vector::operator*(const double& scalar) {
     return retval;
 }
 
+Vector Vector::operator*(const Matrix& m) {
+    if (size() != m.rows()) throw std::length_error("invalid size for "
+        "vector-matrix multiplication");
+    Vector retval(m.cols());
+    blas::gemv(blas::Layout::RowMajor, blas::Op::Trans, m.rows(), m.cols(), 1.0,
+                m.data(), m.cols(), data(), 1, 0.0, retval.data(), 1);
+    return retval;
+}
+
 Vector operator*(const double& scalar, const Vector& vec) {
     Vector retval(vec);
     blas::scal(vec.size(), scalar, retval.data(), 1);
@@ -297,15 +306,6 @@ Vector Matrix::operator*(const Vector& v) {
     return retval;
 }
 
-Vector operator*(const Vector& v, const Matrix& m) {
-    if (v.size() != m.rows()) throw std::length_error("invalid size for "
-        "vector-matrix multiplication");
-    Vector retval(m.cols());
-    blas::gemv(blas::Layout::RowMajor, blas::Op::Trans, m.rows(), m.cols(), 1.0,
-                m.data(), m.cols(), v.data(), 1, 0.0, retval.data(), 1);
-    return retval;
-}
-
 Matrix Matrix::operator*(const Matrix& mm) {
     if (cols() != mm.rows()) throw std::length_error("invalid size for "
                     "matrix-matrix multiplication");
@@ -323,7 +323,7 @@ Matrix Matrix::operator*(const double& scal) {
 }
 
 Matrix operator*(const double& scal, const Matrix& m) {
-    Matrix retval(m.rows(), m.cols());
+    Matrix retval(m);
     blas::scal(retval.rows()*retval.cols(), scal, retval.data(), 1);
     return retval;
 }
@@ -358,6 +358,28 @@ void Matrix::check_ctor_lists_size(const std::initializer_list<
 
 
 // ---------- End of Matrix Member Function Definitions --------- //
+
+// ---------- TrMatrix Member Function Definitions --------- //
+
+Matrix Matrix::TrMatrix::operator*(const Matrix& mm) {
+    Matrix retval(trM.cols(), mm.cols());
+    blas::gemm(blas::Layout::RowMajor, blas::Op::Trans, blas::Op::NoTrans,
+                trM.cols(), mm.cols(), trM.rows(), 1.0, trM.data(), trM.cols(),
+                mm.data(), mm.cols(), 0.0, retval.data(), retval.cols());
+    return retval;
+}
+
+Matrix operator*(const Matrix& m, const Matrix::TrMatrix& trm) {
+    Matrix retval(m.rows(), trm.trM.rows());
+    blas::gemm(blas::Layout::RowMajor, blas::Op::NoTrans, blas::Op::Trans,
+                m.rows(), trm.trM.rows(), m.cols(), 1.0, m.data(), m.cols(),
+                trm.trM.data(), trm.trM.cols(), 
+                0.0, retval.data(), retval.cols());
+    return retval;
+}
+
+// ---------- End of TrMatrix Member Function Definitions --------- //
+
 
 } // end of Math namespace
 
