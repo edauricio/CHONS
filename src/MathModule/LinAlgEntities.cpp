@@ -1,4 +1,4 @@
-#include "Utils/LinAlgEntities.h"
+#include "MathModule/LinAlgEntities.h"
 #include "blaspp/include/blas.hh"
 #include <array>
 #include <iostream>
@@ -19,6 +19,8 @@
 #endif
 
 namespace CHONS {
+
+namespace Math {
 
 #ifndef BLAS_OTHER
     // extern "C" definitions
@@ -51,11 +53,6 @@ namespace CHONS {
 
 Vector::Vector(const int& sz) : s_size(sz), 
                                     s_elements(new double[s_size]{0}) {
-
-}
-
-Vector::Vector(const int& sz, const double& in) : s_size(sz), 
-                                            s_elements(new double[s_size]{in}) {
 
 }
 
@@ -113,6 +110,21 @@ Vector::~Vector() {
     delete[] s_elements;
 }
 
+const bool Vector::operator==(const Vector& v) const {
+    double tol = 1.e-6;
+    bool eq = true;
+    int ind = 0;
+
+    if (s_size != v.size()) return false;
+
+    while (eq && (ind < s_size)) {
+        eq = std::abs(s_elements[ind] - v[ind]) < tol;
+        ind++;
+    }
+
+    return eq;
+}
+
 Vector Vector::operator+(const Vector& vsum) {
     if (s_size != vsum.size()) throw std::out_of_range("Unable to sum"
                     " vectors of unequal size.");
@@ -121,42 +133,12 @@ Vector Vector::operator+(const Vector& vsum) {
     return retval;
 }
 
-Vector Vector::operator+(const double& add) {
-    Vector added(this->size(), add);
-    blas::axpy(s_size, 1.0, s_elements, 1, added.s_elements, 1);
-    return added;
-}
-
-Vector operator+(const double& add, const Vector& vec) {
-    Vector added(vec.size(), add);
-    blas::axpy(added.size(), 1.0, vec.data(), 1, added.data(), 1);
-    return added;
-}
-
 Vector Vector::operator-(const Vector& vsub) {
     if (s_size != vsub.size()) throw std::out_of_range("Unable to subtract"
                     " vectors of unequal size.");
-    Vector retval(-1.*vsub);
-    blas::axpy(s_size, 1.0, s_elements, 1, retval.s_elements, 1);
+    Vector retval(*this);
+    blas::axpy(s_size, -1.0, vsub.s_elements, 1, retval.s_elements, 1);
     return retval;
-}
-
-Vector Vector::operator-(const double& sub) {
-    Vector subt(this->size(), -1.*sub);
-    blas::axpy(s_size, 1.0, s_elements, 1, subt.s_elements, 1);
-    return subt;
-}
-
-Vector operator-(const double& sub, const Vector& vec) {
-    Vector subt(vec.size(), -1.*sub);
-    blas::axpy(vec.size(), 1.0, vec.data(), 1, subt.data(), 1);
-    return subt;
-}
-
-double Vector::operator*(const Vector& vdot) {
-    if (s_size != vdot.size()) throw std::out_of_range("Unable to calculate"
-                    "dot product for vectors of unequal size.");
-    return blas::dot(s_size, s_elements, 1, vdot.s_elements, 1);
 }
 
 Vector Vector::operator*(const double& scalar) {
@@ -168,7 +150,20 @@ Vector Vector::operator*(const double& scalar) {
 Vector operator*(const double& scalar, const Vector& vec) {
     Vector retval(vec);
     blas::scal(vec.size(), scalar, retval.data(), 1);
-    return retval;   
+    return retval;
+}
+
+Matrix cross_product(const Vector& a, const Vector& b) {
+    Matrix retval(a.size(), b.size());
+    blas::ger(blas::Layout::RowMajor, a.size(), b.size(), 1.0, 
+                a.data(), 1, b.data(), 1, retval.data(), retval.cols());
+    return retval;
+}
+
+double dot_product(const Vector& a, const Vector& b) {
+    if (a.size() != b.size()) throw std::out_of_range("Unable to calculate"
+                    "dot product for vectors of unequal size.");
+    return blas::dot(a.size(), a.data(), 1, b.data(), 1);
 }
 
 // ---------- End of Vector Member Function Definitions --------- //
@@ -198,29 +193,16 @@ Vector::VectorIterator& Vector::VectorIterator::operator=(VectorIterator&& vim) 
 
 // ---------- End of VectorIterator Member Function Definitions --------- //
 
-// ---------- CrossProduct Member Function Definitions --------- //
-
-Matrix Vector::CrossProduct::operator*(const CrossProduct& vp) {
-    Matrix retval(this->size(), vp.size());
-    for (int i = 0; i != retval.rows(); ++i)
-        for (int j = 0; j != retval.cols(); ++j)
-            retval[i][j] = (*this)[i] * vp[j];
-
-    return retval;
-}
-
-// ---------- End of CrossPdocut Member Function Definitions --------- //
-
 
 // ---------- Matrix Member Function Definitions --------- //
 
 Matrix::Matrix(const int& n) : s_colSize(n), s_rowSize(n),
-                                 s_elements(new double[s_rowSize*s_colSize]) {
+                            s_elements(new double[s_rowSize*s_colSize]{0.0}) {
 
 }
 
 Matrix::Matrix(const int& m, const int& n) : s_colSize(m), s_rowSize(n), 
-                                 s_elements(new double[s_rowSize*s_colSize]) {
+                            s_elements(new double[s_rowSize*s_colSize]{0.0}) {
 
 }
 
@@ -288,6 +270,80 @@ Matrix& Matrix::operator=(Matrix&& mcm) {
     return *this;
 }
 
+const bool Matrix::operator==(const Matrix& m) const {
+    double tol = 1.e-6;
+    bool eq = true;
+    int ind = 0;
+
+    if ((s_rowSize*s_colSize != m.rows()*m.cols()) 
+        || (rows() != m.rows())
+        || (cols() != m.cols()) )
+        return false;
+
+    while (eq && (ind < s_rowSize*s_colSize)) {
+        eq = std::abs(s_elements[ind] - m.data()[ind]) < tol;
+        ind++;
+    }
+
+    return eq;
+}
+
+Vector Matrix::operator*(const Vector& v) {
+    if (cols() != v.size()) throw std::length_error("invalid length for "
+        "matrix-vector multiplication");
+    Vector retval(rows());
+    blas::gemv(blas::Layout::RowMajor, blas::Op::NoTrans, rows(), cols(), 1.0,
+                s_elements, cols(), v.data(), 1, 0.0, retval.data(), 1);
+    return retval;
+}
+
+Vector operator*(const Vector& v, const Matrix& m) {
+    if (v.size() != m.rows()) throw std::length_error("invalid size for "
+        "vector-matrix multiplication");
+    Vector retval(m.cols());
+    blas::gemv(blas::Layout::RowMajor, blas::Op::Trans, m.rows(), m.cols(), 1.0,
+                m.data(), m.cols(), v.data(), 1, 0.0, retval.data(), 1);
+    return retval;
+}
+
+Matrix Matrix::operator*(const Matrix& mm) {
+    if (cols() != mm.rows()) throw std::length_error("invalid size for "
+                    "matrix-matrix multiplication");
+    Matrix retval(rows(), mm.cols());
+    blas::gemm(blas::Layout::RowMajor, blas::Op::NoTrans, blas::Op::NoTrans,
+            rows(), mm.cols(), cols(), 1.0, s_elements, cols(), mm.s_elements,
+            mm.cols(), 0.0, retval.data(), retval.cols());
+    return retval;
+}
+
+Matrix Matrix::operator*(const double& scal) {
+    Matrix retval(*this);
+    blas::scal(s_rowSize*s_colSize, scal, retval.data(), 1);
+    return retval;
+}
+
+Matrix operator*(const double& scal, const Matrix& m) {
+    Matrix retval(m.rows(), m.cols());
+    blas::scal(retval.rows()*retval.cols(), scal, retval.data(), 1);
+    return retval;
+}
+
+Matrix Matrix::operator+(const Matrix& madd) {
+    if ((rows() != madd.rows()) || (cols() != madd.cols()))
+        throw std::length_error("invalid size for matrix-matrix addition");
+    Matrix retval(madd);
+    blas::axpy(rows()*cols(), 1.0, s_elements, 1, retval.s_elements, 1);
+    return retval;
+}
+
+Matrix Matrix::operator-(const Matrix& msub) {
+    if ((rows() != msub.rows()) || (cols() != msub.cols()))
+        throw std::length_error("invalid size for matrix-matrix subtraction");
+    Matrix retval(*this);
+    blas::axpy(rows()*cols(), -1.0, msub.s_elements, 1, retval.s_elements, 1);
+    return retval;
+}
+
 Matrix::~Matrix() {
     if (s_elements) delete[] s_elements;
 }
@@ -302,5 +358,7 @@ void Matrix::check_ctor_lists_size(const std::initializer_list<
 
 
 // ---------- End of Matrix Member Function Definitions --------- //
+
+} // end of Math namespace
 
 } // end of CHONS namespace

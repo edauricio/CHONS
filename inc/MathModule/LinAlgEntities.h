@@ -8,11 +8,10 @@
 #include <initializer_list>
 #include <stdexcept>
 #include <iterator>
-#include <type_traits>
-#include <typeinfo> // remove later
-#include <iostream> // remove later
 
 namespace CHONS {
+
+namespace Math {
 
 class Matrix; // Forward declaration for Cross Product
 
@@ -71,30 +70,12 @@ class Vector {
                 pointer element;
         };
 
-        // Cross product helper class
-        class CrossProduct {
-            public:
-                CrossProduct(Vector& v) : vec(v) {}
-
-                int size() { return vec.size(); }
-                const int size() const { return vec.size(); }
-
-                Matrix operator*(const CrossProduct&);
-                double& operator[](const int& i) { return vec[i]; }
-                const double& operator[](const int& i) const { return vec[i]; }
-
-            private:
-                Vector& vec;
-        };
-
     public:
         // Type aliases
         using iterator = VectorIterator;
-        using cross_product = CrossProduct;
 
         // Constructors
         explicit Vector(const int&);
-        Vector(const int&, const double&);
         explicit Vector(const std::initializer_list<double>&);
         Vector(const Vector&); // Copy constructor
         Vector(Vector&&); // Move constructor
@@ -114,7 +95,6 @@ class Vector {
         const double* data() const { return s_elements; }
         iterator begin() { return iterator{s_elements}; }
         iterator end() { return iterator{s_elements+s_size}; }
-        cross_product cross() { return CrossProduct(*this); }
         // bool empty() { return s_isEmpty; };
         // void clear();
 
@@ -124,11 +104,10 @@ class Vector {
                                                 return s_elements[i]; }
         const double& operator[](const int& i) const { check_range(i);
                                                     return s_elements[i]; }
+        const bool operator==(const Vector&) const;
+        const bool operator!=(const Vector& v) const { return !(*this == v); }
         Vector operator+(const Vector&);
-        Vector operator+(const double&); // Element-wise addition
         Vector operator-(const Vector&);
-        Vector operator-(const double&); // Element-wise subtraction
-        double operator*(const Vector&); 
         Vector operator*(const double&);
 
         
@@ -146,9 +125,8 @@ class Vector {
 
 // Multiply / scaling operations with a double on the left side
 Vector operator*(const double&, const Vector&);
-Vector operator+(const double&, const Vector&); // Element-wise addition
-Vector operator-(const double&, const Vector&); // Element-wise subtraction
-
+Matrix cross_product(const Vector&, const Vector&);
+double dot_product(const Vector&, const Vector&);
 
 class Matrix {
     // Helper class to make double subscripting possible
@@ -199,6 +177,8 @@ class Matrix {
                         return MatrixRow(&s_elements[i*s_rowSize], s_rowSize); }
         const MatrixRow operator[](const int& i) const { check_row_range(i); 
                         return MatrixRow(&s_elements[i*s_rowSize], s_rowSize); }
+        const bool operator==(const Matrix&) const;
+        const bool operator!=(const Matrix& m) const { return !(*this == m); }
 
             // BLAS Level 2 operations
         Vector operator*(const Vector&);
@@ -206,9 +186,7 @@ class Matrix {
         Matrix operator*(const Matrix&);
         Matrix operator*(const double&);
         Matrix operator+(const Matrix&);
-        Matrix operator+(const double&);
         Matrix operator-(const Matrix&);
-        Matrix operator-(const double&);
 
     
     private:
@@ -227,8 +205,8 @@ class Matrix {
 
 Vector operator*(const Vector&, const Matrix&);
 Matrix operator*(const double&, const Matrix&);
-Matrix operator+(const double&, const Matrix&);
-Matrix operator-(const double&, const Matrix&);
+
+} // end of Math namespace
 
 } // end of CHONS namespace
 

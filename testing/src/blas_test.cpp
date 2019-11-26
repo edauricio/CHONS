@@ -96,15 +96,6 @@ int main() {
             oFile << y[i] << "];\n\n";
     }
 
-    CHONS::Vector res(N);
-    double a = 2.;
-    res = x+y;
-    std::cout << x*y << "\n";
-    CHONS::Vector res2 = a*x;
-    // auto t1 = std::chrono::high_resolution_clock::now();
-    // auto t2 = std::chrono::high_resolution_clock::now();
-    // std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count()/1000. << " sec\n";
-
     oFile << "A = [";
     for (int i = 0; i != A.rows(); ++i) {
         for (int j = 0; j != A.rows(); ++j) {
@@ -141,9 +132,11 @@ int main() {
         }
     }
 
-    // daxpy_(&N, &alpha, x, &incx, y, &incy);
+    CHONS::Vector res(N);
+    double a = 2.;
+    res = x+y;
 
-    oFile << "ny = [";
+    oFile << "r1 = [";
     for (int i = 0; i != N; ++i) {
         if (i != N-1)
             oFile << res[i] << ", ";
@@ -151,15 +144,76 @@ int main() {
             oFile << res[i] << "];\n\n";
     }
 
-    // dgemv_(&transA, &N, &N, &alpha, A, &N, x, &incx, &beta, y, &incy);
+    res = x-y;
 
-    oFile << "ny2 = [";
+    oFile << "r2 = [";
     for (int i = 0; i != N; ++i) {
         if (i != N-1)
-            oFile << res2[i] << ", ";
+            oFile << res[i] << ", ";
         else
-            oFile << res2[i] << "];\n\n";
+            oFile << res[i] << "];\n\n";
     }
+
+    res = 3.*x;
+
+    oFile << "r3 = [";
+    for (int i = 0; i != N; ++i) {
+        if (i != N-1)
+            oFile << res[i] << ", ";
+        else
+            oFile << res[i] << "];\n\n";
+    }
+
+    res = x*3.;
+
+    oFile << "r4 = [";
+    for (int i = 0; i != N; ++i) {
+        if (i != N-1)
+            oFile << res[i] << ", ";
+        else
+            oFile << res[i] << "];\n\n";
+    }
+
+    CHONS::Matrix crossp(x.size());
+
+    crossp = cross_product(x, y);
+
+    oFile << "r5 = [";
+    for (int i = 0; i != N; ++i) {
+        for (int j = 0; j != N; ++j) {
+            if (j != N-1)
+                oFile << crossp[i][j] << ", ";
+            else if (i != crossp.rows()-1)
+                oFile << crossp[i][j] << "; ";
+            else
+                oFile << crossp[i][j] << "];\n\n";
+        }
+    }
+
+    std::cout << dot_product(x,y) << "\n";
+    CHONS::Vector res2 = a*x;
+    // auto t1 = std::chrono::high_resolution_clock::now();
+    // auto t2 = std::chrono::high_resolution_clock::now();
+    // std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count()/1000. << " sec\n";
+    // daxpy_(&N, &alpha, x, &incx, y, &incy);
+
+    // oFile << "ny = [";
+    // for (int i = 0; i != N; ++i) {
+    //     if (i != N-1)
+    //         oFile << res[i] << ", ";
+    //     else
+    //         oFile << res[i] << "];\n\n";
+    // }
+
+    // dgemv_(&transA, &N, &N, &alpha, A, &N, x, &incx, &beta, y, &incy);
+
+    // oFile << "ny2 = [";
+    // for (int i = 0; i != N; ++i) {
+    //     if (i != N-1)
+    //         oFile << res2[i] << ", ";
+    //     else
+    //         oFile << res2[i] << "];\n\n";
+    // }
 
     // dgemm_(&transA, &transB, &N, &N, &N, &alpha, B.data(), &N, A.data(), &N, &beta, C.data(), &N);
 
