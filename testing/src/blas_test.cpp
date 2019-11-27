@@ -4,7 +4,7 @@
 #include <fstream>
 #include <numeric>
 #include <algorithm>
-#include "Utils/LinAlgEntities.h"
+#include "MathModule/LinAlgEntities.h"
 
 /*subroutine daxpy    (   integer     N,
 double precision    DA,
@@ -58,8 +58,8 @@ int main() {
     int N = 4;
     int incx=1, incy=1, lda=N, ldb=N, ldc=N, m, n, k;
     // double *A, *B, *C, *x, *y;
-    CHONS::Vector x(N), y(N);
-    CHONS::Matrix A(N,N), B(N,N);
+    CHONS::Math::Vector x(N), y(N);
+    CHONS::Math::Matrix A(N,N), B(N,N);
     double alpha=1.0, beta=0.0;
     char transA='N', transB='N';
 
@@ -73,7 +73,7 @@ int main() {
         }
     }
 
-    CHONS::Matrix C{ {2.3, 5, 12.56, 6},
+    CHONS::Math::Matrix C{ {2.3, 5, 12.56, 6},
                      {6.5, 1.2, 90, 236.1},
                      {1.5, 123.1, 3., 0.2},
                      {11, 15, 19, 20.23}
@@ -132,7 +132,7 @@ int main() {
         }
     }
 
-    CHONS::Vector res(N);
+    CHONS::Math::Vector res(N);
     double a = 2.;
     res = x+y;
 
@@ -174,7 +174,7 @@ int main() {
             oFile << res[i] << "];\n\n";
     }
 
-    CHONS::Matrix crossp(x.size());
+    CHONS::Math::Matrix crossp(x.size());
 
     crossp = cross_product(x, y);
 
@@ -191,7 +191,7 @@ int main() {
     }
 
     std::cout << dot_product(x,y) << "\n";
-    CHONS::Vector res2 = a*x;
+    CHONS::Math::Vector res2 = a*x;
     // auto t1 = std::chrono::high_resolution_clock::now();
     // auto t2 = std::chrono::high_resolution_clock::now();
     // std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count()/1000. << " sec\n";

@@ -21,8 +21,9 @@ class Element {
         virtual void AddPrimitive(Element*);
         virtual void RemovePrimitive(Element*);
         virtual void AddSharing(Element*);
-        virtual std::vector<Element*> GetPrimitives();
-        virtual std::vector<Element*> GetSharing();
+        virtual std::vector<double> GetCoords();
+        virtual std::vector<Element*> GetPrimitives() = 0;
+        virtual std::vector<Element*> GetSharing() = 0;
         virtual Point* GetInteriorPoints();
         virtual Point* GetInterfacePoints();
         virtual Point* GetPoints();
@@ -50,6 +51,7 @@ class Node : public Element {
         Node(const ElementInfo&);
         virtual void AddSharing(Element*);
         virtual std::vector<Element*> GetSharing();
+        virtual std::vector<double> GetCoords();
         virtual ~Node() = default;
 
     private:

@@ -8,6 +8,7 @@
 
 namespace CHONS {
 
+// Map for element type-element order, according to Gmsh numbering definition
 std::vector<std::pair<ElementType, int>> GmshElementsMapping = {
     {},
     {eLine, 1},     // 1

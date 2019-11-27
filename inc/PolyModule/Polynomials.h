@@ -13,6 +13,7 @@ namespace CHONS {
 class Polynomial {
     public:
         Polynomial(const unsigned& ord) : s_order(ord) {}
+        virtual ~Polynomial();
 
         unsigned GetOrder() { return s_order; }
         virtual std::string GetType() = 0;

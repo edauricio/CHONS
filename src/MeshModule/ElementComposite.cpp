@@ -29,12 +29,9 @@ void Element::AddSharing(Element* ele) {
     exit(-1);
 }
 
-std::vector<Element*> Element::GetPrimitives() {
-    return std::vector<Element*>();
-}
-
-std::vector<Element*> Element::GetSharing() {
-    return std::vector<Element*>();
+std::vector<double> Element::GetCoords() {
+    std::cout << "Coordinates can only be requested by nodes.\n";
+    exit(-1);
 }
 
 Point* Element::GetInteriorPoints() {
@@ -78,6 +75,10 @@ void Node::AddSharing(Element* ele) {
 
 std::vector<Element*> Node::GetSharing() {
     return s_sharingElements;
+}
+
+std::vector<double> Node::GetCoords() {
+    return s_coords;
 }
 
 //------------ End of Node Member Function Definitions -------------//

@@ -3,51 +3,10 @@
 #include <array>
 #include <iostream>
 
-// Blas library header (if using other than fortran BLAS)
-#ifdef BLAS_OTHER
-
-    #ifdef BLAS_OPENBLAS
-
-        #include <openblas.h>
-
-    #elif defined BLAS_CBLAS
-
-        #include <cblas.h>
-
-    #endif
-
-#endif
-
 namespace CHONS {
 
 namespace Math {
 
-#ifndef BLAS_OTHER
-    // extern "C" definitions
-
-    // BLAS
-    // These C implemenetations are coming from libblas.so that was
-    // compiled when building OpenBLAS.
-    // If a system only has the legacy BLAS (i.e. F77) installed, then
-    // these will probably change (or libg2c.so must be used)
-    // CMake phase should catch these peculiarities.
-
-    // UPDATE: Use of BLAS++ API interface eliminates the need to hard-code
-    // these declarations in advance, since the header file blas.hh correctly
-    // does it for a number of vendor-optimized, BLAS implementations (through 
-    // its identification in CMake phase and definition using Macros)
-
-    // extern "C" {extern void dcopy_(int*, double*, int*, double*, int*);}
-    // extern "C" {extern void dscal_(int*, double*, double*, int*);}
-    // extern "C" {extern void daxpy_(int*, double*, double*, 
-    //                                                 int*, double*, int*);}
-    // extern "C" {extern double ddot_(int*, double*, int*, double*, int*);}
-
-    // // LAPACK
-    // extern "C" {extern void dlacpy_(char*, int*, int*, double*, 
-                                                    // int*, double*, int*);}
-
-#endif
 
 // ---------- Vector Member Function Definitions --------- //
 
@@ -362,6 +321,8 @@ void Matrix::check_ctor_lists_size(const std::initializer_list<
 // ---------- TrMatrix Member Function Definitions --------- //
 
 Matrix Matrix::TrMatrix::operator*(const Matrix& mm) {
+    if (trM.rows() != mm.rows()) throw std::length_error("invalid size for "
+                    "tr(matrix)-matrix multiplication");
     Matrix retval(trM.cols(), mm.cols());
     blas::gemm(blas::Layout::RowMajor, blas::Op::Trans, blas::Op::NoTrans,
                 trM.cols(), mm.cols(), trM.rows(), 1.0, trM.data(), trM.cols(),
@@ -370,6 +331,8 @@ Matrix Matrix::TrMatrix::operator*(const Matrix& mm) {
 }
 
 Matrix operator*(const Matrix& m, const Matrix::TrMatrix& trm) {
+    if (m.cols() != trm.trM.cols()) throw std::length_error("invalid size for "
+                    "matrix-tr(matrix) multiplication");
     Matrix retval(m.rows(), trm.trM.rows());
     blas::gemm(blas::Layout::RowMajor, blas::Op::NoTrans, blas::Op::Trans,
                 m.rows(), trm.trM.rows(), m.cols(), 1.0, m.data(), m.cols(),

@@ -13,11 +13,16 @@ namespace CHONS {
 
 namespace Math {
 
-class Matrix; // Forward declaration for Cross Product
+class Tensor { 
+    protected:
+        Tensor() = default;
+        virtual int GetRank() = 0;
+};
 
+class Matrix;
 
 // Static vector class
-class Vector {
+class Vector : public Tensor {
 
     // Iterator helper class 
         class VectorIterator {
@@ -86,10 +91,10 @@ class Vector {
 
 
         // Destructor
-        ~Vector();
+        virtual ~Vector();
 
         // Member functions
-
+        virtual int GetRank() { return 1; }
         const int size() const { return s_size; }
         double* data() { return s_elements; }
         const double* data() const { return s_elements; }
@@ -129,7 +134,7 @@ Vector operator*(const double&, const Vector&);
 Matrix cross_product(const Vector&, const Vector&);
 double dot_product(const Vector&, const Vector&);
 
-class Matrix {
+class Matrix : public Tensor {
     // Helper class to make double subscripting possible
     class MatrixRow { 
         public:
@@ -151,7 +156,7 @@ class Matrix {
     };
 
     // Helper class to multiply by the transpose
-    // This is just a rearrange so that the Matrix is now column major
+    // Just a rearrangement so that the Matrix is now transposed in BLAS call
     class TrMatrix {
         friend Matrix operator*(const Matrix&, const TrMatrix&);
         public:
@@ -179,9 +184,10 @@ class Matrix {
         Matrix& operator=(Matrix&&); // Move assignment
 
         // Destructor
-        ~Matrix();
+        virtual ~Matrix();
 
         // Member functions
+        virtual int GetRank() { return 2; }
         const int rows() const { return s_colSize; }
         const int cols() const { return s_rowSize; }
         double* data() { return s_elements; }
