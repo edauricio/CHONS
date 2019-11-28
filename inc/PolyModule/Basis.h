@@ -21,8 +21,8 @@ class Basis {
         virtual ~Basis();
 
         // Member functions
-        virtual Vector EvaluateAt(const double&) = 0;
-        virtual Matrix EvaluateAt(const double&, const double&) = 0;
+        virtual Vector EvaluateAt(const double&, const double& = -2, 
+                                                        const double& = -2) = 0;
 
     protected:
         // Member functions
@@ -36,7 +36,6 @@ class TensorProductBasis : public Basis {
     public:
         TensorProductBasis(ElementType);
 
-        
 
     protected:
         std::vector<Polynomial*> s_polys;
@@ -50,8 +49,8 @@ class InterpolationTPBasis : public TensorProductBasis {
 
         virtual ~InterpolationTPBasis();
 
-    virtual Vector EvaluateAt(const double&);
-    virtual Matrix EvaluateAt(const double&, const double&);
+    virtual Vector EvaluateAt(const double&, const double& = -2, 
+                                                        const double& = -2);
 
 
     private:

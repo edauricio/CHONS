@@ -30,10 +30,6 @@ InterpolationTPBasis::InterpolationTPBasis(ElementType etype,
     BOOST_ASSERT_MSG(s_dim == pts.size(), "Invalid number of points coordinates"
                             " for Basis creation");
 
-    // for (auto it = pts.begin(); ++it != pts.end(); )
-    //     BOOST_ASSERT_MSG(it->size() == (it-1)->size(), "invalid points argument"
-    //                 " for interpolation tensor basis construction");
-
     for (auto& set_pt : pts)
         s_polys.push_back(new Lagrange(set_pt));
 
@@ -44,10 +40,20 @@ InterpolationTPBasis::~InterpolationTPBasis() {
         delete s_polys[i];
 }
 
-Vector InterpolationTPBasis::EvaluateAt(const double& x) {
-    BOOST_ASSERT_MSG(s_dim == 1, "can't evaluate a multidimensional basis"
-                        " on a single point coordinate");
+Vector InterpolationTPBasis::EvaluateAt(const double& r, const double& s,
+                                        const double& t) {
+    BOOST_ASSERT_MSG((s_dim == 1) && (s == -2) && (t == -2), 
+            "number of points for 1D basis evaluation exceeded");
+    BOOST_ASSERT_MSG((s_dim == 2) && (t == -2), 
+            "number of points for 2D basis evaluation exceeded");
+
+    BOOST_ASSERT_MSG((r >= -1) && (r <= 1) && 
+                     (s <= -1) && (s >= 1) &&
+                     (t >= -1) && (t <= 1), 
+            "points for basis evaluation can't exceed the interval [-1,1]");
+
     /*.......*/
+    
 }
 
 // ---------- End of InterpolationTPBasis Member Function Definitions --------- //

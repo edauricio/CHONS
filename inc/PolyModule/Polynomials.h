@@ -13,7 +13,7 @@ namespace CHONS {
 class Polynomial {
     public:
         Polynomial(const unsigned& ord) : s_order(ord) {}
-        virtual ~Polynomial();
+        virtual ~Polynomial() = default;
 
         unsigned GetOrder() { return s_order; }
         virtual std::string GetType() = 0;
@@ -26,6 +26,7 @@ class Polynomial {
 class Expansion : public Polynomial {
     public:
         Expansion(const unsigned& ord) : Polynomial(ord) {}
+        virtual ~Expansion() = default;
 
         virtual double EvaluateAt(const double&) = 0;
         virtual std::vector<double> EvaluateAt(const std::vector<double>&) = 0;
@@ -42,6 +43,7 @@ class Interpolant : public Polynomial {
     public:
         Interpolant(const std::vector<double>& pt) : Polynomial(pt.size()-1),
                                             s_points(pt) {}
+        virtual ~Interpolant() = default;
 
         virtual double EvaluateAt(const double&, const unsigned&) = 0;
         virtual std::vector<double> EvaluateAt(const std::vector<double>&,
@@ -61,6 +63,7 @@ class Jacobi : public Expansion {
     public:
         // Alpha, Beta, Order
         Jacobi(const unsigned&, const unsigned&, const unsigned&);
+        virtual ~Jacobi() = default;
 
         virtual double EvaluateAt(const double&);
         virtual std::vector<double> EvaluateAt(const std::vector<double>&);
@@ -96,6 +99,7 @@ class Jacobi : public Expansion {
 class Legendre : public Jacobi {
     public:
         Legendre(const unsigned& ord) : Jacobi(0,0,ord) {}
+        virtual ~Legendre() = default;
 
         virtual double EvaluateAt(const double&);
         virtual std::vector<double> EvaluateAt(const std::vector<double>&);
@@ -107,6 +111,7 @@ class Legendre : public Jacobi {
 class Lagrange : public Interpolant {
     public:
         Lagrange(const std::vector<double>& pts) : Interpolant(pts) {}
+        virtual ~Lagrange() = default;
 
         virtual double EvaluateAt(const double&, const unsigned&);
         virtual std::vector<double> EvaluateAt(const std::vector<double>&,

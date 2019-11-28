@@ -30,7 +30,17 @@ void Element::AddSharing(Element* ele) {
 }
 
 std::vector<double> Element::GetCoords() {
-    std::cout << "Coordinates can only be requested by nodes.\n";
+    std::cout << "Coordinates can only be requested on nodes.\n";
+    exit(-1);
+}
+
+std::vector<Element*> Element::GetPrimitives() {
+    std::cout << "Primitive elements can't have primitives of their own.\n";
+    exit(-1);
+}
+
+std::vector<Element*> Element::GetSharing() {
+    std::cout << "Such element can't be shared with others.\n";
     exit(-1);
 }
 

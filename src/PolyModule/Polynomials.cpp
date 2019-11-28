@@ -1,4 +1,5 @@
 #include "PolyModule/Polynomials.h"
+#include "boost/assert.hpp"
 #include <cmath>
 #include <vector>
 #include <algorithm>
@@ -128,6 +129,8 @@ std::vector<double> Legendre::EvaluateAt(const std::vector<double>& pts) {
 // ---------- Lagrange Member Function Definitions --------- //
 
 double Lagrange::EvaluateAt(const double& x, const unsigned& pt) {
+    BOOST_ASSERT_MSG(pt < s_points.size(), "Maximum index 'j' of Lagrange"
+                                " evaluation exceeded (pt > s_points.size()");
     double prod = 1.0;
     for (int i = (pt ? 0 : 1); i != s_points.size(); (i == pt-1) ? i+=2 : ++i) {
         prod *= ((x - s_points[i]) / (s_points[pt] - s_points[i]));
