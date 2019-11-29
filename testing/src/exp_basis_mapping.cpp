@@ -1,52 +1,76 @@
 #include <iostream>
+#include <cmath>
 
 int main() {
-    int a, b, j;
+    int a, b;
     int Nx=4, Ny=4;
-    int eleOrder = 3;
+    int eleOrder = 5;
+    int numVertices = 4;
+    int numEdges = 4;
+
+    int vertMap[] = {0, eleOrder, eleOrder, 0};
+    // int vertMapy[] = {0, 0, eleOrder, eleOrder};
+    int edgeMap[] = {1, eleOrder, eleOrder-1, 0};
+    // int edgeMapy[] = {0, 1, eleOrder, eleOrder-1};
+    int run[] = {1, 0, -1, 0};
+    // int runy[] = {0, 1, 0, -1};
+    // ...x and ...y above only differ in the order (%modulo), i.e., the mapping
+    // for y coord is always one "behind" the x coord in the modulo sequence;
+    // Hence only one mapping is needed and we can take advantage of that during
+    // the looping through the nodes
     
 
-    for (int b = 0; b != Ny; ++b)
-        for (int a = 0; a != Nx; ++a)
-            std::cout << b*Nx + a << " ";
+    // for (int b = 0; b != Ny; ++b)
+    //     for (int a = 0; a != Nx; ++a)
+    //         std::cout << b*Nx + a << " ";
 
-    std::cout << "\n\n";
+    // std::cout << "\n\n";
+    int cnt=-1;
 
-    // Vertex loop
-    for (int j = 0; j != 2; ++j)
-        for (int i = j; i != j+2; ++i)
-            std::cout << i%2 << " " << j << "\n";
+    for (int k = 0; k != std::ceil((eleOrder-1)/2.) + 1; k++) {
+        // Vertex loop
+        // The %(2*eleOrder) thing is needed for the last node, where i
+        // will be 2 times the eleOrder (because of the post-loop addition part)
+        // Before that, it will always be less than 2*eleOrder, hence i%... = i.
+        // We can always do like the edge and face loops below, too...
+        // Since these auxiliary arrays will be local, stack-allocated variables,
+        // there's no memory issues
+        
+        for (int i = 0; i != numVertices; ++i)
+            std::cout << ++cnt << ": " << vertMap[i] << " " 
+                        << vertMap[(i+numVertices-1) % numVertices] << "\n";
 
-    std::cout << "\n\n";
+        std::cout << "\n\n";
 
-    // Edge loops
-    int numEdges = 4;
-    int ix = 2, iy = 0, runx=1, runy=0;
-    bool edgeFlag = false;
-    for (int i = 0; i != numEdges; ++i) {
-        if (!(i % 2)) {
-            // we're at an horizontal edge; now what?
-            ix = (i == 0) ? 2 : eleOrder;
-            runx = (i == 0) ? 1 : -1;
-            iy = (i == 0) ? 0 : 1;
-            runy = 0;
-        } else {
-            // we're at a vertical edge; now what?
-            ix = (i == 1) ? i : 0;
-            runx = 0;
-            iy = (i == 1) ? 2 : eleOrder;
-            runy = (i == 1) ? 1 : -1;
+        // Edge loops
+        
+
+        for (int i = 0; i != numEdges; ++i) {
+            int indx = edgeMap[i];
+            int indy = edgeMap[(i+numEdges-1) % numEdges];
+            for (int j = k; j != eleOrder-(k+1); ++j) {
+                std::cout << ++cnt << ": " << indx << " " << indy << "\n";
+                indx += run[i];
+                indy += run[(i+numEdges-1) % numEdges];
+            }
         }
-        for (int j = 0; j != eleOrder-1; ++j) {
-            std::cout << ix << " " << iy << "\n";
-            ix += runx;
-            iy += runy;
-        }        
+
+        std::cout << "\n\n";
+
+        for (int i = 0; i != numVertices; ++i)
+            (i % (numVertices-1)) ? vertMap[i]-- : vertMap[i]++;
+
+        for (int i = 0; i != numEdges; ++i)
+            (i % (numEdges-1)) ? edgeMap[i]-- : edgeMap[i]++;
     }
 
-    std::cout << "\n\n";
+    // straightforward "tensor product" manner
+    // requires remapping the element nodes vector though
+    for (int j = 0; j != Ny; ++j) {
+        for (int i = 0; i != Nx; ++i)
+            std::cout << j*Nx + i << ": " << i << " " << j << "\n";
+    }
 
     // Face loops
-
-
+    // "Internal quad vertices" loop
 }

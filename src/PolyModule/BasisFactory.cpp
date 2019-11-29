@@ -20,7 +20,7 @@ Basis* BasisFactory::GetBasis(Element* ele) {
                 pts.push_back({-1 + i*d, 0., 0.});
             
             return new InterpolationTPBasis(ele->GetType(), 
-                                ele->);
+                                );
     }
 }
 
