@@ -56,7 +56,7 @@ TEST_CASE("Vector dot product", "[vdot]") {
     REQUIRE(dot_product(b,a) == result);
 }
 
-TEST_CASE("Vector cross product", "[vcross]") {
+TEST_CASE("Vector rank upgrade", "[vecrankup]") {
     CHONS::Math::Vector a{ 1, 6, 3, 7};
     CHONS::Math::Vector b{ 3, 7, 1, 3};
     CHONS::Math::Matrix result1{ { 3, 7, 1, 3} ,
@@ -71,6 +71,6 @@ TEST_CASE("Vector cross product", "[vcross]") {
                                 { 3, 18, 9, 21}
                               };                              
 
-    REQUIRE(cross_product(a,b) == result1);
-    REQUIRE(cross_product(b,a) == result2);
+    REQUIRE(rank_up(a,b) == result1);
+    REQUIRE(rank_up(b,a) == result2);
 }

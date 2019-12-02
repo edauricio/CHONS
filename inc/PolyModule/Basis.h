@@ -15,10 +15,10 @@ using namespace Math;
 class Basis {
     public:
         // Constructors
-        Basis();
+        Basis() = default;
 
         // Destructor
-        virtual ~Basis();
+        virtual ~Basis() = default;
 
         // Member functions
         virtual Vector EvaluateAt(const double&, const double& = -2, 

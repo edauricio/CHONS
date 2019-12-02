@@ -2,7 +2,6 @@
 #include "MeshModule/ElementComposite.h"
 #include "PolyModule/Polynomials.h"
 #include "boost/assert.hpp"
-#include <iostream> // remove
 
 namespace CHONS {
 
@@ -61,7 +60,9 @@ double LineMapping::Jacobian(Element* ele) {
 
 // ---------- End of QuadMapping Member Function Definitions --------- //
 
-QuadMapping::QuadMapping(Element* ele) : 
+// QuadMapping::QuadMapping(Element* ele) {
+
+// }
 
 // ---------- QuadMapping Member Function Definitions --------- //
 

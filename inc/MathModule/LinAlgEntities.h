@@ -131,7 +131,7 @@ class Vector : public Tensor {
 
 // Multiply / scaling operations with a double on the left side
 Vector operator*(const double&, const Vector&);
-Matrix cross_product(const Vector&, const Vector&);
+Matrix rank_up(const Vector&, const Vector&);
 double dot_product(const Vector&, const Vector&);
 
 class Matrix : public Tensor {

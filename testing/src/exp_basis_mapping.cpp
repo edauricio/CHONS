@@ -1,9 +1,10 @@
 #include <iostream>
 #include <cmath>
+#include <initializer_list>
 
 int main() {
     int a, b;
-    int Nx=4, Ny=4;
+    int Nx=4, Ny=3, Nz=2;
     int eleOrder = 5;
     int numVertices = 4;
     int numEdges = 4;
@@ -71,6 +72,15 @@ int main() {
             std::cout << j*Nx + i << ": " << i << " " << j << "\n";
     }
 
+    std::cout << "\n\n";
+
     // Face loops
     // "Internal quad vertices" loop
+    int spolys[] = {Nx, Ny, Nz};
+    for (int k = 0; k != 3; ++k) {
+        int div = (k == 0) ? 1 : div*spolys[k-1];
+        for (int i = 0; i != Nx*Ny*Nz; ++i)
+            std::cout << k << ":  " << (i/div)%spolys[k] << "\n";
+    }
+
 }

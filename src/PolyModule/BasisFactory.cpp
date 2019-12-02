@@ -1,27 +1,46 @@
 #include "PolyModule/BasisFactory.h"
 #include "MeshModule/ElementComposite.h"
+#include "boost/assert.hpp"
 #include <vector>
 #include <initializer_list>
 
 namespace CHONS {
 
 Basis* BasisFactory::GetBasis(Element* ele) {
-    // The decision on either Interpolation or Expansion basis will be decided
-    // by ResourceDirector based on the chosen method (i.e. Expasion for Modal
-    // DG and Interpolation for FR/Nodal DG)
-    // For now, though, considerate only Interpolation basis
+    BOOST_ASSERT_MSG(false, "An initializer list of points is needed for"
+                            " requesting an interpolation basis");
+}
+Basis* BasisFactory::GetBasis(Element* ele, 
+                const std::initializer_list<std::vector<double>>& pts) {
+    BOOST_ASSERT_MSG(false, "No points are needed for requesting an"
+                            " expansion basis");
+}
+
+Basis* InterpolationBasisFactory::GetBasis(Element* ele, 
+            const std::initializer_list<std::vector<double>>& pts) {
+    Basis* retbasis;
+
     switch (ele->GetType()) {
         case eLine:
-            std::vector<std::vector<double>> pts{
-                                            std::vector<double>{-1., 0., 0.}};
-            pts.push_back({1., 0., 0.});
-            double d = 2.0 / ele->GetElementOrder();
-            for (int i = 1; i != ele->GetElementOrder(); ++i)
-                pts.push_back({-1 + i*d, 0., 0.});
-            
-            return new InterpolationTPBasis(ele->GetType(), 
-                                );
+        case eQuad:
+        case eHexa:
+            // Tensor Product basis
+            retbasis = new InterpolationTPBasis(ele->GetType(), pts);
+            break;
+
+        case eTri:
+        case eTetra:
+        case ePyram:
+        case ePrism:
+            // Simplex basis
+            // retbasis = new InterpolationSimplexBasis(...);
+            break;
+
+        default:
+        break;
     }
+
+    return retbasis;
 }
 
 } // end of CHONS namespace

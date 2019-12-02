@@ -14,6 +14,8 @@ LINKFLAGS += $(patsubst %,-l%,$(LIBSO))
 MODSRCS = $(wildcard $(MODFOLD)/*.cpp)
 MODOBJ = $(patsubst $(MODFOLD)/%.cpp,obj/%.o,$(MODSRCS))
 
+RESTOBJ = obj/ElementComposite.o obj/ElementFactory.o obj/Polynomials.o
+
 TESTSRC = $(wildcard *.cpp)
 TESTOBJ = $(patsubst %.cpp, obj/%.o, $(TESTSRC))
 
@@ -21,7 +23,7 @@ MAINDIR = ../
 MAINTESTOBJ = obj/units-def-inc.o
 
 test: $(MODOBJ) $(TESTOBJ) $(MAINTESTOBJ)
-	$(CXX) -o $@ $^ $(CXXFLAGS) $(LINKFLAGS) -g
+	$(CXX) -o $@ $^ $(RESTOBJ) $(CXXFLAGS) $(LINKFLAGS) -g
 
 obj/%.o: $(MODFOLD)/%.cpp | mkfold
 	$(CXX) -c -o $@ $< $(CXXFLAGS) -g

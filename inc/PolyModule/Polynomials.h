@@ -72,7 +72,7 @@ class Jacobi : public Expansion {
         virtual std::vector<double> GetZeros();
 
 
-    private:
+    protected:
         inline double coeffA(const unsigned& n) {
             return (2.0*n + s_alpha + s_beta + 1.0) *
                     (2.0*n + s_alpha + s_beta + 2.0) /

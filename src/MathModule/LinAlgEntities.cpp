@@ -121,7 +121,7 @@ Vector operator*(const double& scalar, const Vector& vec) {
     return retval;
 }
 
-Matrix cross_product(const Vector& a, const Vector& b) {
+Matrix rank_up(const Vector& a, const Vector& b) {
     Matrix retval(a.size(), b.size());
     blas::ger(blas::Layout::RowMajor, a.size(), b.size(), 1.0, 
                 a.data(), 1, b.data(), 1, retval.data(), retval.cols());
