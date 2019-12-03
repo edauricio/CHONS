@@ -1,6 +1,6 @@
 #include "catch2/include/catch.hpp"
 #include "PolyModule/Polynomials.h"
-#include <iostream>
+#include <iostream> // remove 
 
 using namespace CHONS;
 
@@ -77,11 +77,9 @@ TEST_CASE("Jacobi bulk derivative evaluation test", "[jacbulkder]") {
 
 TEST_CASE("Jacobi zeros test", "[jaczeros]") {
     Jacobi poly(2, 3, 4);
-    std::vector<double> calc_zs = poly.GetZeros();
+    std::vector<double> calc_zeros = poly.GetZeros();
+    std::vector<double> ex_zs {-0.59903471, -0.14761105, 0.32554377, 0.7287943};
 
-    std::vector<double> zs {};
-
-    // FINISH THIS TEST -- populate zs
-    for (int i = 0; i != calc_zs.size(); ++i)
-        REQUIRE(calc_zs[i] == Approx(zs[i]));
+    for (int i = 0; i != calc_zeros.size(); ++i)
+        REQUIRE(calc_zeros[i] == Approx(ex_zs[i]));
 }

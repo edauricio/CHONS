@@ -22,6 +22,11 @@ Vector::Vector(const std::initializer_list<double>& lst) : s_size(lst.size()),
         s_elements[i++] = *it;
 }
 
+Vector::Vector(const std::vector<double>& vec) : s_size(vec.size()),
+                                            s_elements(new double[s_size]) {
+    blas::copy(s_size, vec.data(), 1, s_elements, 1);
+}
+
 Vector::Vector(const Vector& vtc) : s_size(vtc.s_size), 
                                         s_elements(new double[s_size]) {
     // Copy vtc into *this

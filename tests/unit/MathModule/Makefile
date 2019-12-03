@@ -10,6 +10,7 @@ LIBSO = blaspp
 CXXFLAGS := $(patsubst %,-I%,$(INCFOLD))
 LINKFLAGS := $(patsubst %,-L%,$(LIBFOLD))
 LINKFLAGS += $(patsubst %,-l%,$(LIBSO))
+LINKFLAGS += -Wl,-rpath,$(LIBFOLD)
 
 MODSRCS = $(wildcard $(MODFOLD)/*.cpp)
 MODOBJ = $(patsubst $(MODFOLD)/%.cpp,obj/%.o,$(MODSRCS))

@@ -8,6 +8,7 @@
 #include <initializer_list>
 #include <stdexcept>
 #include <iterator>
+#include <vector>
 
 namespace CHONS {
 
@@ -46,7 +47,10 @@ class Vector : public Tensor {
 
                 // Operators overloading
                 double& operator*() { return *element; }
+                const double& operator*() const { return *element; }
                 double& operator[](const int& i) { return element[i]; }
+                const double& operator[](const int& i) const { 
+                                                        return element[i]; }
                 VectorIterator& operator++() { ++element; return *this; }
                 VectorIterator operator++(int) { pointer ele=element++; 
                                                     return ele; }
@@ -82,6 +86,9 @@ class Vector : public Tensor {
         // Constructors
         explicit Vector(const int&);
         explicit Vector(const std::initializer_list<double>&);
+        Vector(const std::vector<double>&); // Constructor from std::vector and
+                                            // (implicit) conversion 
+                                            // from std::vector to Math::Vector
         Vector(const Vector&); // Copy constructor
         Vector(Vector&&); // Move constructor
 
@@ -99,7 +106,9 @@ class Vector : public Tensor {
         double* data() { return s_elements; }
         const double* data() const { return s_elements; }
         iterator begin() { return iterator{s_elements}; }
+        const iterator begin() const { return iterator{s_elements}; }
         iterator end() { return iterator{s_elements+s_size}; }
+        const iterator end() const { return iterator{s_elements+s_size}; }
         // bool empty() { return s_isEmpty; };
         // void clear();
 
@@ -115,6 +124,11 @@ class Vector : public Tensor {
         Vector operator-(const Vector&);
         Vector operator*(const double&);
         Vector operator*(const Matrix&);
+
+        // Type conversion
+            //from Math::Vector to std::vector
+        operator std::vector<double>() const { 
+                                return std::vector<double>(begin(), end()); }
 
         
     private:

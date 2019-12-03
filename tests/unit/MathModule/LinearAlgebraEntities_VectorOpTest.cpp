@@ -1,5 +1,6 @@
 #include "catch2/include/catch.hpp"
 #include "MathModule/LinAlgEntities.h"
+#include <vector>
 
 TEST_CASE("Vector subscription", "[vecsubsc]") {
     CHONS::Math::Vector a{ 1, 6, 3, 7};
@@ -14,9 +15,20 @@ TEST_CASE("Vector constructors", "[vecctors]") {
     CHONS::Math::Vector a{1, 6, 7, 3};
     CHONS::Math::Vector b{a};
     CHONS::Math::Vector c = b;
+    CHONS::Math::Vector d(4);
+
+    std::vector<double> vec1{1, 6, 7, 3};
+    CHONS::Math::Vector e{vec1}; // Construct from std::vector
+
+    CHONS::Math::Vector f = vec1; // Implicit conversion from vec1 to Vector,
+                                // then copy assignment
+    std::vector<double> vec2 = f; // Conversion from Vector to std::vector
 
     REQUIRE(b == a);
     REQUIRE(c == a);
+    REQUIRE(d.size() == 4);
+    REQUIRE(e == f);
+    REQUIRE(vec1 == vec2);
 }
 
 TEST_CASE("Vector addition", "[vecadd]") {

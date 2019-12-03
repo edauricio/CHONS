@@ -91,8 +91,8 @@ class Jacobi : public Expansion {
                     ((n + 1.0)*(n + s_alpha + s_beta + 1.0) *
                     (2*n + s_alpha + s_beta)); }
 
-        unsigned s_alpha;
-        unsigned s_beta;
+        int s_alpha;
+        int s_beta;
 
 };
 

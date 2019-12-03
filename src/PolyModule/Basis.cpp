@@ -31,8 +31,9 @@ InterpolationTPBasis::InterpolationTPBasis(ElementType etype,
     BOOST_ASSERT_MSG(s_dim == pts.size(), "Invalid number of points coordinates"
                             " for Basis creation");
 
-    for (auto& set_pt : pts)
+    for (auto& set_pt : pts) {
         s_polys.push_back(new Lagrange(set_pt));
+    }
 
 }
 
@@ -43,15 +44,34 @@ InterpolationTPBasis::~InterpolationTPBasis() {
 
 Vector InterpolationTPBasis::EvaluateAt(const double& r, const double& s,
                                         const double& t) {
-    BOOST_ASSERT_MSG((s_dim == 1) && (s == -2) && (t == -2), 
-            "number of points for 1D basis evaluation exceeded");
-    BOOST_ASSERT_MSG((s_dim == 2) && (t == -2), 
-            "number of points for 2D basis evaluation exceeded");
+    switch(s_dim) {
+        case 1:
+            BOOST_ASSERT_MSG((s == -2) && (t == -2), 
+                "number of points for 1D basis evaluation exceeded");
+            BOOST_ASSERT_MSG((r >= -1) && (r <= 1), "point for basis evaluation"
+                            " must be within the invertal [-1,1]");
+            break;
 
-    BOOST_ASSERT_MSG((r >= -1) && (r <= 1) && 
-                     (s <= -1) && (s >= 1) &&
-                     (t >= -1) && (t <= 1), 
-            "points for basis evaluation can't exceed the interval [-1,1]");
+        case 2:
+            BOOST_ASSERT_MSG(t == -2, 
+                "number of points for 2D basis evaluation exceeded");
+            BOOST_ASSERT_MSG((r >= -1) && (r <= 1) && 
+                            (s >= -1) && (s <= 1), "point for basis evaluation"
+                            " must be within the invertal [-1,1]");
+            break;
+
+        case 3:
+            BOOST_ASSERT_MSG((r >= -1) && (r <= 1) && 
+                            (s >= -1) && (s <= 1) &&
+                            (t >= -1) && (t <= 1), 
+            "point for basis evaluation must be within the invertal [-1,1]");
+            break;
+
+        default:
+            BOOST_ASSERT_MSG(false, "Dimension of basis is higher than 3?");
+    }
+    
+    
 
     // Find the size of the basis vector (i.e., number of total points 
     // considering all dimensions)

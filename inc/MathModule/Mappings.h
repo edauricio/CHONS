@@ -6,6 +6,7 @@
 #include "MeshModule/ElementEnumInfo.h"
 #include "PolyModule/Polynomials.h"
 #include "MathModule/LinAlgEntities.h"
+#include "PolyModule/Basis.h"
 
 
 namespace CHONS {
@@ -35,9 +36,8 @@ class LineMapping : public StdToPhysMapping {
         virtual double Jacobian(Element*);
 
     private:
-        Polynomial* s_poly;
-        Math::Vector s_basis;
-        Math::Vector s_edgePoints;
+        Basis* s_mapBasis;
+        unsigned s_order;
 };
 
 class QuadMapping : public StdToPhysMapping {

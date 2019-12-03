@@ -163,14 +163,17 @@ double Lagrange::DerivativeAt(const double& x, const unsigned& pt) {
 
 std::vector<double> Lagrange::DerivativeAt(const std::vector<double>& pts,
                                             const unsigned& pt) { 
-    return std::vector<double>();
+    std::vector<double> evs(pts.size(), 0.0);
+    for (int i = 0; i != evs.size(); ++i)
+        evs[i] = DerivativeAt(pts[i], pt);
+
+    return evs;
 }
 
 std::vector<double> Lagrange::GetZeros(const unsigned& pt) {
     std::vector<double> zs{s_points.begin(), s_points.end()};
-    return std::vector<double>(s_points.begin(), std::remove(zs.begin(),
-                                                            zs.end(),
-                                                            s_points[pt]));
+    auto end = std::remove(zs.begin(), zs.end(), s_points[pt]);
+    return std::vector<double>(zs.begin(), end);
 }
 
 // ---------- End of Lagrange Member Function Definitions --------- //

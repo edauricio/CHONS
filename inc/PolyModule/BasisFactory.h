@@ -14,13 +14,9 @@ namespace CHONS {
 
 class Element;
 
-// TODO? Create hierarchy of this factory depending on the method
-// e.g. Interp. (FR/Nodal DG) or Expansion (Modal DG)
-// Is it necessary? This info should be available for the one creating
-// the basis..... hence it can be passed on instantiation ("globally")
 class BasisFactory {
     public:
-        BasisFactory() = delete;
+        BasisFactory() = default;
         virtual Basis* GetBasis(Element*);
         virtual Basis* GetBasis(Element*, 
                     const std::initializer_list<std::vector<double>>&);

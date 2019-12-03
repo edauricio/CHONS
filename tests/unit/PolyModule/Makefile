@@ -10,6 +10,7 @@ LIBSO = blaspp
 CXXFLAGS := $(patsubst %,-I%,$(INCFOLD))
 LINKFLAGS := $(patsubst %,-L%,$(LIBFOLD))
 LINKFLAGS += $(patsubst %,-l%,$(LIBSO))
+LINKFLAGS += -Wl,-rpath,$(LIBFOLD)
 
 MODSRCS = $(wildcard $(MODFOLD)/*.cpp)
 MODOBJ := $(patsubst $(MODFOLD)/%.cpp,obj/%.o,$(MODSRCS))
@@ -17,7 +18,7 @@ MODOBJ := $(patsubst $(MODFOLD)/%.cpp,obj/%.o,$(MODSRCS))
 TESTSRC = $(wildcard *.cpp)
 TESTOBJ = $(patsubst %.cpp, obj/%.o, $(TESTSRC))
 
-RESTOBJ = obj/LinAlgEntities.o
+RESTOBJ = obj/LinAlgEntities.o obj/ElementFactory.o obj/ElementComposite.o
 
 MAINDIR = ../
 MAINTESTOBJ = obj/units-def-inc.o
