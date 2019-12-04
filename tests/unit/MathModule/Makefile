@@ -15,7 +15,8 @@ LINKFLAGS += -Wl,-rpath,$(LIBFOLD)
 MODSRCS = $(wildcard $(MODFOLD)/*.cpp)
 MODOBJ = $(patsubst $(MODFOLD)/%.cpp,obj/%.o,$(MODSRCS))
 
-RESTOBJ = obj/ElementComposite.o obj/ElementFactory.o obj/Polynomials.o
+RESTOBJ = obj/ElementComposite.o obj/ElementFactory.o obj/Polynomials.o \
+	  obj/BasisFactory.o obj/Basis.o
 
 TESTSRC = $(wildcard *.cpp)
 TESTOBJ = $(patsubst %.cpp, obj/%.o, $(TESTSRC))

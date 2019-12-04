@@ -48,14 +48,14 @@ TEST_CASE("Line mapping test", "[linemap]") {
 
     Element* line = fac->GetElement(einfo);
 
-    StdToPhysMapping *lineMap = new LineMapping{line};
+    StdToPhysMapping *lineMap = new LineLGMapping{line};
+    std::vector<double> map_pts = Legendre(6).GetZeros();
 
-    int pq = 10;
-    d = 2.0 / (pq-1);
-    std::vector<double> x;
-    for (int i = 0; i != pq; ++i) {
-        // x.push_back(lineMap->operator()(line, (-1.0 + i*d))[0]);
-        // REQUIRE(x[i] == Approx(xinf + 10*i*d));
+    std::vector<double> result {-9.32469514, -6.61209386, -2.38619186,  
+                                2.38619186,  6.61209386, 9.32469514};
+
+    for (int i = 0; i != map_pts.size(); ++i) {
+        REQUIRE(lineMap->EvaluateFor(line, map_pts[i])[0] == Approx(result[i]));
     }
 
 }
