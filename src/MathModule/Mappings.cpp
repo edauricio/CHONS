@@ -86,7 +86,9 @@ Math::Vector LineLGMapping::EvaluateFor(Element* ele, const double& r,
     return mapped_x;
 }
 
-double LineLGMapping::Jacobian(Element* ele) {
+double LineLGMapping::Jacobian(Element* ele, const double& r, 
+                                            const double& s, 
+                                            const double& t) {
     BOOST_ASSERT_MSG(ele->GetType() == eLine, "Invalid extrinsic state passed"
             " to Line mapping; an element other than a Line has been passed");
     
@@ -122,20 +124,125 @@ Math::Vector QuadLGMapping::EvaluateFor(Element* ele, const double& r,
     // Instantiate returning vector which will contain both x and y coordinates
     Math::Vector result(2);
 
-    // Get vector containing the node elements
-    std::vector<Element*> nodes;
+    // Allocate vector for the quad node elements
+    std::vector<Element*> nodes( (s_order+1) * (s_order+1) );
+
     // Get all edges and interior nodes first
+    // Remember that the primitives list is ordered first with the edges (in
+    // gmsh order, or usual lagrange ordering of nodes) and then the interior
+    // nodes (again in gmsh / usual lagrange element ordering)
     std::vector<Element*> allprim = ele->GetPrimitives();
-    // Loop through edge primitives of Quad
-    for (int i = 0; i != 4; ++i) { 
-        // loop through each node of each edge and add it to nodes vector
-        for (int j = 0; j != s_order+1; ++j)
-            nodes.push_back(allprim[i]->GetPrimitives()[j]);
-    }
-    // Now loop through the remaining primitives, which are interior nodes,
-    // and add them to the nodes vector
-    for (int i = 4; i != allprim.size(); ++i)
-        nodes.push_back(allprim[i]);
+
+    // Now organize Quad nodes into 'nodes' vector in a "tensor product" order
+    // Rememeber that the Lagrangian element ordering is not the same as the
+    // "natural tensor product" ordering that we conventioned in the code (in
+    // Basis classes); thus this rearragement is needed
+
+    // The first edge nodes are all in the correct order, and they're the first
+    // so, easy looping
+    for (int i = 0; i != s_order+1; ++i)
+        nodes[i] = allprim[0]->GetPrimitives()[i];
+
+    // Now, we get the primitive nodes of the last (4th) edge and put them
+    // in order in vector 'nodes', noting that its last interior node element 
+    // will be the next in the sequence above, and the second to last will be 
+    // sequence positioned strided s_order elements from this last node, and
+    // so on...
+    // Note that only the interior edge nodes are taken into account here, since
+    // the vertex one will be handled later by the 3rd edge
+    // (Clearly, either approach could be taken, though)
+    for (int i = 0; i != s_order-1; ++i)
+        nodes[(s_order+1) /* initial position */
+            + i*s_order /* stride */] = 
+                                    allprim[3]->GetPrimitives()[(s_order-1)-i];
+
+    // The 2nd edge now is handled; again, only the interior nodes will be
+    // handled in this loop.
+    // The sequence starts at 2*s_order+1 (due to C++ 0-indexing; otherwise it
+    // would start at 2*(s_order+1)) and each consecutive interior node of
+    // the edge is strided s_order elements from the previous one
+    for (int i = 0; i != s_order-1; ++i)
+        nodes[(2*s_order+1) /* initial position */
+            + i*s_order /* stride */] = allprim[1]->GetPrimitives()[i+1];
+
+    // Now the 3rd and last edge of the quad element.
+    // This element holds the last nodes of the tensor product sequence, but
+    // in reverse order. It's still a straightforward loop, though
+    // Note that the top vertices nodes are handled in this case, not in
+    // 2nd or 4th edges cases (those handle only interior edge nodes)
+    // The sequence here clearly starts s_order elements before the last
+    // position in 'nodes' vector.
+    for (int i = 0; i != s_order+1; ++i)
+        nodes[((s_order+1) * (s_order+1) - 1) - s_order/* initial position */
+            + i] = allprim[2]->GetPrimitives()[s_order-i];
+
+    // Note that these 4 loops could be merged into only two loops, but they'll
+    // remain in 4 separate loops for the sake of clarity.
+    // We now turn to the interior nodes
+
+    // Remembering that the interior nodes are ordered just as a "smaller quad 
+    // inside the bigger quad", we should first deal with the "interior vertex"
+    // nodes.
+    // First, the loop for bottom vertices. The initial position in the 'nodes'
+    // vector is s_order+2 (i.e. s_order+1 for the bottom edge nodes, plus the
+    // one in the 4th edge before the interior node), and the first and second
+    // bottom interior vertex are strided s_order-3 elements from each other
+    // (s_order-2 is the "order" of the interior quad)
+    for (int i = 4; (i < nodes.size()) && (i != 6); ++i)
+        nodes[s_order+2 /* initial position */
+            + (i-4)*(s_order-2) /* stride */] = allprim[i];
+
+    // The top vertices of the inside quad are the next on the allprim list,
+    // but they're in reverse order. The initial position is now ( (nodes.size()
+    // -1) - s_order - 1 - 1), i.e., we start at the last position,run backwards
+    // all the nodes in the top edge, then count one less for the rightmost node
+    // (the last interior node from edge 2).
+    // The second top vertex of the inside quad is stride (s_order-2) elements
+    // backwards relative to the first top vertex just added to the sequence
+    // (again, note that (s_order-2) is the "order" of the inside quad)
+    for (int i = 6; (i < nodes.size()) && (i != 8); ++i)
+        nodes[((nodes.size()-1) - s_order - 1 - 1) /* initial position */
+            - (i-6)*(s_order-2) /* stride */] = allprim[i];
+
+    // Next in the primitives sequence are the interior nodes on the "bottom
+    // interior edge". In the node ordering sequence the initial position of the
+    // first interior node of the edge is (s_order+1+1), i.e., after all the 
+    // nodes from the bottom edge (s_order), plus the leftmost node, comming
+    // from the 4th (leftmost) edge, plus the bottom-left vertex of the
+    // interior quad. Since in the primitive list they're in sequence, there's
+    // no stride now
+    for (int i = 8; (i < nodes.size()) && (i != 8+s_order-2-1); ++i)
+        nodes[(s_order+1+1+1) /* initial position */
+            + (i-8) /* increment */] = allprim[i];
+
+    // Now for the "right interior edge" of the first interior quad.
+    // The position in the tensor product sequence is now 
+    // 2*(s_order+1)+1+s_order-2, i.e. the first multiplication accounts for the
+    // for the two "bottom edges" (quad bottom edge and "first interior quad" 
+    // bottom edge) and includes the first node of the leftmost quad (4th) edge 
+    // (due to 0-indexing); then, plus one for the first leftmost interior node
+    // of the "first interior quad (4th) edge" and finally plus the nodes on the 
+    // bottom edge of the quad inner to this interior one we're dealing now.
+    // The stride is now 1+1+1+s_order-2; the one's additions account for the
+    // rightmost node (interior node of 2nd quad edge), plus the leftmost node
+    // of the next (upper) horizontal line, plus the node of the interior
+    // leftmost edge of the inner quad; the s_order-2 is again for the nodes
+    // interior to this inner quad (thus pertaining to an edge of a still
+    // inner quad, if the element order is that high)
+    for (int i = 8+s_order-2-1; (i < nodes.size()) && 
+                                (i != (8+s_order-2-1)+s_order-2-1); ++i)
+        nodes[2*(s_order+1) + 1 + s_order-2 /* initial position */
+            + (i-(8+s_order-2-1))*(1+1+1 + s_order-2) /* stride */] 
+            = allprim[i];
+
+
+    // For the "top interior edge", the nodes are again in sequence, but in
+    // reverse order. The initial position may be calculated like the initial
+    // position for the bottom edge, but running in the opposite direction, i.e.
+    // we start at the end position of the 'nodes' vector and run backwards
+    // all the nodes in the outermost, quad top edge, then subtract those
+    // accounting for the rightmost node (the interior node to the 2nd quad
+    // edge) and the top-right vertex node of the inner
 
     // Populate the vectors containing the x- and y-nodes coordinates
     // TODO: Challenge now is to populate these coordinate vectors into

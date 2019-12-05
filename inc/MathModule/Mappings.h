@@ -51,7 +51,8 @@ class TensorProductLGMapping : public LagrangeElementMapping {
         TensorProductLGMapping(Element*);
         virtual Math::Vector EvaluateFor(Element*, const double&, 
                                     const double& = -2, const double& = -2) = 0;
-        virtual double Jacobian(Element*) = 0;
+        virtual double Jacobian(Element*, const double&, 
+                                    const double& = -2, const double& = -2) = 0;
 
 
     protected:        
@@ -63,7 +64,8 @@ class LineLGMapping : public TensorProductLGMapping {
         LineLGMapping(Element*);
         virtual Math::Vector EvaluateFor(Element*, const double&, 
                                     const double& = -2, const double& = -2);
-        virtual double Jacobian(Element*);
+        virtual double Jacobian(Element*, const double&, 
+                                    const double& = -2, const double& = -2);
 
     private:
 
@@ -74,7 +76,8 @@ class QuadLGMapping : public TensorProductLGMapping {
         QuadLGMapping(Element*);
         virtual Math::Vector EvaluateFor(Element*, const double&, 
                                     const double& = -2, const double& = -2);
-        virtual double Jacobian(Element*);
+        virtual double Jacobian(Element*, const double&, 
+                                    const double& = -2, const double& = -2);
 
 
     private:
