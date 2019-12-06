@@ -5,7 +5,7 @@
 int main() {
     int a, b;
     int Nx=4, Ny=3, Nz=2;
-    int eleOrder = 5;
+    int eleOrder = 3;
     int numVertices = 4;
     int numEdges = 4;
 
@@ -72,15 +72,53 @@ int main() {
             std::cout << j*Nx + i << ": " << i << " " << j << "\n";
     }
 
-    std::cout << "\n\n";
+    std::cout << "\n--------------------------\n\n";
 
-    // Face loops
-    // "Internal quad vertices" loop
-    int spolys[] = {Nx, Ny, Nz};
-    for (int k = 0; k != 3; ++k) {
-        int div = (k == 0) ? 1 : div*spolys[k-1];
-        for (int i = 0; i != Nx*Ny*Nz; ++i)
-            std::cout << k << ":  " << (i/div)%spolys[k] << "\n";
+    // Edge node numbering remap (CORRECT!!! ANY ORDER)
+
+    eleOrder = 7;
+    int cnt_n = 0;
+    int ini_pos[] = {0, (eleOrder+1)*(eleOrder+1)-1, 1, 2*(eleOrder+1)-1, 
+                    (eleOrder+1)*(eleOrder+1)-1-1, 
+                    ((eleOrder+1)*(eleOrder+1)-1) - (2*(eleOrder+1)-1)};
+    for (int k = eleOrder; k > 0; k -= 2) {
+        // Bottom vertices
+        for (int i = 0; i != 2; ++cnt_n, ++i)
+            std::cout << cnt_n << ": " << ini_pos[0] + i*k  << "\n";
+        // Top vertices
+        for (int i = 0; i != 2; ++cnt_n, ++i)
+            std::cout << cnt_n << ": " << ini_pos[1] - i*k  << "\n";
+
+        // Bottom edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt_n)
+            std::cout << cnt_n << ": " << ini_pos[2] + i << "\n"; // (cnt_n - k) + i ?
+
+        // Right edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt_n)
+            std::cout << cnt_n << ": " << ini_pos[3] + i*(eleOrder+1) << "\n";
+
+        // Top edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt_n)
+            std::cout << cnt_n << ": " << ini_pos[4] - i << "\n";
+
+        // Left edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt_n)
+            std::cout << cnt_n << ": " << ini_pos[5] - i * (eleOrder+1) << "\n";
+
+        // If the quad we're analyzing is of 2nd order, it'll have a single internal
+        // node, so let's account for it
+        if (k == 2)
+            std::cout << cnt_n++ << ": " 
+                            << ini_pos[5] + 1 << "\n";
+
+        // Recalculate initial positions for the next, inner quad
+        ini_pos[0] += (eleOrder + 1 + 1);
+        ini_pos[1] -= (eleOrder + 1 + 1);
+        ini_pos[2] = ini_pos[0] + 1;
+        ini_pos[3] += eleOrder;
+        ini_pos[4] = ini_pos[1] - 1;
+        ini_pos[5] -= eleOrder;
     }
+
 
 }
