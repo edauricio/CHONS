@@ -1,7 +1,10 @@
 #include "catch2/include/catch.hpp"
-#include "MathModule/Mappings.h"
-#include "MeshModule/ElementFactory.h"
+#include "MeshModule/MeshReader.h"
+#include "MeshModule/MeshInfoHolder.h"
 #include "MeshModule/ElementEnumInfo.h"
+#include "MeshModule/ElementFactory.h"
+#include "MathModule/Mappings.h"
+#include <iostream>
 
 using namespace CHONS;
 
@@ -57,5 +60,6 @@ TEST_CASE("Line mapping test", "[linemap]") {
     for (int i = 0; i != map_pts.size(); ++i) {
         REQUIRE(lineMap->EvaluateFor(line, map_pts[i])[0] == Approx(result[i]));
     }
+
 
 }

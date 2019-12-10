@@ -20,7 +20,8 @@ class StdToPhysMapping {
 
         virtual Math::Vector EvaluateFor(Element*, const double&, 
                                     const double& = -2, const double& = -2) = 0;
-        virtual double Jacobian(Element*) = 0;
+        virtual double Jacobian(Element*, const double&, 
+                                    const double& = -2, const double& = -2) = 0;
 
     protected:
         unsigned s_order;

@@ -1,5 +1,6 @@
 #include "MeshModule/ElementComposite.h"
 #include "MeshModule/ElementEnumInfo.h"
+#include "boost/assert.hpp"
 #include <iostream>
 #include <algorithm>
 
@@ -14,13 +15,23 @@ Element::Element(const ElementInfo& ein) {
     s_polyOrder = ein.polyOrder;
 }
 
-void Element::AddPrimitive(Element* ele) {
-    std::cout << "Primitive elements can't add primitives.\n";
+void Element::AddNode(Element* ele) {
+    std::cout << "Node elements can't add nodes.\n";
     exit(-1);
 }
 
-void Element::RemovePrimitive(Element* ele) {
-    std::cout << "Primitive elements don't have primitives to remove.\n";
+void Element::AddInterface(Element* ele) {
+    std::cout << "Node elements have no interface.\n";
+    exit(-1);
+}
+
+void Element::RemoveNode(Element* ele) {
+    std::cout << "Node elements don't have nodes to remove.\n";
+    exit(-1);
+}
+
+void Element::RemoveInterface(Element* ele) {
+    std::cout << "Node elements don't have interfaces to remove.\n";
     exit(-1);
 }
 
@@ -34,8 +45,13 @@ std::vector<double> Element::GetCoords() {
     exit(-1);
 }
 
-std::vector<Element*> Element::GetPrimitives() {
-    std::cout << "Primitive elements can't have primitives of their own.\n";
+std::vector<Element*> Element::GetNodes() {
+    std::cout << "Nodes don't have nodes of their own.\n";
+    exit(-1);
+}
+
+std::vector<Element*> Element::GetInterfaces() {
+    std::cout << "Nodes don't have an interface.\n";
     exit(-1);
 }
 
@@ -62,25 +78,23 @@ Point* Element::GetPoints() {
 //------------ Node Member Function Definitions -------------//
 
 Node::Node(const ElementInfo& ein) : Element(ein) {
+    BOOST_ASSERT_MSG(!ein.coords.empty(), "Empty Node can't be created");
+
     s_eleOrder = 0;
     s_polyOrder = -1;
     s_dim = 0;
-    s_incompleteElementPrimitivesNr = -1;
-    if (!ein.coords.empty())
-        s_coords = ein.coords;
-    else {
-        std::cout << "Empty Node can't be created.\n";
-        exit(-1);
-    }
+    s_incompleteElementPrimitivesNr = -1;    
+
+    s_coords = ein.coords;
+    
 }
 
 void Node::AddSharing(Element* ele) {
-    if (ele && (ele->GetType() != eNode))
-        s_sharingElements.push_back(ele);
-    else {
-        std::cout << "Invalid element to share a Node.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(ele && (ele->GetType() != eNode), 
+                    "Invalid element to share a Node");
+    
+    s_sharingElements.push_back(ele);
+    
 }
 
 std::vector<Element*> Node::GetSharing() {
@@ -96,47 +110,64 @@ std::vector<double> Node::GetCoords() {
 //------------ Line Member Function Definitions -------------//
 
 Line::Line(const ElementInfo& ein) : Element(ein) {
-    if (ein.prims.empty() || (ein.prims.size() < 2)) { 
-        std::cout << "Wrong number of primitives for Line creation\n"; 
-        exit(-1); 
-    }
+    BOOST_ASSERT_MSG(!ein.nodes.empty() && (ein.nodes.size() >= 2), 
+        "Invalid number of nodes for Line creation");
+
     s_incompleteElementPrimitivesNr = 2;
     s_dim = 1;
-    for (auto prim : ein.prims)
-        AddPrimitive(prim);
+    for (auto nodes : ein.nodes)
+        AddNode(nodes);
+
+    for (auto ints : ein.interfaces)
+        AddInterface(ints);
 }
 
-void Line::AddPrimitive(Element* ele) {
-    if (ele && (ele->GetType() == eNode)) {
-        s_primitives.push_back(ele);
-        ele->AddSharing(this);
-    } else {
-        std::cout << "Invalid primitive element for Line.\n";
-        exit(-1);
-    }
+void Line::AddNode(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode),
+            "Invalid element for addition -- Line::AddNode");
+        s_nodes.push_back(ele);
 }
 
-void Line::RemovePrimitive(Element* ele) {
-    if (ele) {
-        s_primitives.erase(
-                std::remove_if(s_primitives.begin(),
-                            s_primitives.end(),
-                            [&](decltype(s_primitives)::value_type& v){ return v==ele;}),
-                s_primitives.end());
-    } else
-        std::cout << "Invalid primitive element to remove from Line.\n";        
+void Line::AddInterface(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode), 
+                "Invalid element for addition -- Line::AddInterface");
+
+    s_interfaces.push_back(ele);
+    ele->AddSharing(this);
+    
+}
+
+void Line::RemoveNode(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode), 
+        "Invalid element for removal -- Line::RemoveNode");
+        s_nodes.erase(
+            std::remove_if(s_nodes.begin(),
+                        s_nodes.end(),
+                        [&](decltype(s_nodes)::value_type& v){ return v==ele;}),
+            s_nodes.end());
+}
+
+void Line::RemoveInterface(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode), 
+        "Invalid element for removal -- Line::RemoveInterface");
+    s_interfaces.erase(std::remove_if(s_interfaces.begin(), s_interfaces.end(),
+                [&](decltype(s_interfaces)::value_type& v){return v==ele;}),
+                s_interfaces.end());
 }
 
 void Line::AddSharing(Element* ele) {
-    if ((ele->GetType() == eNode) || (ele->GetType() == eLine)) {
-        std::cout << "Invalid element to share a Line.\n";
-        exit(-1);
-    } else
+    BOOST_ASSERT_MSG((ele->GetType() != eNode) && (ele->GetType() != eLine), 
+        "Invalid element to share a Line.");
+
         s_sharingElements.push_back(ele);
 }
 
-std::vector<Element*> Line::GetPrimitives() {
-    return s_primitives;
+std::vector<Element*> Line::GetNodes() {
+    return s_nodes;
+}
+
+std::vector<Element*> Line::GetInterfaces() {
+    return s_interfaces;
 }
 
 std::vector<Element*> Line::GetSharing() {
@@ -149,50 +180,69 @@ std::vector<Element*> Line::GetSharing() {
 //------------ Quad Member Function Definitions -------------//
 
 Quad::Quad(const ElementInfo& ein) : Element(ein) {
-    if (ein.prims.empty() || (ein.prims.size() < 4)) {
-        std::cout << "Wrong number of primitives for Quad creation.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(!ein.nodes.empty() && (ein.nodes.size() >= 4), 
+        "Invalid number of nodes for Quad creation");
+    
     s_incompleteElementPrimitivesNr = 4;
     s_dim = 2;
-    for (auto it = ein.prims.begin(); it != ein.prims.end(); it++) {
-        AddPrimitive(*it);
-    }
+    for (auto& node : s_nodes)
+        AddNode(node);
+
+    for (auto& ints : s_interfaces)
+        AddInterface(ints);
 }
 
-void Quad::AddPrimitive(Element* ele) {
-    if (ele && ((ele->GetType() == eNode) || (ele->GetType() == eLine))) {
-        s_primitives.push_back(ele);
+void Quad::AddNode(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode),
+                    "Invalid element for addition -- Quad::AddNode");
+
+    s_nodes.push_back(ele);
+}
+
+void Quad::AddInterface(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eLine), 
+                "Invalid element for addition -- Quad::AddInterface");
+    
+        s_interfaces.push_back(ele);
         ele->AddSharing(this);
-    } else {
-        std::cout << "Invalid primitive for Quad.\n";
-        exit(-1);
-    }
 }
 
-void Quad::RemovePrimitive(Element* ele) {
-    if (ele) {
-        s_primitives.erase(
-                std::remove_if(s_primitives.begin(),
-                            s_primitives.end(),
-                            [&](decltype(s_primitives)::value_type& v){ return v==ele;}),
-                s_primitives.end());
-    } else
-        std::cout << "Invalid primitive element to remove from Quad.\n";
+void Quad::RemoveNode(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode), 
+                "Invalid element for removal -- Quad::RemoveNode");
+
+        s_nodes.erase(
+            std::remove_if(s_nodes.begin(),
+                        s_nodes.end(),
+                        [&](decltype(s_nodes)::value_type& v){ return v==ele;}),
+                s_nodes.end());
+
+}
+
+void Quad::RemoveInterface(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eLine), 
+                "Invalid element for removal -- Quad::RemoveInterface");
+
+    s_interfaces.erase(std::remove_if(s_interfaces.begin(), s_interfaces.end(),
+                    [&](decltype(s_interfaces)::value_type& v){return v==ele;})
+                    , s_interfaces.end());
 }
 
 void Quad::AddSharing(Element* ele) {
-    if (ele && ((ele->GetType() == eHexa) || (ele->GetType() == ePrism)
-                || (ele->GetType() == ePyram)))
+    BOOST_ASSERT_MSG(ele && ((ele->GetType() == eHexa) 
+                            || (ele->GetType() == ePrism)
+                            || (ele->GetType() == ePyram)),
+            "Invalid element to share a Quad");
+
         s_sharingElements.push_back(ele);
-    else {
-        std::cout << "Invalid element to share a Quad.\n";
-        exit(-1);
-    }
 }
 
-std::vector<Element*> Quad::GetPrimitives() {
-    return s_primitives;
+std::vector<Element*> Quad::GetNodes() {
+    return s_nodes;
+}
+
+std::vector<Element*> Quad::GetInterfaces() {
+    return s_interfaces;
 }
 
 std::vector<Element*> Quad::GetSharing() {
@@ -204,49 +254,71 @@ std::vector<Element*> Quad::GetSharing() {
 //------------ Tri Member Function Definitions -------------//
 
 Tri::Tri(const ElementInfo& ein) : Element(ein) {
-    if (ein.prims.empty() || (ein.prims.size() < 3)) {
-        std::cout << "Wrong number of primitives for Tri creation.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(!ein.nodes.empty() && (ein.nodes.size() >= 3), 
+                    "Invalid number of nodes for Tri creation");
+
     s_incompleteElementPrimitivesNr = 3;
     s_dim = 2;
-    for (auto prim : ein.prims)
-        AddPrimitive(prim);
+
+    for (auto& nodes : s_nodes)
+        AddNode(nodes);
+
+    for (auto& ints : s_interfaces)
+        AddInterface(ints);
 }
 
-void Tri::AddPrimitive(Element* ele) {
-    if (ele && ((ele->GetType() == eLine) || (ele->GetType() == eNode))) {
-        s_primitives.push_back(ele);
+void Tri::AddNode(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode), 
+                "Invalid element for addition -- Tri::AddNode");
+
+    s_nodes.push_back(ele);
+}
+
+void Tri::AddInterface(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eLine), 
+                "Invalid element for addition -- Tri::AddInterface");
+
+        s_interfaces.push_back(ele);
         ele->AddSharing(this);
-    } else {
-        std::cout << "Invalid primitive element for Tri.\n";
-        exit(-1);
-    }
 }
 
-void Tri::RemovePrimitive(Element* ele) {
-    if (ele) {
-        s_primitives.erase(
-                std::remove_if(s_primitives.begin(),
-                            s_primitives.end(),
-                            [&](decltype(s_primitives)::value_type& v){ return v==ele;}),
-                s_primitives.end());
-    } else
-        std::cout << "Invalid primitive element to remove from Tri.\n";
+void Tri::RemoveNode(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode), 
+                "Invalid element for removal -- Tri::RemoveNode");
+    
+    s_nodes.erase(
+        std::remove_if(s_nodes.begin(),
+                    s_nodes.end(),
+                    [&](decltype(s_nodes)::value_type& v){ return v==ele;}),
+        s_nodes.end());
+}
+
+void Tri::RemoveInterface(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eLine), 
+                "Invalid element for removal -- Tri::RemoveInterface");
+
+    s_interfaces.erase(
+            std::remove_if(s_interfaces.begin(), s_interfaces.end(),
+                    [&](decltype(s_interfaces)::value_type& v){return v==ele;}),
+            s_interfaces.end());
 }
 
 void Tri::AddSharing(Element* ele) {
-    if (ele && ((ele->GetType() == eTetra)) || (ele->GetType() == ePrism)
-                || (ele->GetType() == ePyram))
-        s_sharingElements.push_back(ele);
-    else {
-        std::cout << "Invalid element to share a Tri.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(ele && ((ele->GetType() == eTetra) 
+                            || (ele->GetType() == ePrism)
+                            || (ele->GetType() == ePyram)), 
+                "Invalid element to share a Tri");
+    
+    s_sharingElements.push_back(ele);
+    
 }
 
-std::vector<Element*> Tri::GetPrimitives() {
-    return s_primitives;
+std::vector<Element*> Tri::GetNodes() {
+    return s_nodes;
+}
+
+std::vector<Element*> Tri::GetInterfaces() {
+    return s_interfaces;
 }
 
 std::vector<Element*> Tri::GetSharing() {
@@ -258,80 +330,125 @@ std::vector<Element*> Tri::GetSharing() {
 //------------ Hexa Member Function Definitions -------------//
 
 Hexa::Hexa(const ElementInfo& ein) : Element(ein) {
-    if (ein.prims.empty() || (ein.prims.size() < 6)) {
-        std::cout << "Wrong number of primitives for Hexa creation.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(!ein.nodes.empty() && (ein.nodes.size() >= 6), 
+                "Invalid number of nodes for Hexa creation");
+    
     s_incompleteElementPrimitivesNr = 6;
     s_dim = 3;
-    for (auto prim : ein.prims)
-        AddPrimitive(prim);
+
+    for (auto& nodes : ein.nodes)
+        AddNode(nodes);
+
+    for (auto& ints : ein.interfaces)
+        AddInterface(ints);
 }
 
-void Hexa::AddPrimitive(Element* ele) {
-    if (ele && ((ele->GetType() == eQuad) || (ele->GetType() == eNode))) {
-        s_primitives.push_back(ele);
+void Hexa::AddNode(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode), 
+                "Invalid element for addition -- Hexa::AddNode");
+
+    s_nodes.push_back(ele);
+}
+
+void Hexa::AddInterface(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eQuad), 
+                "Invalid element for addition -- Hexa::AddInterface");
+    
+        s_interfaces.push_back(ele);
         ele->AddSharing(this);
-    } else {
-        std::cout << "Invalid primitive element for Hexa.\n";
-        exit(-1);
-    }
+
 }
 
-void Hexa::RemovePrimitive(Element* ele) {
-    if (ele) {
-        s_primitives.erase(
-                std::remove_if(s_primitives.begin(),
-                            s_primitives.end(),
-                            [&](decltype(s_primitives)::value_type& v){ return v==ele;}),
-                s_primitives.end());
-    } else
-        std::cout << "Invalid primitive element to remove from Hexa.\n";
+void Hexa::RemoveNode(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode), 
+                "Invalid element for removal -- Hexa::RemoveNode");
+
+    
+    s_nodes.erase(
+            std::remove_if(s_nodes.begin(),
+                    s_nodes.end(),
+                    [&](decltype(s_nodes)::value_type& v){ return v==ele;}),
+            s_nodes.end());
 }
 
-std::vector<Element*> Hexa::GetPrimitives() {
-    return s_primitives;
+void Hexa::RemoveInterface(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eQuad), 
+                "Invalid element for removal -- Hexa:RemoveInterface");
+
+    s_interfaces.erase(
+        std::remove_if(s_interfaces.begin(), s_interfaces.end(),
+            [&](decltype(s_interfaces)::value_type& v){return v==ele;}),
+        s_interfaces.end());
 }
 
+std::vector<Element*> Hexa::GetNodes() {
+    return s_nodes;
+}
+
+std::vector<Element*> Hexa::GetInterfaces() {
+    return s_interfaces;
+}
 
 //------------ End of Hexa Member Function Definitions -------------//
 
 //------------ Tetra Member Function Definitions -------------//
 
 Tetra::Tetra(const ElementInfo& ein) : Element(ein) {
-    if (ein.prims.empty() || (ein.prims.size() < 4)) {
-        std::cout << "Wrong number of primitive elements for Tetra creation.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(!ein.nodes.empty() && (ein.nodes.size() >= 4), 
+                "Invalid number of nodes for Tetra creation");
+    
     s_incompleteElementPrimitivesNr = 4;
     s_dim = 3;
-    for (auto prim : ein.prims)
-        AddPrimitive(prim);
+
+    for (auto& nodes : ein.nodes)
+        AddNode(nodes);
+
+    for (auto& ints : ein.interfaces)
+        AddInterface(ints);
 }
 
-void Tetra::AddPrimitive(Element* ele) {
-    if (ele && ((ele->GetType() == eTri) || (ele->GetType() == eNode))) {
-        s_primitives.push_back(ele);
-        ele->AddSharing(this);
-    } else {
-        std::cout << "Invalid primitive element for Tetra.\n";
-        exit(-1);
-    }
+void Tetra::AddNode(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode), 
+                "Invalid element for addition -- Tetra::AddNode");
+
+    s_nodes.push_back(ele);
 }
 
-void Tetra::RemovePrimitive(Element* ele) {
-    if (ele) {
-        s_primitives.erase(
-                std::remove_if(s_primitives.begin(),
-                            s_primitives.end(),
-                            [&](decltype(s_primitives)::value_type& v){ return v==ele;}),
-                s_primitives.end());
-    } else
-        std::cout << "Invalid primitive element to remove from Tetra.\n";
+void Tetra::AddInterface(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eTri), 
+                "Invalid element for addition -- Tetra::AddInterface");
+    
+    s_interfaces.push_back(ele);
+    ele->AddSharing(this);
 }
 
-std::vector<Element*> Tetra::GetPrimitives() {
-    return s_primitives;
+void Tetra::RemoveNode(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode), 
+                "Invalid element for removal -- Tetra::RemoveNode");
+
+    s_nodes.erase(
+        std::remove_if(s_nodes.begin(),
+                    s_nodes.end(),
+                    [&](decltype(s_nodes)::value_type& v){ return v==ele;}),
+        s_nodes.end());
+}
+
+void Tetra::RemoveInterface(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eTri), 
+                "Invalid element for removal -- Tetra::RemoveInterface");
+
+    s_interfaces.erase(
+        std::remove_if(s_interfaces.begin(), s_interfaces.end(),
+            [&](decltype(s_interfaces)::value_type& v){return v==ele;}),
+        s_interfaces.end());
+}
+
+std::vector<Element*> Tetra::GetNodes() {
+    return s_nodes;
+}
+
+std::vector<Element*> Tetra::GetInterfaces() {
+    return s_interfaces;
 }
 
 //------------ End of Tetra Member Function Definitions -------------//
@@ -339,40 +456,64 @@ std::vector<Element*> Tetra::GetPrimitives() {
 //------------ Prism Member Function Definitions -------------//
 
 Prism::Prism(const ElementInfo& ein) : Element(ein) {
-    if (ein.prims.empty() || (ein.prims.size() < 5)) {
-        std::cout << "Wrong number of primitive elements for Tetra creation.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(!ein.nodes.empty() && (ein.nodes.size() >= 5), 
+                "Invalid number of nodes for Prism creation")
+    
     s_incompleteElementPrimitivesNr = 5;
     s_dim = 3;
-    for (auto prim : ein.prims)
-        AddPrimitive(prim);
+
+    for (auto& nodes : ein.nodes)
+        AddNode(nodes);
+
+    for (auto& ints : s_interfaces)
+        AddInterface(ints);
 }
 
-void Prism::AddPrimitive(Element* ele) {
-    if (ele && ((ele->GetType() == eTri) || (ele->GetType() == eQuad)
-                || (ele->GetType() == eNode))) {
-        s_primitives.push_back(ele);
-        ele->AddSharing(this);
-    } else {
-        std::cout << "Invalid primitive element for Tetra.\n";
-        exit(-1);
-    }
+void Prism::AddNode(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode), 
+                "Invalid element for addition -- Prism::AddNode");
+
+    s_nodes.push_back(ele);
 }
 
-void Prism::RemovePrimitive(Element* ele) {
-    if (ele) {
-        s_primitives.erase(
-                std::remove_if(s_primitives.begin(),
-                            s_primitives.end(),
-                            [&](decltype(s_primitives)::value_type& v){ return v==ele;}),
-                s_primitives.end());
-    } else
-        std::cout << "Invalid primitive element to remove from Tetra.\n";
+void Prism::AddInterface(Element* ele) {
+    BOOST_ASSERT_MSG(ele && ((ele->GetType() == eQuad)
+                            || (ele->GetType() == eTri)), 
+            "Invalid element for addition -- Prism::AddInterface");
+    
+    s_interfaces.push_back(ele);
+    ele->AddSharing(this);    
 }
 
-std::vector<Element*> Prism::GetPrimitives() {
-    return s_primitives;
+void Prism::RemoveNode(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode), 
+                "Invalid element for removal -- Prism::RemoveNode");
+    
+    s_nodes.erase(
+        std::remove_if(s_nodes.begin(),
+                    s_nodes.end(),
+                    [&](decltype(s_nodes)::value_type& v){ return v==ele;}),
+        s_nodes.end());
+
+}
+
+void Prism::RemoveInterface(Element* ele) {
+    BOOST_ASSERT_MSG(ele && ((ele->GetType() == eQuad)
+                                || (ele->GetType() == eTri)), 
+            "Invalid element for removal -- Prism::RemoveInterface");
+
+    s_interfaces.erase(
+        std::remove_if(s_interfaces.begin(), s_interfaces.end(),
+                [&](decltype(s_interfaces)::value_type& v){return v==ele;}),
+        s_interfaces.end());
+}
+
+std::vector<Element*> Prism::GetNodes() {
+    return s_nodes;
+}
+
+std::vector<Element*> Prism::GetInterfaces() {
+    return s_interfaces;
 }
 
 //------------ End of Prism Member Function Definitions -------------//
@@ -380,40 +521,62 @@ std::vector<Element*> Prism::GetPrimitives() {
 //------------ Pyram Member Function Definitions -------------//
 
 Pyram::Pyram(const ElementInfo& ein) : Element(ein) {
-    if (ein.prims.empty() || (ein.prims.size() < 5)) {
-        std::cout << "Wrong number of primitive elements for Tetra creation.\n";
-        exit(-1);
-    }
+    BOOST_ASSERT_MSG(!ein.nodes.empty() && (ein.nodes.size() >= 5), 
+                "Invalid number of nodes for Pyram creation");
+    
     s_incompleteElementPrimitivesNr = 5;
     s_dim = 3;
-    for (auto prim : ein.prims)
-        AddPrimitive(prim);
+
+    for (auto& nodes : ein.nodes)
+        AddNode(nodes);
+
+    for (auto& ints : ein.interfaces)
+        AddInterface(ints);
 }
 
-void Pyram::AddPrimitive(Element* ele) {
-    if (ele && ((ele->GetType() == eTri) || (ele->GetType() == eQuad)
-                || (ele->GetType() == eNode))) {
-        s_primitives.push_back(ele);
-        ele->AddSharing(this);
-    } else {
-        std::cout << "Invalid primitive element for Tetra.\n";
-        exit(-1);
-    }
+void Pyram::AddNode(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode), 
+                "Invalid element for addition -- Pyram::AddNode");
+    
+    s_nodes.push_back(ele);
 }
 
-void Pyram::RemovePrimitive(Element* ele) {
-    if (ele) {
-        s_primitives.erase(
-                std::remove_if(s_primitives.begin(),
-                            s_primitives.end(),
-                            [&](decltype(s_primitives)::value_type& v){ return v==ele;}),
-                s_primitives.end());
-    } else
-        std::cout << "Invalid primitive element to remove from Tetra.\n";
+void Pyram::AddInterface(Element* ele) {
+    BOOST_ASSERT_MSG(ele && ((ele->GetType() == eTri) 
+                            || (ele->GetType() == eQuad)), 
+                "Invalid element for addition -- Pyram::AddNode");
+
+    s_interfaces.push_back(ele);
+    ele->AddSharing(this);
 }
 
-std::vector<Element*> Pyram::GetPrimitives() {
-    return s_primitives;
+void Pyram::RemoveNode(Element* ele) {
+    BOOST_ASSERT_MSG(ele && (ele->GetType() == eNode), 
+                "Invalid element for removal -- Pyram::RemoveNode");
+    
+    s_nodes.erase(
+        std::remove_if(s_nodes.begin(), s_nodes.end(),
+                    [&](decltype(s_nodes)::value_type& v){ return v==ele;}),
+        s_nodes.end());
+}
+
+void Pyram::RemoveInterface(Element* ele) {
+    BOOST_ASSERT_MSG(ele && ((ele->GetType() == eQuad)
+                            || (ele->GetType() == eTri)), 
+                "Invalid element for removal -- Pyram::RemoveInterface");
+
+    s_interfaces.erase(
+        std::remove_if(s_interfaces.begin(), s_interfaces.end(),
+                [&](decltype(s_interfaces)::value_type& v){return v==ele;}),
+        s_interfaces.end());
+}
+
+std::vector<Element*> Pyram::GetNodes() {
+    return s_nodes;
+}
+
+std::vector<Element*> Pyram::GetInterfaces() {
+    return s_interfaces;
 }
 
 //------------ End of Pyram Member Function Definitions -------------//

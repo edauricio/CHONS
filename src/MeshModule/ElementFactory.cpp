@@ -127,5 +127,11 @@ void ElementFactory::PlaceOrder() {
     }
 }
 
+void ElementFactory::clear() {
+    for (auto& ele_tagele : s_elements)
+        for (auto it = ele_tagele.begin(); it != ele_tagele.end(); ++it)
+            delete it->second;
+}
+
 
 } // end of CHONS namespace

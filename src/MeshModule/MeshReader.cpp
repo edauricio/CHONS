@@ -73,7 +73,7 @@ GmshReader::GmshReader(const std::string& fName) : MeshReader(fName) {
     ReadMeshDim();
     s_graphProc = std::unique_ptr<GraphInfoProcessor>(
                                             new GraphInfoProcessor(s_meshDim));
-    for (int i = 0; i != s_meshDim-1; ++i) {
+    for (int i = 0; i != s_meshDim; ++i) {
         s_linearElementsNodes.push_back(std::unordered_map<size_t, size_t>());
         s_higherDimCache.push_back(std::map<std::vector<int>, 
                                     std::unordered_map<size_t, std::vector<size_t>>>());
@@ -161,7 +161,7 @@ void GmshReader::ReadNodes() {
     ElementInfo einfo;
     int rTag;
     einfo.type = eNode;
-    std::unordered_map<size_t, std::vector<double>> tags_coords;
+    std::vector<std::pair<size_t, std::vector<double>>> tags_coords;
     // In Gmsh context, Next() means to read the next EntityBlock, outputting
     // a set of tags mapped to node coordinates
     for (size_t i = 0; i != header.front(); i++) {
@@ -214,7 +214,7 @@ void GmshReader::ReadEdges() {
     for (int i = 0; i != header.front(); ++i) {
         rTag = -1; // reset rTag
         blockHeader = s_sectionReader->Next(tagsAndNodes);
-        if (blockHeader[0] == 1) {
+        if (blockHeader[0] == 1) { // 1D Entities -- Line elements
             // Set order of element
             einfo.eleOrder = GmshElementsMapping[blockHeader[2]].second;
             // Check if the entity is a physical region
@@ -230,8 +230,13 @@ void GmshReader::ReadEdges() {
                 einfo.tag = me.first;
                 for (auto it = me.second.begin(); it != me.second.end(); ++it) {
                     priminfo.tag = *it;
-                    einfo.prims.push_back(s_factory->GetElement(priminfo));
+                    einfo.nodes.push_back(s_factory->GetElement(priminfo));
                 }
+                // Since interface nodes for edges are trivial, add them right
+                // away
+                einfo.interfaces = 
+                        std::vector<Element*>{einfo.nodes[0], einfo.nodes[1]};
+
                 BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
                     "Element placed in Order has already been created");
 
@@ -246,7 +251,7 @@ void GmshReader::ReadEdges() {
                                     einfo.tag);
                 }
             }
-        } else if (blockHeader[0] == 2) {
+        } else if (blockHeader[0] == 2) {// 2D Entities -- Quad and Tri elements
             int numEdges;
             rTag = -1; // edges on surface entities are not a region
             einfo.eleOrder = GmshElementsMapping[blockHeader[2]].second;
@@ -270,30 +275,32 @@ void GmshReader::ReadEdges() {
                     edgeNodes = edge_upairing(eleNodes.second[i%numEdges],
                                             eleNodes.second[(i+1)%numEdges]);
                     if (s_linearElementsNodes[0].count(edgeNodes)) {
-                        // std::cout << "Supposedly existing edge: "
-                        //         << s_linearElementsNodes[0].at(edgeNodes)
-                        //         << "\nLin. nodes: " << eleNodes.second[i%numEdges]
-                        //         << " " << eleNodes.second[(i+1)%numEdges]
-                        //         << "\nBXOR of Lin Nodes: " << edgeNodes
-                        //         << "\n\n";
+                        // Element has already been created, so move on
+                        // to the next edge defining the 2D element
                         continue;
                     }
                     else {
                         // Edge doesn't exist; create it then
                         einfo.clear();
-                        // for each node defining edge the linear edge
+                        // for each node defining the linear edge
                         for (int j = i; j != i+2; ++j) {
                             priminfo.tag = eleNodes.second[j%numEdges];
-                            einfo.prims.push_back(s_factory->GetElement(
+                            einfo.nodes.push_back(s_factory->GetElement(
                                                                 priminfo));
                         }
                         // for each node defining the higher order of the edge
                         for (int j = 0; j != einfo.eleOrder-1; ++j) {
                             priminfo.tag = eleNodes.second[
                                             numEdges+(i*(einfo.eleOrder-1))+j];
-                            einfo.prims.push_back(s_factory->GetElement(
+                            einfo.nodes.push_back(s_factory->GetElement(
                                                                 priminfo));
                         }
+                        // Since interface nodes for edges are trivial, add them right
+                        // away
+                        einfo.interfaces = 
+                                std::vector<Element*>{einfo.nodes[0], 
+                                                        einfo.nodes[1]};
+
                         // TODO: Change edge creation from 1D entity blocks to
                         // be sequential too, instead of the tags on gmsh file;
                         // this prevents double tags when the entity blocks in
@@ -320,10 +327,11 @@ void GmshReader::ReadEdges() {
             // there. Hence, less memory needed.
             s_higherDimCache[0].emplace(blockHeader, tagsAndNodes);
 
-        } else if (blockHeader[0] == 3) {
+        } else if (blockHeader[0] == 3) {//3D Entity -- Hexa/Tetra/Prism/Pyram
             int numEdges, numNodes;
             rTag = -1; // edges on a 3D entity are disregarded as inside regions
             einfo.eleOrder = GmshElementsMapping[blockHeader[2]].second;
+            // current element type
             ElementType cur_type = GmshElementsMapping[blockHeader[2]].first;
             switch (cur_type) {
                 case eHexa:
@@ -372,16 +380,21 @@ void GmshReader::ReadEdges() {
                             priminfo.tag = eleNodes.second[
                                         GmshEdgesOn3DElements[cur_type][i][j]
                                         ];
-                            einfo.prims.push_back(
+                            einfo.nodes.push_back(
                                             s_factory->GetElement(priminfo));
                         }
                         // now add the nodes defining the higher order line
                         for (int j = 0; j != einfo.eleOrder-1; ++j) {
                             priminfo.tag = eleNodes.second[numNodes
                                             + (i*(einfo.eleOrder-1)) + j];
-                            einfo.prims.push_back(
+                            einfo.nodes.push_back(
                                             s_factory->GetElement(priminfo));
                         }
+                        // Since interface nodes for edges are trivial, add them right
+                        // away
+                        einfo.interfaces = 
+                                    std::vector<Element*>{einfo.nodes[0], 
+                                                            einfo.nodes[1]};
                         // TODO: Change edge creation from 1D entity blocks to
                         // be sequential too, instead of the tags on gmsh file;
                         // this prevents double tags when the entity blocks in
@@ -411,14 +424,14 @@ void GmshReader::ReadEdges() {
     s_edgesDone = true;
 }
 
-// Divide further into (private) Read2DElements / Read3DElements ?
+
 void GmshReader::ReadElements() {
 
-    BOOST_ASSERT_MSG(s_edgesDone, "Can't read Element before Edges");
+    BOOST_ASSERT_MSG(s_edgesDone, "Can't read Elements before Edges");
 
     if (s_meshDim < 2) return; // should this check be here?
                             // maybe add a ReadMesh() interface for MeshReader
-                            // so that it checks meshDim and call accordingly?
+                            // so that it checks meshDim and calls accordingly?
     
     // Since Edges have been read already, all we need to do is read the cached
     // information for 2D and 3D elements
@@ -451,11 +464,11 @@ void GmshReader::Read2DElements() {
                             blkHeader_TagsAndNodes.first[2]].second;
         switch (einfo.type) {
             case eQuad:
-                numEdges = 4; // numNodes == numEdges
+                numEdges = numNodes = 4; // numNodes == numEdges
                 break;
 
             case eTri:
-                numEdges = 3; // numNodes == numEdges
+                numEdges = numNodes = 3; // numNodes == numEdges
                 break;
 
             default:
@@ -464,12 +477,20 @@ void GmshReader::Read2DElements() {
         }
         // Run through the nodes list to retrive the primitive Edges that 
         // contain those nodes. 
-        // Also, add 2D linear elements to the list of linear elements so that
+        // Also, add 2D elements to the list of linear elements so that
         // 3D elements can find its primitives (on 2D entities) easily.
         for (auto& tagsAndNodes : blkHeader_TagsAndNodes.second) {
             einfo.clear(); // reset containers in ElementInfo
             einfo.tag = tagsAndNodes.first;
-            // Retrive primitive edges from the first nodes in list
+
+            // Add all nodes to the element Nodes list first
+            priminfo.type = eNode;
+            for (auto& node : tagsAndNodes.second) {
+                priminfo.tag = node;
+                einfo.nodes.push_back(s_factory->GetElement(priminfo));
+            }
+
+            // Retrive interface edges from the first nodes in list
             priminfo.type = eLine;
             for (int i = 0; i != numEdges; ++i) {
                 priminfo.clear(); // reset containers in ElementInfo
@@ -480,22 +501,23 @@ void GmshReader::Read2DElements() {
                 priminfo.tag = s_linearElementsNodes[0].at(
                                                     edgeNodes);
 
-                einfo.prims.push_back(s_factory->GetElement(priminfo));
+                einfo.interfaces.push_back(s_factory->GetElement(priminfo));
             }
-            // Now check for face nodes (higher order elements)
-            //TODO: Change this to start at the correct face node
-            // (known from numNodes, numEdges and eleOrder)
-            priminfo.type = eNode;
-            for (int j = 0; j != einfo.eleOrder-1; ++j) {
-                priminfo.tag = tagsAndNodes.second[numEdges // numNodes
-                                                + numEdges*(einfo.eleOrder-1)
-                                                + j];
-                einfo.prims.push_back(s_factory->GetElement(priminfo));
-            }
+            // // Now check for face nodes (higher order elements)
+            // //TODO: Change this to start at the correct face node
+            // // (known from numNodes, numEdges and eleOrder)
+            // priminfo.type = eNode;
+            // for (int j = 0; j != einfo.eleOrder-1; ++j) {
+            //     priminfo.tag = tagsAndNodes.second[numEdges // numNodes
+            //                                     + numEdges*(einfo.eleOrder-1)
+            //                                     + j];
+            //     einfo.prims.push_back(s_factory->GetElement(priminfo));
+            // }
 
             // Check primitive info, create element and add it to linear 
             // elements map
-            BOOST_ASSERT_MSG(einfo.prims.size() >= numEdges,
+            BOOST_ASSERT_MSG((einfo.nodes.size() >= numNodes)
+                            && (einfo.interfaces.size() >= numEdges),
                         "Invalid number of Edges to create 2D element.\n");
             
             BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
@@ -539,7 +561,7 @@ void GmshReader::Read2DElements() {
             // for each face of this element
             for (int i = 0; i != numFaces; ++i) {
                 std::vector<size_t> face_inds = GmshFacesOn3DElements[cur_type][i];
-                numEdges = face_inds.size();
+                numNodes = numEdges = face_inds.size();
                 einfo.type = (numEdges == 3) ? eTri : eQuad;
                 // get the unique face (unordered) nodes pairing
                 faceNodes = (face_inds.size() == 3) ? 
@@ -550,7 +572,8 @@ void GmshReader::Read2DElements() {
                                             tagsAndNodes.second[face_inds[1]],
                                             tagsAndNodes.second[face_inds[2]],
                                             tagsAndNodes.second[face_inds[3]]);
-
+                // if the nodes pairing is already at the mapping, element
+                // has already been created, so move on to the next face
                 if (s_linearElementsNodes[1].count(faceNodes)) continue;
                 else {
                 // face doesn't exist; create it then
@@ -558,23 +581,25 @@ void GmshReader::Read2DElements() {
                     std::vector<size_t> face_nodes(face_inds.size());
                     for (int j = 0; j != face_inds.size(); ++j)
                         face_nodes[j] = tagsAndNodes.second[face_inds[j]];
-                    // find primitive edges of this face
-                    priminfo.type = eLine;
-                    for (int j = 0; j != numEdges; ++j) {
-                        edgeNodes = edge_upairing(face_nodes[j%numEdges],
-                                                face_nodes[(j+1)%numEdges]);
-                        priminfo.tag = s_linearElementsNodes[0].at(
-                                                                edgeNodes);
-                        // since every single edge in the mesh has already been
-                        // created, there's no way that .find() returns .end();
-                        // if it does, a run-time error will occur because the
-                        // above types don't match when .end() is returned
-                        einfo.prims.push_back(s_factory->GetElement(priminfo));
-                        // assert(!s_factory->Created());
+                    
+                    // Insert the nodes defining the linear face to the
+                    // element Nodes vector
+                    priminfo.type = eNode;
+                    for (auto& node : face_nodes) {
+                        priminfo.tag = node;
+                        einfo.nodes.push_back(s_factory->GetElement(priminfo));
+                    }
+                    // Now insert edge interior nodes
+                    for (int k = 0; k != numEdges; ++k) {
+                        for (int j = 0; j != einfo.eleOrder-1; ++j) {
+                            priminfo.tag = tagsAndNodes.second[
+                                        numNodes
+                                        + ];
+                        }
                     }
 
-                    // now find primitive face nodes
-                    priminfo.type = eNode;
+                    // Finally insert the face interior nodes to the element
+                    // Nodes vector
                     for (int j = 0; j != einfo.eleOrder-1; ++j) {
                         size_t face_node;
                         face_node = tagsAndNodes.second[numNodes
@@ -582,8 +607,29 @@ void GmshReader::Read2DElements() {
                                     + (i*(einfo.eleOrder-1))
                                     + j];
                         priminfo.tag = face_node;
-                        einfo.prims.push_back(s_factory->GetElement(priminfo));
+                        einfo.nodes.push_back(s_factory->GetElement(priminfo));
                     }
+
+                    
+                    // Now we find interface edges of this face
+                    priminfo.type = eLine;
+                    for (int j = 0; j != numEdges; ++j) {
+                        edgeNodes = edge_upairing(face_nodes[j%numEdges],
+                                                face_nodes[(j+1)%numEdges]);
+                        priminfo.tag = s_linearElementsNodes[0].at(
+                                                                edgeNodes);
+                        
+                        // since every single edge in the mesh has already been
+                        // created, there's no way that .at() won't return a 
+                        // valid tag;
+                        // if it does, a run-time error will occur (exception)
+                        einfo.interfaces.push_back(
+                                            s_factory->GetElement(priminfo));
+                    }
+
+                    // now find interior face nodes
+                    priminfo.type = eNode;
+                    
                     einfo.tag = ++s_maxTagCreated[1];
                     // Add it to the linear elements so that we can easily find
                     // it while reading 3D elements
@@ -822,8 +868,8 @@ std::vector<int> GmshASCIISection::ReadSectionHeader() {
 }
 
 // Next for reading Nodes entity blocks
-std::vector<int> GmshASCIISection::Next(std::unordered_map<size_t, 
-                                        std::vector<double>>& tagCoords) {
+std::vector<int> GmshASCIISection::Next(std::vector<std::pair<size_t,
+                                        std::vector<double>>>& tagCoords) {
     CheckNext("Nodes");
 
     std::vector<int> vinfo;
@@ -848,7 +894,7 @@ std::vector<int> GmshASCIISection::Next(std::unordered_map<size_t,
         
         BOOST_ASSERT_MSG(stoi(stemp) > 0, "Invalid negative tag for a Node");
         
-        tagCoords.emplace(stoul(stemp), std::vector<double>());
+        tagCoords.push_back(std::make_pair(stoul(stemp), std::vector<double>()));
     }
 
     for (auto& tagCoords_pair : tagCoords) {
@@ -1047,8 +1093,8 @@ std::vector<int> GmshBinarySection::ReadSectionHeader() {
 }
 
 // Next for reading Nodes entity blocks
-std::vector<int> GmshBinarySection::Next(std::unordered_map<size_t, 
-                                        std::vector<double>>& tagCoords) {
+std::vector<int> GmshBinarySection::Next(std::vector<std::pair<size_t,
+                                        std::vector<double>>>& tagCoords) {
 
 }
 

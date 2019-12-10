@@ -46,10 +46,10 @@ std::vector<std::pair<ElementType, int>> GmshElementsMapping = {
     {},     // 33
     {},     // 34
     {},     // 35
-    {},     // 36
+    {eQuad, 3},     // 36
     {},     // 37
     {},     // 38
-    {eQuad, 3},     // 39
+    {eQuad, 3},     // 39 Serendipity...
 };
 
 // A vector with the nodes defining each edge on a 3D element, according to its
@@ -139,6 +139,45 @@ std::map<ElementType, std::vector<std::vector<size_t>>> GmshFacesOn3DElements = 
                         {1, 2, 4},
                         {2, 3, 4}
                     })
+};
+
+// A vector containing the initial position of the edge interior nodes, for each
+// of the faces defined on GmshFacesOn3DElements, relative to the number of
+// corner/defining nodes and the element order
+std::map<ElementType, std::vector<std::vector<size_t>> >
+                                            GmshInteriorENodes3DElements = {
+    std::make_pair(eHexa, std::vector<std::vector<size_t>>{
+                        {1, 5, 3, 0},
+                        {0, 4, 8, 2},
+                        {2, 9, 7, 1},
+                        {3, 6, 10, 4},
+                        {5, 7, 11, 6},
+                        {8, 10, 11, 9}
+                    }),
+
+    std::make_pair(eTetra, std::vector<std::vector<size_t>>{
+                        {},
+                        {},
+                        {},
+                        {}
+                    }),
+
+    std::make_pair(ePrism, std::vector<std::vector<size_t>>{
+                        {},
+                        {},
+                        {},
+                        {},
+                        {}
+                    }),
+
+    std::make_pair(ePyram, std::vector<std::vector<size_t>>{
+                        {},
+                        {},
+                        {},
+                        {},
+                        {}
+                    })
+
 };
 
 } // end of CHONS namespace

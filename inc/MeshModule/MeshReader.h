@@ -149,8 +149,8 @@ class Section {
         //virtual void ReadFirst() = 0;
 
         // Next for Nodes
-        virtual std::vector<int> Next(std::unordered_map<size_t,
-                                        std::vector<double>>&) = 0;
+        virtual std::vector<int> Next(std::vector<std::pair<size_t,
+                                        std::vector<double>>>&) = 0;
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
         virtual std::vector<int> Next(std::unordered_map<size_t,
@@ -185,8 +185,8 @@ class GmshSection : public Section {
 
         //virtual void ReadFirst() = 0;
         // Next for Nodes
-        virtual std::vector<int> Next(std::unordered_map<size_t,
-                                        std::vector<double>>&) = 0;
+        virtual std::vector<int> Next(std::vector<std::pair<size_t,
+                                        std::vector<double>>>&) = 0;
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
         virtual std::vector<int> Next(std::unordered_map<size_t,
@@ -222,8 +222,8 @@ class GmshASCIISection : public GmshSection {
 
         //virtual void ReadFirst() override;
         // Next for Nodes
-        virtual std::vector<int> Next(std::unordered_map<size_t,
-                                        std::vector<double>>&) override;
+        virtual std::vector<int> Next(std::vector<std::pair<size_t,
+                                        std::vector<double>>>&) override;
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
         virtual std::vector<int> Next(std::unordered_map<size_t,
@@ -253,8 +253,8 @@ class GmshBinarySection : public GmshSection {
 
         //virtual void ReadFirst() override;
         // Next for Nodes
-        virtual std::vector<int> Next(std::unordered_map<size_t,
-                                        std::vector<double>>&) override;
+        virtual std::vector<int> Next(std::vector<std::pair<size_t,
+                                        std::vector<double>>>&) override;
 
         // Next for Elements (tag, vector of nodes comprising it, element type)
         virtual std::vector<int> Next(std::unordered_map<size_t,

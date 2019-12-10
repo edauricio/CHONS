@@ -18,11 +18,14 @@ class Element {
     public:
         Element(const ElementInfo&);
         virtual ~Element() = default;
-        virtual void AddPrimitive(Element*);
-        virtual void RemovePrimitive(Element*);
+        virtual void AddNode(Element*);
+        virtual void AddInterface(Element*);
+        virtual void RemoveNode(Element*);
+        virtual void RemoveInterface(Element*);
         virtual void AddSharing(Element*);
         virtual std::vector<double> GetCoords();
-        virtual std::vector<Element*> GetPrimitives();
+        virtual std::vector<Element*> GetNodes();
+        virtual std::vector<Element*> GetInterfaces();
         virtual std::vector<Element*> GetSharing();
         virtual Point* GetInteriorPoints();
         virtual Point* GetInterfacePoints();
@@ -63,95 +66,126 @@ class Node : public Element {
 class Line : public Element {
     public:
         Line(const ElementInfo&);
-        virtual void AddPrimitive(Element*);
-        virtual void RemovePrimitive(Element*);
+        virtual void AddNode(Element*);
+        virtual void AddInterface(Element*);
+        virtual void RemoveNode(Element*);
+        virtual void RemoveInterface(Element*);
         virtual void AddSharing(Element*);
-        virtual std::vector<Element*> GetPrimitives();
+        virtual std::vector<Element*> GetNodes();
+        virtual std::vector<Element*> GetInterfaces();
         virtual std::vector<Element*> GetSharing();
         virtual ~Line() = default;
 
     private:
-        std::vector<Element*> s_primitives;
+        std::vector<Element*> s_nodes;
+        std::vector<Element*> s_interfaces;
         std::vector<Element*> s_sharingElements;
 };
 
 class Quad : public Element {
     public:
         Quad(const ElementInfo&);
-        virtual void AddPrimitive(Element*);
-        virtual void RemovePrimitive(Element*);
+        virtual void AddNode(Element*);
+        virtual void AddInterface(Element*);
+        virtual void RemoveNode(Element*);
+        virtual void RemoveInterface(Element*);
         virtual void AddSharing(Element*);
-        virtual std::vector<Element*> GetPrimitives();
-
+        virtual std::vector<Element*> GetNodes();
+        virtual std::vector<Element*> GetInterfaces();
         virtual std::vector<Element*> GetSharing();
         virtual ~Quad() = default;
 
     private:
-        std::vector<Element*> s_primitives;
+        std::vector<Element*> s_nodes;
+        std::vector<Element*> s_interfaces;
         std::vector<Element*> s_sharingElements;
 };
 
 class Tri : public Element {
     public:
         Tri(const ElementInfo&);
-        virtual void AddPrimitive(Element*);
-        virtual void RemovePrimitive(Element*);
+        virtual void AddNode(Element*);
+        virtual void AddInterface(Element*);
+        virtual void RemoveNode(Element*);
+        virtual void RemoveInterface(Element*);
         virtual void AddSharing(Element*);
-        virtual std::vector<Element*> GetPrimitives();
+        virtual std::vector<Element*> GetNodes();
+        virtual std::vector<Element*> GetInterfaces();
         virtual std::vector<Element*> GetSharing();
         virtual ~Tri() = default;
 
     private:
-        std::vector<Element*> s_primitives;
+        std::vector<Element*> s_nodes;
+        std::vector<Element*> s_interfaces;
         std::vector<Element*> s_sharingElements;
 };
 
 class Hexa : public Element {
     public:
         Hexa(const ElementInfo&);
-        virtual void AddPrimitive(Element*);
-        virtual void RemovePrimitive(Element*);
-        virtual std::vector<Element*> GetPrimitives();
+        virtual void AddNode(Element*);
+        virtual void AddInterface(Element*);
+        virtual void RemoveNode(Element*);
+        virtual void RemoveInterface(Element*);
+        virtual void AddSharing(Element*);
+        virtual std::vector<Element*> GetNodes();
+        virtual std::vector<Element*> GetInterfaces();
         virtual ~Hexa() = default;
 
     private:
-        std::vector<Element*> s_primitives;
+        std::vector<Element*> s_nodes;
+        std::vector<Element*> s_interfaces;
 };
 
 class Tetra : public Element {
     public:
         Tetra(const ElementInfo&);
-        virtual void AddPrimitive(Element*);
-        virtual void RemovePrimitive(Element*);
-        virtual std::vector<Element*> GetPrimitives();
+        virtual void AddNode(Element*);
+        virtual void AddInterface(Element*);
+        virtual void RemoveNode(Element*);
+        virtual void RemoveInterface(Element*);
+        virtual void AddSharing(Element*);
+        virtual std::vector<Element*> GetNodes();
+        virtual std::vector<Element*> GetInterfaces();
         virtual ~Tetra() = default;
 
     private:
-        std::vector<Element*> s_primitives;
+        std::vector<Element*> s_nodes;
+        std::vector<Element*> s_interfaces;
 };
 
 class Prism : public Element {
     public:
         Prism(const ElementInfo&);
-        virtual void AddPrimitive(Element*);
-        virtual void RemovePrimitive(Element*);
-        virtual std::vector<Element*> GetPrimitives();
+        virtual void AddNode(Element*);
+        virtual void AddInterface(Element*);
+        virtual void RemoveNode(Element*);
+        virtual void RemoveInterface(Element*);
+        virtual void AddSharing(Element*);
+        virtual std::vector<Element*> GetNodes();
+        virtual std::vector<Element*> GetInterfaces();
         virtual ~Prism() = default;
 
     private:
-        std::vector<Element*> s_primitives;
+        std::vector<Element*> s_nodes;
+        std::vector<Element*> s_interfaces;
 };
 
 class Pyram : public Element {
     public:
         Pyram(const ElementInfo&);
-        virtual void AddPrimitive(Element*);
-        virtual void RemovePrimitive(Element*);
-        virtual std::vector<Element*> GetPrimitives();
+        virtual void AddNode(Element*);
+        virtual void AddInterface(Element*);
+        virtual void RemoveNode(Element*);
+        virtual void RemoveInterface(Element*);
+        virtual void AddSharing(Element*);
+        virtual std::vector<Element*> GetNodes();
+        virtual std::vector<Element*> GetInterfaces();
         virtual ~Pyram() = default;
 
     private:
-        std::vector<Element*> s_primitives;
+        std::vector<Element*> s_nodes;
+        std::vector<Element*> s_interfaces;
 };
 
 } // end of CHONS namespace
