@@ -9,6 +9,7 @@
 namespace CHONS {
 
 // Map for element type-element order, according to Gmsh numbering definition
+// Currently, Gmsh defines/supports 140 types...
 std::vector<std::pair<ElementType, int>> GmshElementsMapping = {
     {},
     {eLine, 1},     // 1
@@ -50,13 +51,74 @@ std::vector<std::pair<ElementType, int>> GmshElementsMapping = {
     {},     // 37
     {},     // 38
     {eQuad, 3},     // 39 Serendipity...
+    {},     // 40
+    {},     // 41
+    {},     // 42
+    {},     // 43
+    {},     // 44
+    {},     // 45
+    {},     // 46
+    {},     // 47
+    {},     // 48
+    {},     // 49
+    {},     // 50
+    {},     // 51
+    {},     // 52
+    {},     // 53
+    {},     // 54
+    {},     // 55
+    {},     // 56
+    {},     // 57
+    {},     // 58
+    {},     // 59
+    {},     // 60
+    {},     // 61
+    {},     // 62
+    {},     // 63
+    {},     // 64
+    {},     // 65
+    {},     // 66
+    {},     // 67
+    {},     // 68
+    {},     // 69
+    {},     // 70
+    {},     // 71
+    {},     // 72
+    {},     // 73
+    {},     // 74
+    {},     // 75
+    {},     // 76
+    {},     // 77
+    {},     // 78
+    {},     // 79
+    {},     // 80
+    {},     // 81
+    {},     // 82
+    {},     // 83
+    {},     // 84
+    {},     // 85
+    {},     // 86
+    {},     // 87
+    {},     // 88
+    {},     // 89
+    {},     // 90
+    {},     // 91
+    {eHexa, 3},     // 92
+    {},     // 93
+    {},     // 94
+    {},     // 95
+    {},     // 96
+    {},     // 97
+    {},     // 98
+    {},     // 99
+    {}     // 100
 };
 
 // A vector with the nodes defining each edge on a 3D element, according to its
 // type
-std::map<ElementType, std::vector<std::vector<size_t>>> GmshEdgesOn3DElements = {
+std::map<ElementType, std::vector<std::vector<int>>> GmshEdgesOn3DElements = {
     // Edge definition on eHexa element
-    std::make_pair(eHexa, std::vector<std::vector<size_t>>{
+    std::make_pair(eHexa, std::vector<std::vector<int>>{
                         {0, 1},
                         {0, 3},
                         {0, 4},
@@ -71,7 +133,7 @@ std::map<ElementType, std::vector<std::vector<size_t>>> GmshEdgesOn3DElements = 
                         {6, 7}
                     }),
     // Edge definition on eTetra element
-    std::make_pair(eTetra, std::vector<std::vector<size_t>>{
+    std::make_pair(eTetra, std::vector<std::vector<int>>{
                         {0, 1},
                         {1, 2},
                         {2, 0},
@@ -80,7 +142,7 @@ std::map<ElementType, std::vector<std::vector<size_t>>> GmshEdgesOn3DElements = 
                         {1, 3}
                     }),
     // Edge definition on ePrism element
-    std::make_pair(ePrism, std::vector<std::vector<size_t>>{
+    std::make_pair(ePrism, std::vector<std::vector<int>>{
                         {0, 1},
                         {0, 2},
                         {0, 3},
@@ -92,7 +154,7 @@ std::map<ElementType, std::vector<std::vector<size_t>>> GmshEdgesOn3DElements = 
                         {4, 5}
                     }),
     // Edge definition on ePyram element
-    std::make_pair(ePyram, std::vector<std::vector<size_t>>{
+    std::make_pair(ePyram, std::vector<std::vector<int>>{
                         {0, 1},
                         {0, 3},
                         {0, 4},
@@ -105,10 +167,10 @@ std::map<ElementType, std::vector<std::vector<size_t>>> GmshEdgesOn3DElements = 
 };
 
 // A vector with the nodes defining each face on a 3D element, according to its
-// type
-std::map<ElementType, std::vector<std::vector<size_t>>> GmshFacesOn3DElements = {
+// type (see gmsh user guide 9.2.1 for more info)
+std::map<ElementType, std::vector<std::vector<int>>> GmshFacesOn3DElements = {
     // Face definitions on eHexa element
-    std::make_pair(eHexa, std::vector<std::vector<size_t>>{
+    std::make_pair(eHexa, std::vector<std::vector<int>>{
                         {0, 3, 2, 1},
                         {0, 1, 5, 4},
                         {0, 4, 7, 3},
@@ -117,14 +179,14 @@ std::map<ElementType, std::vector<std::vector<size_t>>> GmshFacesOn3DElements = 
                         {4, 5, 6, 7}
                     }),
     // Face definitions on eTetra element
-    std::make_pair(eTetra, std::vector<std::vector<size_t>>{
+    std::make_pair(eTetra, std::vector<std::vector<int>>{
                         {0, 2, 1},
                         {0, 3, 2},
                         {1, 2, 3},
                         {0, 1, 3}
                     }),
     // Face definitions on ePrism element
-    std::make_pair(ePrism, std::vector<std::vector<size_t>>{
+    std::make_pair(ePrism, std::vector<std::vector<int>>{
                         {0, 1, 4, 3},
                         {0, 3, 5, 2},
                         {1, 2, 5, 4},
@@ -132,7 +194,7 @@ std::map<ElementType, std::vector<std::vector<size_t>>> GmshFacesOn3DElements = 
                         {3, 4, 5}                        
                     }),
     // Face definitions on ePyram element
-    std::make_pair(ePyram, std::vector<std::vector<size_t>>{
+    std::make_pair(ePyram, std::vector<std::vector<int>>{
                         {0, 3, 2, 1},
                         {0, 1, 4},
                         {0, 4, 3},
@@ -144,9 +206,18 @@ std::map<ElementType, std::vector<std::vector<size_t>>> GmshFacesOn3DElements = 
 // A vector containing the initial position of the edge interior nodes, for each
 // of the faces defined on GmshFacesOn3DElements, relative to the number of
 // corner/defining nodes and the element order
-std::map<ElementType, std::vector<std::vector<size_t>> >
+// That is, the first edge interior node of the first edge of 1st face starts at
+// numEdges + 1; then we loop through these interior nodes for eleOrder-1 times
+// Then, the first edge interior node of the second edge of the 1st face starts
+// at numEdges + 5; then we loop through it for eleOrder-1 times, and so on...
+// Note that due to Gmsh node ordering (it accounts edges from a vertex-vertex
+// perspective, from lesser to greater ones, see gmsh user guide), some
+// loops will increment 1, while others starts at "the higher end" and
+// decrements 1; for a full description, please check the algorithm that uses
+// the mapping below in MeshReader.cpp
+std::map<ElementType, std::vector<std::vector<int>> >
                                             GmshInteriorENodes3DElements = {
-    std::make_pair(eHexa, std::vector<std::vector<size_t>>{
+    std::make_pair(eHexa, std::vector<std::vector<int>>{
                         {1, 5, 3, 0},
                         {0, 4, 8, 2},
                         {2, 9, 7, 1},
@@ -155,14 +226,14 @@ std::map<ElementType, std::vector<std::vector<size_t>> >
                         {8, 10, 11, 9}
                     }),
 
-    std::make_pair(eTetra, std::vector<std::vector<size_t>>{
+    std::make_pair(eTetra, std::vector<std::vector<int>>{
                         {},
                         {},
                         {},
                         {}
                     }),
 
-    std::make_pair(ePrism, std::vector<std::vector<size_t>>{
+    std::make_pair(ePrism, std::vector<std::vector<int>>{
                         {},
                         {},
                         {},
@@ -170,7 +241,7 @@ std::map<ElementType, std::vector<std::vector<size_t>> >
                         {}
                     }),
 
-    std::make_pair(ePyram, std::vector<std::vector<size_t>>{
+    std::make_pair(ePyram, std::vector<std::vector<int>>{
                         {},
                         {},
                         {},

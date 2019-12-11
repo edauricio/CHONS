@@ -185,10 +185,10 @@ Quad::Quad(const ElementInfo& ein) : Element(ein) {
     
     s_incompleteElementPrimitivesNr = 4;
     s_dim = 2;
-    for (auto& node : s_nodes)
+    for (auto& node : ein.nodes)
         AddNode(node);
 
-    for (auto& ints : s_interfaces)
+    for (auto& ints : ein.interfaces)
         AddInterface(ints);
 }
 
@@ -260,10 +260,10 @@ Tri::Tri(const ElementInfo& ein) : Element(ein) {
     s_incompleteElementPrimitivesNr = 3;
     s_dim = 2;
 
-    for (auto& nodes : s_nodes)
+    for (auto& nodes : ein.nodes)
         AddNode(nodes);
 
-    for (auto& ints : s_interfaces)
+    for (auto& ints : ein.interfaces)
         AddInterface(ints);
 }
 
@@ -457,7 +457,7 @@ std::vector<Element*> Tetra::GetInterfaces() {
 
 Prism::Prism(const ElementInfo& ein) : Element(ein) {
     BOOST_ASSERT_MSG(!ein.nodes.empty() && (ein.nodes.size() >= 5), 
-                "Invalid number of nodes for Prism creation")
+                "Invalid number of nodes for Prism creation");
     
     s_incompleteElementPrimitivesNr = 5;
     s_dim = 3;
@@ -465,7 +465,7 @@ Prism::Prism(const ElementInfo& ein) : Element(ein) {
     for (auto& nodes : ein.nodes)
         AddNode(nodes);
 
-    for (auto& ints : s_interfaces)
+    for (auto& ints : ein.interfaces)
         AddInterface(ints);
 }
 

@@ -127,7 +127,6 @@ class Hexa : public Element {
         virtual void AddInterface(Element*);
         virtual void RemoveNode(Element*);
         virtual void RemoveInterface(Element*);
-        virtual void AddSharing(Element*);
         virtual std::vector<Element*> GetNodes();
         virtual std::vector<Element*> GetInterfaces();
         virtual ~Hexa() = default;
@@ -144,7 +143,6 @@ class Tetra : public Element {
         virtual void AddInterface(Element*);
         virtual void RemoveNode(Element*);
         virtual void RemoveInterface(Element*);
-        virtual void AddSharing(Element*);
         virtual std::vector<Element*> GetNodes();
         virtual std::vector<Element*> GetInterfaces();
         virtual ~Tetra() = default;
@@ -161,7 +159,6 @@ class Prism : public Element {
         virtual void AddInterface(Element*);
         virtual void RemoveNode(Element*);
         virtual void RemoveInterface(Element*);
-        virtual void AddSharing(Element*);
         virtual std::vector<Element*> GetNodes();
         virtual std::vector<Element*> GetInterfaces();
         virtual ~Prism() = default;
@@ -178,7 +175,6 @@ class Pyram : public Element {
         virtual void AddInterface(Element*);
         virtual void RemoveNode(Element*);
         virtual void RemoveInterface(Element*);
-        virtual void AddSharing(Element*);
         virtual std::vector<Element*> GetNodes();
         virtual std::vector<Element*> GetInterfaces();
         virtual ~Pyram() = default;

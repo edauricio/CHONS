@@ -560,7 +560,7 @@ void GmshReader::Read2DElements() {
         for (auto& tagsAndNodes : blkHeader_TagsAndNodes.second) {
             // for each face of this element
             for (int i = 0; i != numFaces; ++i) {
-                std::vector<size_t> face_inds = GmshFacesOn3DElements[cur_type][i];
+                std::vector<int> face_inds = GmshFacesOn3DElements[cur_type][i];
                 numNodes = numEdges = face_inds.size();
                 einfo.type = (numEdges == 3) ? eTri : eQuad;
                 // get the unique face (unordered) nodes pairing
@@ -578,38 +578,143 @@ void GmshReader::Read2DElements() {
                 else {
                 // face doesn't exist; create it then
                     einfo.clear(); // reset containers in face ElementInfo
-                    std::vector<size_t> face_nodes(face_inds.size());
+                    std::vector<int> face_nodes(face_inds.size());
                     for (int j = 0; j != face_inds.size(); ++j)
                         face_nodes[j] = tagsAndNodes.second[face_inds[j]];
                     
-                    // Insert the nodes defining the linear face to the
-                    // element Nodes vector
+                    // Define some numbers for the current 3D element; these
+                    // will be used in the algorithm below to gather all face
+                    // points (vertices, edge interior, face interior)
+                    int numEdges3D, numNodes3D;
+                    switch (cur_type) {
+                        case eHexa:
+                            numNodes3D = 8;
+                            numEdges3D = 12;
+                            break;
+
+                        case eTetra:
+                            numNodes3D = 4;
+                            numEdges3D = 6;
+                            break;
+
+                        case ePrism:
+                            numNodes3D = 6;
+                            numEdges3D = 9;
+                            break;
+
+                        case ePyram:
+                            numNodes3D = 5;
+                            numEdges3D = 8;
+                            break;
+
+                        default:
+                            std::cerr << "Unrecognized 3D Element type.\n";
+                            break;
+                    }
+
+                    // -=-=-=-=-= FACE NODES GATHERING ALGORITHM -=-=-=-=-=
+                    // (Only tested for Hexahedral so far... - Iteration 1)
+
+                    // 
+                    // First, we insert the nodes defining the linear face to 
+                    // the element Nodes vector; this is trivial since these
+                    // nodes have already been written to face_nodes vector
+                    // (see line 583)
                     priminfo.type = eNode;
                     for (auto& node : face_nodes) {
                         priminfo.tag = node;
                         einfo.nodes.push_back(s_factory->GetElement(priminfo));
                     }
-                    // Now insert edge interior nodes
+                    
+                    // Now we insert edge interior nodes; this is trickier
+                    // and requires some additional, auxiliary variables
+                    // The first one points to the initial position in the
+                    // nodes list where the first edge interior node for the
+                    // current edge of this face lies. Here we should note that
+                    // for some edges, we'll start "at the beginning" and just
+                    // increment 1, as we would normally do for a face; however,
+                    // since gmsh defines 3D edges on a vertex-to-vertex base,
+                    // going from lower ordered vertex to higher ordered vertex,
+                    // some of our edges (according to the face definition given
+                    // not only by Gmsh but also stated in GmshFacesOn3DElements)
+                    // will be in "reverse order" from the edges in gmsh defini-
+                    // tion. For example, if we take the second edge of our first
+                    // face, we see that we should count the edge interior nodes
+                    // from z- to z+ direction (left to right); however, since
+                    // the first vertex of this edge is number 3 and the second
+                    // is number 2, gmsh actually defines the edge in reverse
+                    // order, that is, going from 2-to-3 (or, right to left) and
+                    // hence, in the nodes list an index increment actually goes
+                    // "backward" in the edge interior nodes.
+                    // Thus, to account for this "reverse ordering" of edges, we
+                    // also have an 'increment' auxiliary variable. We check the
+                    // vertices numbers of the current edge (taken from
+                    // GmshFacesOn3DElements) and see if our definition matches
+                    // gmsh definition or if we are in a "reverse order"; for the
+                    // former, we set the increment to 1, for the latter, we set
+                    // it to -1.
+                    // Then, whenever we have a decrement (-1 increment), we
+                    // start our indexing "in the end" of the edge interior node
+                    // list (according to gmsh definition) and then go "backwards",
+                    // that is, decrementing for every loop count. In this way,
+                    // we achieve the correct edge interior node numbering and
+                    // order in accordance to our convention.
+                    // Finally, check the algorithm described above translated
+                    // to our C++ code, below.
+                    int pos, inc;
                     for (int k = 0; k != numEdges; ++k) {
-                        for (int j = 0; j != einfo.eleOrder-1; ++j) {
-                            priminfo.tag = tagsAndNodes.second[
-                                        numNodes
-                                        + ];
+                        inc = (
+                            (GmshFacesOn3DElements[cur_type][i][(k+1)%numEdges]
+                            - GmshFacesOn3DElements[cur_type][i][k]) > 0) ? 
+                            1 : -1;
+
+                        pos = (inc > 0) ? 
+                            numNodes3D 
+                            + ((einfo.eleOrder-1)
+                                * GmshInteriorENodes3DElements[cur_type][i][k])
+                            :
+                            numNodes3D 
+                            + ((einfo.eleOrder-1)
+                                * GmshInteriorENodes3DElements[cur_type][i][k])
+                            + (einfo.eleOrder-2);
+
+                        for (int j = 0; j != einfo.eleOrder-1; ++j, 
+                                                        pos += inc) {
+                            priminfo.tag = tagsAndNodes.second[pos];
+                            einfo.nodes.push_back(
+                                    s_factory->GetElement(priminfo));
                         }
                     }
 
                     // Finally insert the face interior nodes to the element
                     // Nodes vector
-                    for (int j = 0; j != einfo.eleOrder-1; ++j) {
-                        size_t face_node;
-                        face_node = tagsAndNodes.second[numNodes
-                                    + (numEdges*(einfo.eleOrder-1))
-                                    + (i*(einfo.eleOrder-1))
+                    // This is easier than the edge interior nodes, since gmsh
+                    // doesn't have anymore extraneous definitions for these
+                    // guys
+                    // Hence, we can calculate the face interior node initial
+                    // position, according to the face we're dealing with,
+                    // and then just run through the nodes list, incrementing
+                    // by one, until we've gathered all of them; the quantity
+                    // we're looking for is the quantity of nodes of an element
+                    // of order reduced by two relative to the face we're
+                    // currently analyzing (i.e. we will loop through the
+                    // nodes of an embedded element of reduced order (by 2))
+                    // The initial position in this case is calculated simply
+                    // by summing up the number of vertices of the 3D element,
+                    // plus the number of edge interior nodes (according to the
+                    // element order) times the number of edges, and then the
+                    // number of face interior nodes, times the number of faces
+                    // already analyzed
+                    for (int j = 0; j != (einfo.eleOrder-1)*(einfo.eleOrder-1); 
+                                                                    ++j) {
+                        priminfo.tag = tagsAndNodes.second[numNodes3D
+                                    + (numEdges3D*(einfo.eleOrder-1))
+                                    + (i*(einfo.eleOrder-1)*(einfo.eleOrder-1))
                                     + j];
-                        priminfo.tag = face_node;
                         einfo.nodes.push_back(s_factory->GetElement(priminfo));
                     }
 
+                    // -=-=-=-= END OF FACE NODES GATHERING ALGORITHM -=-=-=-=
                     
                     // Now we find interface edges of this face
                     priminfo.type = eLine;
@@ -626,9 +731,6 @@ void GmshReader::Read2DElements() {
                         einfo.interfaces.push_back(
                                             s_factory->GetElement(priminfo));
                     }
-
-                    // now find interior face nodes
-                    priminfo.type = eNode;
                     
                     einfo.tag = ++s_maxTagCreated[1];
                     // Add it to the linear elements so that we can easily find
@@ -671,9 +773,16 @@ void GmshReader::Read3DElements() {
         for (auto& tagsAndNodes : blkHeader_TagsAndNodes.second) {
             einfo.clear(); // clear containers in ElementInfo
             einfo.tag = tagsAndNodes.first;
-            // get primitive faces
+            // Run through the nodes list, adding it to the element Nodes vector
+            priminfo.type = eNode;
+            for (int i = 0; i != tagsAndNodes.second.size(); ++i) {
+                priminfo.tag = tagsAndNodes.second[i];
+                einfo.nodes.push_back(s_factory->GetElement(priminfo));
+            }
+
+            // Now get interface faces
             for (int i = 0; i != numFaces; ++i) { // for each face
-                std::vector<size_t> face_inds = GmshFacesOn3DElements[
+                std::vector<int> face_inds = GmshFacesOn3DElements[
                                                                 einfo.type][i];
                 priminfo.type = (face_inds.size() == 3) ? eTri : eQuad;
                 faceNodes = (face_inds.size() == 3) ? 
@@ -687,19 +796,10 @@ void GmshReader::Read3DElements() {
 
                 priminfo.tag = s_linearElementsNodes[1].at(faceNodes);
 
-                einfo.prims.push_back(s_factory->GetElement(priminfo));
+                einfo.interfaces.push_back(s_factory->GetElement(priminfo));
                 // assert(!s_factory->Created());
             }
-            // get interior (volume) nodes
-            priminfo.type = eNode;
-            for (int j = 0; j != einfo.eleOrder-1; ++j) {
-                // if (!s_danglingNodes.erase(*lastNodes)) break;
-                priminfo.tag = tagsAndNodes.second[numNodes
-                                + numEdges*(einfo.eleOrder-1)
-                                + numFaces*(einfo.eleOrder-1)
-                                + j];
-                einfo.prims.push_back(s_factory->GetElement(priminfo));
-            }
+
             // finally order element
             BOOST_ASSERT_MSG(s_factory->OrderElement(einfo), 
                             "Element placed in Order has already been created");
