@@ -27,7 +27,7 @@ std::vector<std::pair<ElementType, int>> GmshElementsMapping = {
     {ePrism, 2},    // 13
     {ePyram, 2},    // 14
     {eNode, 1},     // 15
-    {eQuad, 2},     // 16
+    {eQuad, 2},     // 16 Serendipity
     {eHexa, 2},     // 17
     {ePrism, 2},     // 18
     {ePyram, 2},     // 19
@@ -48,11 +48,11 @@ std::vector<std::pair<ElementType, int>> GmshElementsMapping = {
     {},     // 34
     {},     // 35
     {eQuad, 3},     // 36
-    {},     // 37
-    {},     // 38
-    {eQuad, 3},     // 39 Serendipity...
-    {},     // 40
-    {},     // 41
+    {eQuad, 4},     // 37
+    {eQuad, 5},     // 38
+    {eQuad, 3},     // 39 Serendipity
+    {eQuad, 4},     // 40 Serendipity
+    {eQuad, 5},     // 41 Serendipity
     {},     // 42
     {},     // 43
     {},     // 44

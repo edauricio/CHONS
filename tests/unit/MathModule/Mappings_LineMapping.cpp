@@ -8,7 +8,7 @@
 
 using namespace CHONS;
 
-TEST_CASE("Line mapping test", "[linemap]") {
+TEST_CASE("Lagrangian Line mapping test", "[linelgmap]") {
     ElementFactory *fac = ElementFactory::GetInstance();
     ElementInfo einfo;
     einfo.type = eNode;
@@ -44,7 +44,7 @@ TEST_CASE("Line mapping test", "[linemap]") {
     priminfo.type = eNode;
     for (int i = 1; i != order+2; ++i) {
         priminfo.tag = i;
-        einfo.prims.push_back(fac->GetElement(priminfo));
+        einfo.nodes.push_back(fac->GetElement(priminfo));
     }
     fac->OrderElement(einfo);
     fac->PlaceOrder();

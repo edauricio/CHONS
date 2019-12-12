@@ -295,8 +295,8 @@ void GmshReader::ReadEdges() {
                             einfo.nodes.push_back(s_factory->GetElement(
                                                                 priminfo));
                         }
-                        // Since interface nodes for edges are trivial, add them right
-                        // away
+                        // Since interface nodes for edges are trivial, add them 
+                        // right away
                         einfo.interfaces = 
                                 std::vector<Element*>{einfo.nodes[0], 
                                                         einfo.nodes[1]};
@@ -390,8 +390,8 @@ void GmshReader::ReadEdges() {
                             einfo.nodes.push_back(
                                             s_factory->GetElement(priminfo));
                         }
-                        // Since interface nodes for edges are trivial, add them right
-                        // away
+                        // Since interface nodes for edges are trivial, add them 
+                        // right away
                         einfo.interfaces = 
                                     std::vector<Element*>{einfo.nodes[0], 
                                                             einfo.nodes[1]};
@@ -584,7 +584,8 @@ void GmshReader::Read2DElements() {
                     
                     // Define some numbers for the current 3D element; these
                     // will be used in the algorithm below to gather all face
-                    // points (vertices, edge interior, face interior)
+                    // points (vertices, edge interior, face interior) of the
+                    // current face, in the current 3D element
                     int numEdges3D, numNodes3D;
                     switch (cur_type) {
                         case eHexa:
@@ -707,10 +708,15 @@ void GmshReader::Read2DElements() {
                     // already analyzed
                     for (int j = 0; j != (einfo.eleOrder-1)*(einfo.eleOrder-1); 
                                                                     ++j) {
-                        priminfo.tag = tagsAndNodes.second[numNodes3D
+                        int ind = numNodes3D
                                     + (numEdges3D*(einfo.eleOrder-1))
                                     + (i*(einfo.eleOrder-1)*(einfo.eleOrder-1))
-                                    + j];
+                                    + j;
+                        // Check to see if we really have face nodes; otherwise
+                        // it's a serendipity element and we're done
+                        if (ind >= tagsAndNodes.second.size()) break;
+
+                        priminfo.tag = tagsAndNodes.second[ind];
                         einfo.nodes.push_back(s_factory->GetElement(priminfo));
                     }
 
@@ -797,7 +803,6 @@ void GmshReader::Read3DElements() {
                 priminfo.tag = s_linearElementsNodes[1].at(faceNodes);
 
                 einfo.interfaces.push_back(s_factory->GetElement(priminfo));
-                // assert(!s_factory->Created());
             }
 
             // finally order element

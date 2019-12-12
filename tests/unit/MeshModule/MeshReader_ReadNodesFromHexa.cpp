@@ -206,8 +206,9 @@ TEST_CASE("Read nodes from 2nd order hexa", "[nodesfhexao2]") {
     }
 
     // Sixth face, fourth edge
-    ind = 8 + (hexa->GetElementOrder()-1)*hexa_intEdge_map[5][3];
-    for (int i = 0; i != hexa->GetElementOrder()-1; ++i, ind++) {
+    ind = 8 + (hexa->GetElementOrder()-1)*hexa_intEdge_map[5][3]
+            + hexa->GetElementOrder()-2;
+    for (int i = 0; i != hexa->GetElementOrder()-1; ++i, ind--) {
         REQUIRE(hexa->GetNodes()[ind]->GetCoords()[1]
                 == Approx(hexa->GetNodes()[7]->GetCoords()[1] - (i+1)*dx));
 
@@ -416,8 +417,9 @@ TEST_CASE("Read nodes from 3rd order hexa", "[nodesfhexao3]") {
     }
 
     // Sixth face, fourth edge
-    ind = 8 + (hexa->GetElementOrder()-1)*hexa_intEdge_map[5][3];
-    for (int i = 0; i != hexa->GetElementOrder()-1; ++i, ind++) {
+    ind = 8 + (hexa->GetElementOrder()-1)*hexa_intEdge_map[5][3]
+            + hexa->GetElementOrder()-2;
+    for (int i = 0; i != hexa->GetElementOrder()-1; ++i, ind--) {
         REQUIRE(hexa->GetNodes()[ind]->GetCoords()[1]
                 == Approx(hexa->GetNodes()[7]->GetCoords()[1] - (i+1)*dx));
 

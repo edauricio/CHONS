@@ -27,7 +27,7 @@ class ElementFactory {
         size_t HowMany(const ElementType& et) { 
             return (!(s_elements[et].empty())) ? s_elements[et].size() : 0; }
         // DELETE THIS -- FOR DEBUGGING PURPOSES ONLY
-        void RunThrough();
+        // void RunThrough();
         // DELETE THIS -- FOR DEBUGGING PURPOSES ONLY
         void clear();
         

@@ -24,16 +24,16 @@ MAINDIR = ../
 MAINTESTOBJ = obj/units-def-inc.o
 
 test: $(MODOBJ) $(TESTOBJ) $(MAINTESTOBJ)
-	$(CXX) -o $@ $^ $(RESTOBJ) $(CXXFLAGS) $(LINKFLAGS) -g
+	$(CXX) -o $@ $^ $(RESTOBJ) $(CXXFLAGS) $(LINKFLAGS) -O0 -g
 
 obj/%.o: $(MODFOLD)/%.cpp | mkfold
-	$(CXX) -c -o $@ $< $(CXXFLAGS) -g
+	$(CXX) -c -o $@ $< $(CXXFLAGS) -O0 -g
 
 obj/%.o: %.cpp
-	$(CXX) -c -o $@ $< $(CXXFLAGS) -g
+	$(CXX) -c -o $@ $< $(CXXFLAGS) -O0 -g
 
 obj/%.o: ../%.cpp
-	$(CXX) -c -o $@ $< $(CXXFLAGS) -g
+	$(CXX) -c -o $@ $< $(CXXFLAGS) -O0 -g
 
 mkfold:
 	@mkdir -p obj

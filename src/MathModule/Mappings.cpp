@@ -71,14 +71,14 @@ Math::Vector LineLGMapping::EvaluateFor(Element* ele, const double& r,
     // Vector with nodes coordinates, arranged in the appropriate order
     Math::Vector nodes(s_order+1);
     // First node
-    nodes[0] = ele->GetPrimitives()[0]->GetCoords()[0];
+    nodes[0] = ele->GetNodes()[0]->GetCoords()[0];
     // Loop for higher order nodes
     for (int i = 1; i != s_order; ++i) {
-        nodes[i] = ele->GetPrimitives()[i+1]->GetCoords()[0];
+        nodes[i] = ele->GetNodes()[i+1]->GetCoords()[0];
     }
     // Last node (enumerated second in Lagrangian element, but last in our
     // basis multiplication)
-    nodes[s_order] = ele->GetPrimitives()[1]->GetCoords()[0];
+    nodes[s_order] = ele->GetNodes()[1]->GetCoords()[0];
 
     // Multiply to get the mapping
     mapped_x[0] = Math::dot_product(nodes, s_mappingBasis->EvaluateAt(r));
@@ -94,7 +94,7 @@ double LineLGMapping::Jacobian(Element* ele, const double& r,
     
     // Calculate the element (constant) Jacobian
     // Jac = (x_r - x_l) / 2;
-    std::vector<Element*> nodes = ele->GetPrimitives();
+    std::vector<Element*> nodes = ele->GetNodes();
     return (nodes[1]->GetCoords()[0] - nodes[0]->GetCoords()[0]); 
 
 }
@@ -127,83 +127,28 @@ Math::Vector QuadLGMapping::EvaluateFor(Element* ele, const double& r,
     // Allocate vector for the quad node elements
     std::vector<Element*> nodes( (s_order+1) * (s_order+1) );
 
-    // Get all edges and interior nodes first
-    // Remember that the primitives list is ordered first with the edges (in
-    // gmsh order, or usual lagrange ordering of nodes) and then the interior
-    // nodes (again in gmsh / usual lagrange element ordering)
-    std::vector<Element*> allprim = ele->GetPrimitives();
-
-    // We should now extract all the edge nodes into the appropriate Lagrange 
-    // order, so that we deal with a vector containing only nodes, and not edge
-    // + nodes (that's the assumption made to develop the "mapping" algorithm 
-    // below)
-
-    // First, we should check the node ordering within the edge (remembering
-    // that, since only one edge element is created for every two quads that
-    // share it, the edge we're considering now may have been created by other 
-    // element and hence the node ordering will be the inverse of that we would 
-    // expect for this element)
-
-    // cnt is just a counter that will be used for 'nodes' vector indexing now
-    int cnt = 0;
-
-    // Check node ordering for the bottom edge
-    std::vector<Element*> edge_nodes = allprim[0]->GetPrimitives();    
-    if (edge_nodes[0]->GetCoords()[0] < edge_nodes[1]->GetCoords()[0]) {
-        nodes[cnt++] = edge_nodes[0];
-        nodes[cnt++] = edge_nodes[1];
-    } else {
-        nodes[cnt++] = edge_nodes[1];
-        nodes[cnt++] = edge_nodes[0];
-    }
-
-    // Now check node ordering for the top edge
-    edge_nodes = allprim[2]->GetPrimitives();
-    if (edge_nodes[0]->GetCoords()[0] > edge_nodes[1]->GetCoords()[0]) {
-        nodes[cnt++] = edge_nodes[0];
-        nodes[cnt++] = edge_nodes[1];
-    } else {
-        nodes[cnt++] = edge_nodes[1];
-        nodes[cnt++] = edge_nodes[0];
-    }
-
-
-    // Now we loop through every internal edge node, for each edge of the quad
-    for (int j = 0; j != 4; ++j)
-        for (int i = 1; i != ele->GetElementOrder(); ++i) {
-            nodes[cnt++] = allprim[j]->GetPrimitives()[i];
-        }
-
-    // Finally, loop through the quad internal nodes, which are already in
-    // lagragian order
-    for (int i = 4; i != allprim.size(); ++i)
-        nodes[cnt++] = allprim[i];
-
-    // Copy nodes[] into allprim[] so that we can use allprim[] as the vector of
-    // all the nodes, in lagragian ordering, and nodes[] as the new vector
-    // containing the mapping between lagragian and "tensor product" ordering
-    allprim = nodes;
-
-
     // Now organize Quad nodes into 'nodes' vector in a "tensor product" order
     // Rememeber that the Lagrangian element ordering is not the same as the
     // "natural tensor product" ordering that we conventioned in the code (in
     // Basis classes); thus this rearragement is needed
-
     
     // -=-=--=-=-=-=-=-=-   MAPPING ALGORITHM   -=-=-=-=-=-=-=-=-=-
 
     // The mapping algorithm below is based on the fact that for a Lagrangian 
     // high-order element, we simply have an "inception" of quads, one inside
-    // another; hence, we loop through all possible inner quads, according
-    // to element order. The array named ini_pos is the key auxiliary variable
-    // here to do such task.
+    // another, such that we have multiple embedded quads; hence, we loop 
+    // through all possible inner quads, according to element order. The array 
+    // named ini_pos is the key auxiliary variable here to do such task.
 
-    // cnt will again be a counter variable, incremented for every node we 
-    // proccess; it will be used to subscript allprim vector, which means that
-    // we're just following Lagrangian node numbering and mapping the "tensor
-    // product" ordering accordingly (and not the other way around)
-    cnt = 0; // reset counter
+    // cnt will be just a counter variable, incremented for every node we 
+    // proccess; it will be used to subscript the Quad nodes vector, which means 
+    // that we're just following Lagrangian node numbering and mapping the
+    // "tensor product" ordering accordingly (and not the other way around)
+    int cnt = 0; // reset counter
+
+    // This vector is just a copy of Quad nodes vector used as the RHS of the
+    // mapping below
+    std::vector<Element*> nodes_aux = ele->GetNodes();
 
     // ini_pos is an array containing the initial position of the nodes to be
     // proccessed in every loop below, which account for bottom/top vertices of 
@@ -211,9 +156,9 @@ Math::Vector QuadLGMapping::EvaluateFor(Element* ele, const double& r,
     // Every outer loop iteration (k) is the processing of one quad; hence, 
     // after the loop is finished, we need to update ini_pos accordingly so that
     // we have the initial positions for the next inner quad; the "stride"
-    // between nodes in this mapping is constant for every quad, so we don't
-    // need a stride[] array for every vertex/edge processing and we can simply
-    // update the initial position for the nodes
+    // between nodes in this mapping is constant from an outer to an inner quad,
+    // so we don't need a stride[] array for every vertex/edge processing and 
+    // we can simply update the initial position for the nodes
     int ini_pos[] = {0, (ele->GetElementOrder()+1)*(ele->GetElementOrder()+1)-1, 
                     1, 2*(ele->GetElementOrder()+1)-1, 
                     (ele->GetElementOrder()+1)*(ele->GetElementOrder()+1)-1-1, 
@@ -229,36 +174,36 @@ Math::Vector QuadLGMapping::EvaluateFor(Element* ele, const double& r,
         // Bottom vertices
         for (int i = 0; i != 2; ++i, cnt++)
             nodes[ini_pos[0] /* initial position */
-                  + i*k /* stride */]  = allprim[cnt];
+                  + i*k /* stride */]  = nodes_aux[cnt];
         // Top vertices
         for (int i = 0; i != 2; ++i, cnt++)
             nodes[ini_pos[1] /* initial position */
-                  - i*k /* stride */] = allprim[cnt];
+                  - i*k /* stride */] = nodes_aux[cnt];
 
         // Bottom edge interior nodes
         for (int i = 0; i != k-1; ++i, ++cnt)
             nodes[ini_pos[2] /* initial position */
-                  + i /* stride */] = allprim[cnt];
+                  + i /* stride */] = nodes_aux[cnt];
 
         // Right edge interior nodes
         for (int i = 0; i != k-1; ++i, ++cnt)
             nodes[ini_pos[3] /* initial position */
-                  + i*(ele->GetElementOrder()+1) /* stride */] = allprim[cnt];
+                  + i*(ele->GetElementOrder()+1) /* stride */] = nodes_aux[cnt];
 
         // Top edge interior nodes
         for (int i = 0; i != k-1; ++i, ++cnt)
             nodes[ini_pos[4] /* initial position */
-                  - i /* stride */] = allprim[cnt];
+                  - i /* stride */] = nodes_aux[cnt];
 
         // Left edge interior nodes
         for (int i = 0; i != k-1; ++i, ++cnt)
             nodes[ini_pos[5] /* initial position */
-                  - i * (ele->GetElementOrder()+1) /* stride */] = allprim[cnt];
+                  - i*(ele->GetElementOrder()+1) /* stride */] = nodes_aux[cnt];
 
         // If the quad we're proccessing is of 2nd order, it'll have a single 
         // internal node instead of an internal quad, so let's account for it
         if (k == 2)
-            nodes[ini_pos[5] + 1] = allprim[cnt++];
+            nodes[ini_pos[5] + 1] = nodes_aux[cnt++];
 
         // Recalculate initial positions for the next, inner quad
         ini_pos[0] += (ele->GetElementOrder() + 1 + 1);
