@@ -231,10 +231,48 @@ Math::Vector QuadLGMapping::EvaluateFor(Element* ele, const double& r,
 double QuadLGMapping::Jacobian(Element* ele, const double& r, 
                                             const double& s, 
                                             const double& t) {
+    // TODO
+    // Implement jacobian for Quad Lagrangian Mapping
     return 0.0;
 }
 
 // ---------- End of QuadLGMapping Member Function Definitions --------- //
+
+
+
+// ---------- HexaLGMapping Member Function Definitions --------- //
+
+HexaLGMapping::HexaLGMapping(Element* ele) : TensorProductLGMapping(ele) {
+    BOOST_ASSERT_MSG(ele->GetType() == eHexa, "Invalid extrinsic state passed"
+            " to Hexa mapping; an element other than a Hexa has been passed");
+
+    // Populate vector of evenly-spaced points for lagrange basis functions 
+    // creation
+    std::vector<double> pts{-1.0};
+    double dx = 2.0 / s_order;
+    for (int i = 1; i != s_order+1; ++i)
+        pts.push_back(pts[i-1] + dx);
+
+    s_mappingBasis = s_basisFac.GetBasis(ele, {pts, pts, pts});
+}
+
+Math::Vector HexaLGMapping::EvaluateFor(Element* ele, 
+                                            const double& r,
+                                            const double& s,
+                                            const double& t) {
+    // This mapping returns a vector containing the mapping for all three
+    // coordinates (x,y,z); we instantiate the result now
+    Math::Vector result(3);
+
+    // TODO !!
+    // DESIGN THE ALGORITHM FOR NODE ORDERING "REMAPPING" (i.e. from Lagrangian
+    // or, better yet, Gmsh ordering, to the natural "Tensor Product ordering")
+
+    return result;
+}
+
+// ---------- End of HexaLGMapping Member Function Definitions --------- //
+
 
 
 } // end of CHONS namespace

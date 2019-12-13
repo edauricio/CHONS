@@ -84,6 +84,18 @@ class QuadLGMapping : public TensorProductLGMapping {
     private:
 };
 
+class HexaLGMapping : public TensorProductLGMapping {
+    public:
+        HexaLGMapping(Element*);
+        virtual Math::Vector EvaluateFor(Element*, const double&, 
+                                    const double& = -2, const double& = -2);
+        virtual double Jacobian(Element*, const double&, 
+                                    const double& = -2, const double& = -2);
+
+    private:
+
+};
+
 } // end of CHONS namespace
 
 #endif

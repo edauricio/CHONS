@@ -2,6 +2,11 @@
 #include <vector>
 
 int main() {
+
+    /* Algorithm to map from the weird Gmsh edge internal nodes in an Hexahedral
+    element to the normal, correct Lagrangian (gmsh) ordering FOR EACH FACE
+    OF THE HEXA ELEMENT */
+
     std::vector<int> nodes =
         {   1, 345, 371, 352, 361, 379, 423, 407, 
             443, 444, 445, 490, 489, 488, 539, 540, 
@@ -62,4 +67,76 @@ int main() {
             std::cout << nodes[numNodes + (eleOrder-1)*numEdges + (eleOrder-1)*(eleOrder-1)*i + k] << " ";
         std::cout << "\n";
     }
+
+    std::cout << "\n\n-=-=-=-=--=-=-=-\n\n";
+
+    // std::vector<double> nodes_o3{1, 9, 21, 12, 17, 22, 27, 25,
+    //                             127, 128, 142, 141, 159, 160, 175, 176,
+    //                             199, 200, 177, 178, 319, 320, 271, 272, 
+    //                             202, 201, 285, 286, 321, 322, 323, 324,
+    //                             179, 182, 181, 180, 203, 204, 205, 206,
+    //                             288, 289, 290, 287, 325, 326, 327, 328,
+    //                             329, 330, 331, 332, 333, 334, 335, 336,
+    //                             337, 338, 339, 340, 341, 342, 343, 344
+    //                         };
+
+    std::vector<double> nodes_o3{1, 9, 21, 12, 17, 22, 27, 25, 
+                                443, 444, 445, 466, 465, 464, 491, 492, 
+                                493, 515, 516, 517, 563, 564, 565, 518, 
+                                519, 520, 803, 804, 805, 707, 708, 709, 
+                                568, 567, 566, 734, 735, 736, 806, 807, 
+                                808, 809, 810, 811, 521, 524, 523, 522, 
+                                528, 527, 526, 525, 529, 569, 570, 571, 
+                                572, 573, 574, 575, 576, 577, 738, 739, 
+                                740, 737, 742, 743, 744, 741, 745, 812, 
+                                813, 814, 815, 816, 817, 818, 819, 820, 
+                                821, 822, 823, 824, 825, 826, 827, 828, 
+                                829, 830, 831, 832, 833, 834, 835, 836, 
+                                837, 838, 839, 840, 841, 842, 843, 844, 
+                                845, 846, 847, 848, 849, 850, 851, 852, 
+                                853, 854, 855, 856, 857, 858, 859, 860, 
+                                861, 862, 863, 864, 865
+                            };
+
+    // Algorithm to map the Hexahedral gmsh ordering nodes to a natural, "tensor
+    // product" ordering so we can easily calculate our mapping function
+
+    int cnt = 0;
+    eleOrder = 4;
+    int ini_pos[] = {0, ((eleOrder+1)*(eleOrder+1)-1), 1,
+                    eleOrder+1, ((eleOrder+1)*(eleOrder+1)-1-1),
+                    (2*(eleOrder+1)-1)
+                    };
+    // Bottom vertices of first face
+    for (int i = 0; i != 2; ++i, ++cnt)
+        std::cout << cnt << ": " << ini_pos[0] + (i * eleOrder) << "\n";
+
+    // Top vertices of first face
+    for (int i = 0; i != 2; ++i, ++cnt)
+        std::cout << cnt << ": " << ini_pos[1] - (i * eleOrder) << "\n";
+
+    // // Bottom vertices of sixth face
+    // for (int i = 0; i != 2; ++i, ++cnt)
+    //     std::cout << cnt << ": " << ini_pos[2] + (i*eleOrder) << "\n";
+
+    // // Top vertices of sixth face
+    // for (int i = 0; i != 2; ++i, ++cnt)
+    //     std::cout << cnt << ": " << ini_pos[3] - (i*eleOrder) << "\n";
+
+    // First face, fourth edge interior nodes
+    for (int i = 0; i != eleOrder-1; ++i, ++cnt)
+        std::cout << nodes_o3[8 + maps[0][3]*(eleOrder-1) + i] << ": " << ini_pos[2] + i << "\n";
+
+    // First face, first edge interior nodes
+    for (int i = 0; i != eleOrder-1; ++i, ++cnt)
+        std::cout << nodes_o3[8 + maps[0][0]*(eleOrder-1) + i] << ": " << ini_pos[3] + i*(eleOrder+1) << "\n";
+
+    // First face, third edge interior nodes
+    for (int i = 0; i != eleOrder-1; ++i, ++cnt)
+        std::cout << nodes_o3[8 + maps[0][2]*(eleOrder-1) + i] << ": " 
+                << ini_pos[0]+(2*(eleOrder+1)-1) + i*(eleOrder+1) << "\n";
+
+    // First face, second edge interior nodes
+    for (int i = 0; i != eleOrder-1; ++i, ++cnt)
+        std::cout << nodes_o3[8 + maps[0][1]*(eleOrder-1) + i] << ": " << ini_pos[4] - i << "\n";
 }
