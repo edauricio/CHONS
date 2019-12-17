@@ -70,6 +70,7 @@ int main() {
 
     std::cout << "\n\n-=-=-=-=--=-=-=-\n\n";
 
+    // 3rd order
     // std::vector<double> nodes_o3{1, 9, 21, 12, 17, 22, 27, 25,
     //                             127, 128, 142, 141, 159, 160, 175, 176,
     //                             199, 200, 177, 178, 319, 320, 271, 272, 
@@ -80,63 +81,289 @@ int main() {
     //                             337, 338, 339, 340, 341, 342, 343, 344
     //                         };
 
+    // 4th order
+    // std::vector<double> nodes_o3{1, 9, 21, 12, 17, 22, 27, 25, 
+    //                             443, 444, 445, 466, 465, 464, 491, 492, 
+    //                             493, 515, 516, 517, 563, 564, 565, 518, 
+    //                             519, 520, 803, 804, 805, 707, 708, 709, 
+    //                             568, 567, 566, 734, 735, 736, 806, 807, 
+    //                             808, 809, 810, 811, 521, 524, 523, 522, 
+    //                             528, 527, 526, 525, 529, 569, 570, 571, 
+    //                             572, 573, 574, 575, 576, 577, 738, 739, 
+    //                             740, 737, 742, 743, 744, 741, 745, 812, 
+    //                             813, 814, 815, 816, 817, 818, 819, 820, 
+    //                             821, 822, 823, 824, 825, 826, 827, 828, 
+    //                             829, 830, 831, 832, 833, 834, 835, 836, 
+    //                             837, 838, 839, 840, 841, 842, 843, 844, 
+    //                             845, 846, 847, 848, 849, 850, 851, 852, 
+    //                             853, 854, 855, 856, 857, 858, 859, 860, 
+    //                             861, 862, 863, 864, 865
+    //                         };
+
+    // 6th order
     std::vector<double> nodes_o3{1, 9, 21, 12, 17, 22, 27, 25, 
-                                443, 444, 445, 466, 465, 464, 491, 492, 
-                                493, 515, 516, 517, 563, 564, 565, 518, 
-                                519, 520, 803, 804, 805, 707, 708, 709, 
-                                568, 567, 566, 734, 735, 736, 806, 807, 
-                                808, 809, 810, 811, 521, 524, 523, 522, 
-                                528, 527, 526, 525, 529, 569, 570, 571, 
-                                572, 573, 574, 575, 576, 577, 738, 739, 
-                                740, 737, 742, 743, 744, 741, 745, 812, 
-                                813, 814, 815, 816, 817, 818, 819, 820, 
-                                821, 822, 823, 824, 825, 826, 827, 828, 
-                                829, 830, 831, 832, 833, 834, 835, 836, 
-                                837, 838, 839, 840, 841, 842, 843, 844, 
-                                845, 846, 847, 848, 849, 850, 851, 852, 
-                                853, 854, 855, 856, 857, 858, 859, 860, 
-                                861, 862, 863, 864, 865
-                            };
+                                1145, 1146, 1147, 1148, 1149, 1184, 1183, 1182, 
+                                1181, 1180, 1225, 1226, 1227, 1228, 1229, 1265, 
+                                1266, 1267, 1268, 1269, 1385, 1386, 1387, 1388, 
+                                1389, 1270, 1271, 1272, 1273, 1274, 1985, 1986, 
+                                1987, 1988, 1989, 1745, 1746, 1747, 1748, 1749, 
+                                1394, 1393, 1392, 1391, 1390, 1810, 1811, 1812, 
+                                1813, 1814, 1990, 1991, 1992, 1993, 1994, 1995, 
+                                1996, 1997, 1998, 1999, 1275, 1278, 1277, 1276, 
+                                1290, 1289, 1288, 1287, 1286, 1285, 1284, 1283, 
+                                1282, 1281, 1280, 1279, 1291, 1294, 1293, 1292, 
+                                1298, 1297, 1296, 1295, 1299, 1395, 1396, 1397, 
+                                1398, 1399, 1400, 1401, 1402, 1403, 1404, 1405, 
+                                1406, 1407, 1408, 1409, 1410, 1411, 1412, 1413, 
+                                1414, 1415, 1416, 1417, 1418, 1419, 1816, 1817, 
+                                1818, 1815, 1822, 1823, 1824, 1825, 1826, 1827, 
+                                1828, 1829, 1830, 1819, 1820, 1821, 1832, 1833, 
+                                1834, 1831, 1836, 1837, 1838, 1835, 1839, 2000, 
+                                2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 
+                                2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 
+                                2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 
+                                2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 
+                                2033, 2034, 2035, 2036, 2037, 2038, 2039, 2040, 
+                                2041, 2042, 2043, 2044, 2045, 2046, 2047, 2048, 
+                                2049, 2050, 2051, 2052, 2053, 2054, 2055, 2056, 
+                                2057, 2058, 2059, 2060, 2061, 2062, 2063, 2064, 
+                                2065, 2066, 2067, 2068, 2069, 2070, 2071, 2072, 
+                                2073, 2074, 2075, 2076, 2077, 2078, 2079, 2080, 
+                                2081, 2082, 2083, 2084, 2085, 2086, 2087, 2088, 
+                                2089, 2090, 2091, 2092, 2093, 2094, 2095, 2096, 
+                                2097, 2098, 2099, 2100, 2101, 2102, 2103, 2104, 
+                                2105, 2106, 2107, 2108, 2109, 2110, 2111, 2112, 
+                                2113, 2114, 2115, 2116, 2117, 2118, 2119, 2120, 
+                                2121, 2122, 2123, 2124, 2125, 2126, 2127, 2128, 
+                                2129, 2130, 2131, 2132, 2133, 2134, 2135, 2136, 
+                                2137, 2138, 2139, 2140, 2141, 2142, 2143, 2144, 
+                                2145, 2146, 2147, 2148, 2149, 2150, 2151, 2152, 
+                                2153, 2154, 2155, 2156, 2157, 2158, 2159, 2160, 
+                                2161, 2162, 2163, 2164, 2165, 2166, 2167, 2168, 
+                                2169, 2170, 2171, 2172, 2173, 2174, 2175, 2176, 
+                                2177, 2178, 2179, 2180, 2181, 2182, 2183, 2184, 
+                                2185, 2186, 2187, 2188, 2189, 2190, 2191, 2192, 
+                                2193, 2194, 2195, 2196, 2197, 2198, 2199};
 
     // Algorithm to map the Hexahedral gmsh ordering nodes to a natural, "tensor
     // product" ordering so we can easily calculate our mapping function
 
     int cnt = 0;
-    eleOrder = 4;
-    int ini_pos[] = {0, ((eleOrder+1)*(eleOrder+1)-1), 1,
-                    eleOrder+1, ((eleOrder+1)*(eleOrder+1)-1-1),
-                    (2*(eleOrder+1)-1)
+    eleOrder = 6;
+    int ini_pos[] = {0, // 0
+                    ((eleOrder+1)*(eleOrder+1)-1), // 1
+                    (eleOrder+1)*(eleOrder+1)*eleOrder, // 2
+                    (eleOrder+1)*(eleOrder+1)*eleOrder + ((eleOrder+1)*(eleOrder+1)-1), // 3
+                    1, // 4 (1st edge)
+                    (eleOrder+1), // 5 (2nd edge)
+                    (eleOrder+1)*(eleOrder+1), // 6 (3rd edge)
+                    2*(eleOrder+1)-1, // 7 (4th edge)
+                    (eleOrder+1)*(eleOrder+1) + eleOrder, // 8 (5th edge)
+                    (eleOrder+1)*(eleOrder+1) - 1 - 1, // 9 (6th edge)
+                    2*(eleOrder+1)*(eleOrder+1) - 1, // 10 (7th edge)
+                    2*(eleOrder+1)*(eleOrder+1) - 1 - eleOrder, // 11 (8th edge)
+                    eleOrder*(eleOrder+1)*(eleOrder+1) + 1, // 12 (9th edge)
+                    eleOrder*(eleOrder+1)*(eleOrder+1) + (eleOrder+1), // 13 (10th edge)
+                    eleOrder*(eleOrder+1)*(eleOrder+1) + 2*(eleOrder+1) - 1, // 14 (11th edge)
+                    (eleOrder+1)*(eleOrder+1)*(eleOrder+1) - 1 - 1, // 15 (12th edge)
                     };
     // Bottom vertices of first face
     for (int i = 0; i != 2; ++i, ++cnt)
-        std::cout << cnt << ": " << ini_pos[0] + (i * eleOrder) << "\n";
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[0] + (i * eleOrder) << "\n";
 
     // Top vertices of first face
     for (int i = 0; i != 2; ++i, ++cnt)
-        std::cout << cnt << ": " << ini_pos[1] - (i * eleOrder) << "\n";
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[1] - (i * eleOrder) << "\n";
 
-    // // Bottom vertices of sixth face
-    // for (int i = 0; i != 2; ++i, ++cnt)
-    //     std::cout << cnt << ": " << ini_pos[2] + (i*eleOrder) << "\n";
+    // Bottom vertices of sixth face
+    for (int i = 0; i != 2; ++i, ++cnt)
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[2] + (i*eleOrder) << "\n";
 
-    // // Top vertices of sixth face
-    // for (int i = 0; i != 2; ++i, ++cnt)
-    //     std::cout << cnt << ": " << ini_pos[3] - (i*eleOrder) << "\n";
+    // Top vertices of sixth face
+    for (int i = 0; i != 2; ++i, ++cnt)
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[3] - (i*eleOrder) << "\n";
 
-    // First face, fourth edge interior nodes
+    // First hexa edge -- Fourth edge of first face
     for (int i = 0; i != eleOrder-1; ++i, ++cnt)
-        std::cout << nodes_o3[8 + maps[0][3]*(eleOrder-1) + i] << ": " << ini_pos[2] + i << "\n";
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[4] + i << "\n";
 
-    // First face, first edge interior nodes
-    for (int i = 0; i != eleOrder-1; ++i, ++cnt)
-        std::cout << nodes_o3[8 + maps[0][0]*(eleOrder-1) + i] << ": " << ini_pos[3] + i*(eleOrder+1) << "\n";
+    // Second hexa edge -- First edge of first face
+    for (int i = 0 ; i != eleOrder-1; ++i, ++cnt)
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[5] + i*(eleOrder+1) << "\n";
 
-    // First face, third edge interior nodes
+    // Third hexa edge -- Fourth edge of second face
     for (int i = 0; i != eleOrder-1; ++i, ++cnt)
-        std::cout << nodes_o3[8 + maps[0][2]*(eleOrder-1) + i] << ": " 
-                << ini_pos[0]+(2*(eleOrder+1)-1) + i*(eleOrder+1) << "\n";
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[6] + i*(eleOrder+1)*(eleOrder+1) << "\n";
 
-    // First face, second edge interior nodes
+    // Fourth hexa edge -- Third edge of first face
     for (int i = 0; i != eleOrder-1; ++i, ++cnt)
-        std::cout << nodes_o3[8 + maps[0][1]*(eleOrder-1) + i] << ": " << ini_pos[4] - i << "\n";
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[7] + i*(eleOrder+1) << "\n";
+
+    // Fifth hexa edge --  Second edge of second face
+    for (int i = 0; i != eleOrder-1; ++i, ++cnt)
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[8] + i*(eleOrder+1)*(eleOrder+1) << "\n";
+
+    // Sixth hexa edge -- Second edge of first face
+    for (int i = 0; i != eleOrder-1; ++i, ++cnt)
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[9] - i << "\n";
+
+    // Seventh hexa edge -- Fourth edge of fifth face
+    for (int i = 0; i != eleOrder-1; ++i, ++cnt)
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[10] + i*(eleOrder+1)*(eleOrder+1) << "\n";
+
+    // Eigth hexa edge -- Second edge of fifth face
+    for (int i = 0; i != eleOrder-1; ++i, ++cnt)
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[11] + i*(eleOrder+1)*(eleOrder+1) << "\n";
+
+    // Ninth hexa edge -- First edge of sixth face
+    for (int i = 0; i != eleOrder-1; ++i, ++cnt)
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[12] + i << "\n";
+
+    // Tenth hexa edge --  Fourth edge of sixth face
+    for (int i = 0; i != eleOrder-1; ++i, ++cnt)
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[13] + i*(eleOrder+1) << "\n";
+
+    // Eleventh hexa edge -- Second edge of sixth face
+    for (int i = 0; i != eleOrder-1; ++i, ++cnt)
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[14] + i*(eleOrder+1) << "\n";
+
+    // Twelveth hexa edge -- Third edge of sixth face
+    for (int i = 0; i != eleOrder-1; ++i, ++cnt)
+        std::cout << nodes_o3[cnt] << ": " << ini_pos[15] - i << "\n";
+
+    // Now that all vertices and edges have been placed, and since gmsh doesn't
+    // have any other extraneous node ordering for the face internal nodes, we
+    // can simply use the algorithm developed previously for quad elements, for
+    // each face
+    int pos_quad[] = {(eleOrder+1) + 1, // Bottom-left vertex
+                    eleOrder*(eleOrder+1) - 1 - 1, // Top-right vertex
+                    2*(eleOrder+1) + 1, // Bottom edge
+                    (eleOrder-1)*(eleOrder+1) + 1 + 1, // Right edge
+                    (eleOrder-1)*(eleOrder+1) - 1 - 1, // Top edge
+                    2*(eleOrder+1) - 1 - 1 - 1  // Left edge
+                    };
+    int stride_quad[] = {eleOrder+1,
+                        1,
+                        -(eleOrder+1),
+                        -1
+                        };
+
+                        // 1,
+                        // (eleOrder+1),
+                        // -1,
+                        // -(eleOrder+1),
+
+                        // (eleOrder+1)*(eleOrder+1),
+                        // (eleOrder+1),
+                        // -(eleOrder+1)*(eleOrder+1),
+                        // -(eleOrder+1),
+
+                        // (eleOrder+1),
+                        // (eleOrder+1)*(eleOrder+1),
+                        // -(eleOrder+1),
+                        // -(eleOrder+1)*(eleOrder+1),
+
+                        // -1,
+                        // (eleOrder+1)*(eleOrder+1),
+                        // 1,
+                        // -(eleOrder+1)*(eleOrder+1),
+
+                        // 1,
+                        // (eleOrder+1),
+                        // -1,
+                        // -(eleOrder+1)
+                        // };
+
+    // There should be one loop for each face, since the node ordering now
+    // simply follows the face internal node common ordering (i.e. lagrangian
+    // ordering of the internal nodes, which means embedded quads). In other words
+    // since we are folloing the counter ("cnt"), we should now deal with each
+    // face separately, because this counter fills each face in order from now on
+    // This also means that the vector stride_quad should either be shrinked to
+    // size 4 and then reused, or it could be completely removed altogether,
+    // because now, since we will have 6 loops, we will know in advance which
+    // face we're dealing with and thus what are the strides for each vertex/edge
+    // of that face.
+
+    // First face loop
+    for (int k = eleOrder-2; k > 0; k -= 2) {
+        // Bottom vertices
+        for (int i = 0; i != 2; ++cnt, ++i)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[0] + i*(k*(eleOrder+1))  << "\n";
+        // Top vertices
+        for (int i = 0; i != 2; ++cnt, ++i)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[1] - i*(k*(eleOrder+1))  << "\n";
+
+        // Bottom edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[2] + i*(eleOrder+1) << "\n"; // (cnt - k) + i ?
+
+        // Right edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[3] + i << "\n";
+
+        // Top edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[4] - i*(eleOrder+1) << "\n";
+
+        // Left edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[5] - i << "\n";
+
+        // If the quad we're analyzing is of 2nd order, it'll have a single internal
+        // node, so let's account for it
+        if (k == 2)
+            std::cout << nodes_o3[cnt++] << ": " 
+                            << pos_quad[2] + 1 << "\n";
+
+        // Recalculate initial positions for the next, inner quad
+        pos_quad[0] += (eleOrder + 1 + 1);
+        pos_quad[1] -= (eleOrder + 1 + 1);
+        pos_quad[2] = pos_quad[0] + (eleOrder + 1);
+        pos_quad[3] -= eleOrder;
+        pos_quad[4] = pos_quad[1] - (eleOrder + 1);
+        pos_quad[5] += eleOrder;
+    }
+
+    // TODO FROM HERE ON
+    // Second face loop
+    // for (int k = eleOrder-2; k > 0; k -= 2) {
+    //     // Bottom vertices
+    //     for (int i = 0; i != 2; ++cnt, ++i)
+    //         std::cout << nodes_o3[cnt] << ": " << pos_quad[0] + i*(k*(eleOrder+1))  << "\n";
+    //     // Top vertices
+    //     for (int i = 0; i != 2; ++cnt, ++i)
+    //         std::cout << nodes_o3[cnt] << ": " << pos_quad[1] - i*(k*(eleOrder+1))  << "\n";
+
+    //     // Bottom edge interior nodes
+    //     for (int i = 0; i != k-1; ++i, ++cnt)
+    //         std::cout << nodes_o3[cnt] << ": " << pos_quad[2] + i*(eleOrder+1) << "\n"; // (cnt - k) + i ?
+
+    //     // Right edge interior nodes
+    //     for (int i = 0; i != k-1; ++i, ++cnt)
+    //         std::cout << nodes_o3[cnt] << ": " << pos_quad[3] + i << "\n";
+
+    //     // Top edge interior nodes
+    //     for (int i = 0; i != k-1; ++i, ++cnt)
+    //         std::cout << nodes_o3[cnt] << ": " << pos_quad[4] - i*(eleOrder+1) << "\n";
+
+    //     // Left edge interior nodes
+    //     for (int i = 0; i != k-1; ++i, ++cnt)
+    //         std::cout << nodes_o3[cnt] << ": " << pos_quad[5] - i << "\n";
+
+    //     // If the quad we're analyzing is of 2nd order, it'll have a single internal
+    //     // node, so let's account for it
+    //     if (k == 2)
+    //         std::cout << nodes_o3[cnt++] << ": " 
+    //                         << pos_quad[2] + 1 << "\n";
+
+    //     // Recalculate initial positions for the next, inner quad
+    //                         //TODO HERE
+    //     pos_quad[0] += (eleOrder + 1 + 1);
+    //     pos_quad[1] -= (eleOrder + 1 + 1);
+    //     pos_quad[2] = pos_quad[0] + (eleOrder + 1);
+    //     pos_quad[3] -= eleOrder;
+    //     pos_quad[4] = pos_quad[1] - (eleOrder + 1);
+    //     pos_quad[5] += eleOrder;
+    // }
 }
