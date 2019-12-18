@@ -231,48 +231,12 @@ int main() {
     for (int i = 0; i != eleOrder-1; ++i, ++cnt)
         std::cout << nodes_o3[cnt] << ": " << ini_pos[15] - i << "\n";
 
+    std::cout << "\n\n";
+
     // Now that all vertices and edges have been placed, and since gmsh doesn't
     // have any other extraneous node ordering for the face internal nodes, we
     // can simply use the algorithm developed previously for quad elements, for
     // each face
-    int pos_quad[] = {(eleOrder+1) + 1, // Bottom-left vertex
-                    eleOrder*(eleOrder+1) - 1 - 1, // Top-right vertex
-                    2*(eleOrder+1) + 1, // Bottom edge
-                    (eleOrder-1)*(eleOrder+1) + 1 + 1, // Right edge
-                    (eleOrder-1)*(eleOrder+1) - 1 - 1, // Top edge
-                    2*(eleOrder+1) - 1 - 1 - 1  // Left edge
-                    };
-    int stride_quad[] = {eleOrder+1,
-                        1,
-                        -(eleOrder+1),
-                        -1
-                        };
-
-                        // 1,
-                        // (eleOrder+1),
-                        // -1,
-                        // -(eleOrder+1),
-
-                        // (eleOrder+1)*(eleOrder+1),
-                        // (eleOrder+1),
-                        // -(eleOrder+1)*(eleOrder+1),
-                        // -(eleOrder+1),
-
-                        // (eleOrder+1),
-                        // (eleOrder+1)*(eleOrder+1),
-                        // -(eleOrder+1),
-                        // -(eleOrder+1)*(eleOrder+1),
-
-                        // -1,
-                        // (eleOrder+1)*(eleOrder+1),
-                        // 1,
-                        // -(eleOrder+1)*(eleOrder+1),
-
-                        // 1,
-                        // (eleOrder+1),
-                        // -1,
-                        // -(eleOrder+1)
-                        // };
 
     // There should be one loop for each face, since the node ordering now
     // simply follows the face internal node common ordering (i.e. lagrangian
@@ -286,6 +250,13 @@ int main() {
     // of that face.
 
     // First face loop
+    int pos_quad[] = {(eleOrder+1) + 1, // Bottom-left vertex
+                    eleOrder*(eleOrder+1) - 1 - 1, // Top-right vertex
+                    2*(eleOrder+1) + 1, // Bottom edge
+                    (eleOrder-1)*(eleOrder+1) + 1 + 1, // Right edge
+                    (eleOrder-1)*(eleOrder+1) - 1 - 1, // Top edge
+                    2*(eleOrder+1) - 1 - 1 - 1  // Left edge
+                    };
     for (int k = eleOrder-2; k > 0; k -= 2) {
         // Bottom vertices
         for (int i = 0; i != 2; ++cnt, ++i)
@@ -325,45 +296,160 @@ int main() {
         pos_quad[5] += eleOrder;
     }
 
-    // TODO FROM HERE ON
+        std::cout << "\n\n";
+
+
     // Second face loop
-    // for (int k = eleOrder-2; k > 0; k -= 2) {
-    //     // Bottom vertices
-    //     for (int i = 0; i != 2; ++cnt, ++i)
-    //         std::cout << nodes_o3[cnt] << ": " << pos_quad[0] + i*(k*(eleOrder+1))  << "\n";
-    //     // Top vertices
-    //     for (int i = 0; i != 2; ++cnt, ++i)
-    //         std::cout << nodes_o3[cnt] << ": " << pos_quad[1] - i*(k*(eleOrder+1))  << "\n";
+    pos_quad[0] = (eleOrder+1)*(eleOrder+1) + 1; // Bottom-left vertex
+    pos_quad[1] = (eleOrder-1)*(eleOrder+1)*(eleOrder+1) + (eleOrder-1); // Top-right vertex
+    pos_quad[2] = (eleOrder+1)*(eleOrder+1) + 1 + 1; // Bottom edge
+    pos_quad[3] = 2*(eleOrder+1)*(eleOrder+1) + (eleOrder-1); // Right edge
+    pos_quad[4] = (eleOrder-1)*(eleOrder+1)*(eleOrder+1) + (eleOrder-1) - 1; // Top edge
+    pos_quad[5] = (eleOrder-2)*(eleOrder+1)*(eleOrder+1) + 1;  // Left edge
+                    
 
-    //     // Bottom edge interior nodes
-    //     for (int i = 0; i != k-1; ++i, ++cnt)
-    //         std::cout << nodes_o3[cnt] << ": " << pos_quad[2] + i*(eleOrder+1) << "\n"; // (cnt - k) + i ?
+    for (int k = eleOrder-2; k > 0; k -= 2) {
+        // Bottom vertices
+        for (int i = 0; i != 2; ++cnt, ++i)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[0] + i*k  << "\n";
+        // Top vertices
+        for (int i = 0; i != 2; ++cnt, ++i)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[1] - i*k  << "\n";
 
-    //     // Right edge interior nodes
-    //     for (int i = 0; i != k-1; ++i, ++cnt)
-    //         std::cout << nodes_o3[cnt] << ": " << pos_quad[3] + i << "\n";
+        // Bottom edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[2] + i << "\n"; // (cnt - k) + i ?
 
-    //     // Top edge interior nodes
-    //     for (int i = 0; i != k-1; ++i, ++cnt)
-    //         std::cout << nodes_o3[cnt] << ": " << pos_quad[4] - i*(eleOrder+1) << "\n";
+        // Right edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[3] + i*((eleOrder+1)*(eleOrder+1)) << "\n";
 
-    //     // Left edge interior nodes
-    //     for (int i = 0; i != k-1; ++i, ++cnt)
-    //         std::cout << nodes_o3[cnt] << ": " << pos_quad[5] - i << "\n";
+        // Top edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[4] - i << "\n";
 
-    //     // If the quad we're analyzing is of 2nd order, it'll have a single internal
-    //     // node, so let's account for it
-    //     if (k == 2)
-    //         std::cout << nodes_o3[cnt++] << ": " 
-    //                         << pos_quad[2] + 1 << "\n";
+        // Left edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[5] - i*((eleOrder+1)*(eleOrder+1)) << "\n";
 
-    //     // Recalculate initial positions for the next, inner quad
-    //                         //TODO HERE
-    //     pos_quad[0] += (eleOrder + 1 + 1);
-    //     pos_quad[1] -= (eleOrder + 1 + 1);
-    //     pos_quad[2] = pos_quad[0] + (eleOrder + 1);
-    //     pos_quad[3] -= eleOrder;
-    //     pos_quad[4] = pos_quad[1] - (eleOrder + 1);
-    //     pos_quad[5] += eleOrder;
-    // }
+        // If the quad we're analyzing is of 2nd order, it'll have a single internal
+        // node, so let's account for it
+        if (k == 2)
+            std::cout << nodes_o3[cnt++] << ": " 
+                            << pos_quad[5] + 1 << "\n";
+
+        // Recalculate initial positions for the next, inner quad
+        pos_quad[0] += ((eleOrder+1)*(eleOrder+1) + 1);
+        pos_quad[1] -= ((eleOrder+1)*(eleOrder+1) + 1);
+        pos_quad[2] = pos_quad[0] + 1;
+        pos_quad[3] += (eleOrder*(eleOrder+1) + eleOrder);
+        pos_quad[4] = pos_quad[1] - 1;
+        pos_quad[5] -= (eleOrder*(eleOrder+1) + eleOrder);
+    }
+
+    std::cout << "\n\n";
+
+    // Third face loop
+    pos_quad[0] = (eleOrder+1)*(eleOrder+1) + (eleOrder+1); // Bottom-left vertex
+    pos_quad[1] = eleOrder*(eleOrder+1)*(eleOrder+1) - 2*(eleOrder+1); // Top-right vertex
+    pos_quad[2] = 2*(eleOrder+1)*(eleOrder+1) + (eleOrder+1); // Bottom edge
+    pos_quad[3] = (eleOrder-1)*(eleOrder+1)*(eleOrder+1) + 2*(eleOrder+1); // Right edge
+    pos_quad[4] = (eleOrder-1)*(eleOrder+1)*(eleOrder+1) - 2*(eleOrder+1); // Top edge
+    pos_quad[5] = 2*(eleOrder+1)*(eleOrder+1) - 3*(eleOrder+1);  // Left edge
+                    
+
+    for (int k = eleOrder-2; k > 0; k -= 2) {
+        // Bottom vertices
+        for (int i = 0; i != 2; ++cnt, ++i)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[0] + i*(k*(eleOrder+1)*(eleOrder+1))  << "\n";
+        // Top vertices
+        for (int i = 0; i != 2; ++cnt, ++i)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[1] - i*(k*(eleOrder+1)*(eleOrder+1))  << "\n";
+
+        // Bottom edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[2] + i*((eleOrder+1)*(eleOrder+1)) << "\n"; // (cnt - k) + i ?
+
+        // Right edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[3] + i*(eleOrder+1) << "\n";
+
+        // Top edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[4] - i*((eleOrder+1)*(eleOrder+1)) << "\n";
+
+        // Left edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[5] - i*(eleOrder+1) << "\n";
+
+        // If the quad we're analyzing is of 2nd order, it'll have a single internal
+        // node, so let's account for it
+        if (k == 2)
+            std::cout << nodes_o3[cnt++] << ": " 
+                            << pos_quad[2] + (eleOrder+1) << "\n";
+
+        // Recalculate initial positions for the next, inner quad
+        pos_quad[0] += ((eleOrder+1)*(eleOrder+1) + (eleOrder+1));
+        pos_quad[1] -= ((eleOrder+1)*(eleOrder+1) + (eleOrder+1));
+        pos_quad[2] = pos_quad[0] + (eleOrder+1)*(eleOrder+1);
+        pos_quad[3] -= eleOrder*(eleOrder+1);
+        pos_quad[4] = pos_quad[1] - (eleOrder+1)*(eleOrder+1);
+        pos_quad[5] += eleOrder*(eleOrder+1);
+    }
+
+    std::cout << "\n\n";
+
+    // Fourth face loop
+    pos_quad[0] = (eleOrder+1)*(eleOrder+1) + (eleOrder+1) + eleOrder; // Bottom-left vertex
+    pos_quad[1] = eleOrder*(eleOrder+1)*(eleOrder+1) - (eleOrder+1) - 1; // Top-right vertex
+    pos_quad[2] = (eleOrder+1)*(eleOrder+1) + 2*(eleOrder+1) + eleOrder; // Bottom edge
+    pos_quad[3] = 3*(eleOrder+1)*(eleOrder+1) - (eleOrder+1) - 1; // Right edge
+    pos_quad[4] = eleOrder*(eleOrder+1)*(eleOrder+1) - 2*(eleOrder+1) - 1; // Top edge
+    pos_quad[5] = (eleOrder-2)*(eleOrder+1)*(eleOrder+1) + (eleOrder+1) + eleOrder;  // Left edge
+                    
+
+    for (int k = eleOrder-2; k > 0; k -= 2) {
+        // Bottom vertices
+        for (int i = 0; i != 2; ++cnt, ++i)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[0] + i*(k*(eleOrder+1))  << "\n";
+        // Top vertices
+        for (int i = 0; i != 2; ++cnt, ++i)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[1] - i*(k*(eleOrder+1))  << "\n";
+
+        // Bottom edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[2] + i*(eleOrder+1) << "\n"; // (cnt - k) + i ?
+
+        // Right edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[3] + i*((eleOrder+1)*(eleOrder+1)) << "\n";
+
+        // Top edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[4] - i*(eleOrder+1) << "\n";
+
+        // Left edge interior nodes
+        for (int i = 0; i != k-1; ++i, ++cnt)
+            std::cout << nodes_o3[cnt] << ": " << pos_quad[5] - i*((eleOrder+1)*(eleOrder+1)) << "\n";
+
+        // If the quad we're analyzing is of 2nd order, it'll have a single internal
+        // node, so let's account for it
+        if (k == 2)
+            std::cout << nodes_o3[cnt++] << ": " 
+                            << pos_quad[5] + (eleOrder+1) << "\n";
+
+        // Recalculate initial positions for the next, inner quad
+        pos_quad[0] += ((eleOrder+1)*(eleOrder+1) + (eleOrder+1));
+        pos_quad[1] -= ((eleOrder+1)*(eleOrder+1) + (eleOrder+1));
+        pos_quad[2] = pos_quad[0] + (eleOrder+1);
+        pos_quad[3] += eleOrder*(eleOrder+1);
+        pos_quad[4] = pos_quad[1] - (eleOrder+1);
+        pos_quad[5] -= eleOrder*(eleOrder+1);
+    }
+
+    // TODO: 4th and 5th faces.
+    // Then, insert the outer loop (on p, or m, whatever) so we can loop through
+    // the inner hexa. Note that pos_quad values will need to be revisited, since
+    // some of them/their terms will depend on eleOrder, others on the actual
+    // hexa order, i.e. p or m (the outer loop variable).
 }
